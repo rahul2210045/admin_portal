@@ -33,4 +33,4 @@ TextStyle headingH4 = GoogleFonts.dmSans(
 TextStyle bodyBig = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 18, fontWeight: FontWeight.normal);
 
-Color backgroundColor1= Color.fromRGBO(235, 243, 255, 1);
+Color backgroundColor1= Color.fromRGBO(215, 219, 244, 1);

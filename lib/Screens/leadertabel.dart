@@ -4,14 +4,9 @@ import 'package:admin_portal/components/custom_detail_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 
-class LeaderTabel extends StatefulWidget {
+class LeaderTabel extends StatelessWidget {
   const LeaderTabel({super.key});
 
-  @override
-  State<LeaderTabel> createState() => _LeaderTabelState();
-}
-
-class _LeaderTabelState extends State<LeaderTabel> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -43,7 +38,7 @@ class _LeaderTabelState extends State<LeaderTabel> {
                         ),
                         Container(
                           height: 50,
-                          width: screenWidth * 0.34,
+                          width: screenWidth * 0.23,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -66,7 +61,7 @@ class _LeaderTabelState extends State<LeaderTabel> {
                                   ],
                                 ),
                                 height: 40,
-                                width: screenWidth * 0.3,
+                                width: screenWidth * 0.2,
                                 // height: screenHeight*0.01,
                                 child: TextField(
                                   style: TextStyle(color: Colors.white),
@@ -87,9 +82,9 @@ class _LeaderTabelState extends State<LeaderTabel> {
                                   ),
                                 ),
                               ),
-                              const SizedBox(
-                                width: 15,
-                              ),
+                              // const SizedBox(
+                              //   width: 15,
+                              // ),
                             ],
                           ),
                         ),

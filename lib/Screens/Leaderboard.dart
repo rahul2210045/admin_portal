@@ -1,7 +1,9 @@
 import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class Leaderboard extends StatefulWidget {
@@ -51,9 +53,12 @@ class _LeaderboardState extends State<Leaderboard> {
                   SizedBox(
                       width: 10 *
                           widthFactor), // Add this line to adjust the space between the columns
-                  Expanded(
+                  Container(
+                    // height: heightFactor * 920,
                     child: CustomRoundedContainer(
-                      child: Text("hjgfegfyuegf"),
+                      // child: SingleChildScrollView(
+                      child: LeaderTabel(),
+                      // ),
                       height: heightFactor * 920,
                       width: widthFactor * 650,
                       padding: EdgeInsets.all(10 * widthFactor),

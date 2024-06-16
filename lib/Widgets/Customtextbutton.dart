@@ -24,15 +24,15 @@ class CustomTextButton extends StatelessWidget {
         onPressed: onPressed,
         style: ButtonStyle(
           padding: MaterialStateProperty.all(EdgeInsets.all(10.0)),
-          // backgroundColor: isSelected
-          //     ? MaterialStateProperty.all(Color.fromARGB(255, 0, 0, 0))
-          //     : null,
+          backgroundColor: isSelected
+              ? MaterialStateProperty.all(Color.fromRGBO(84, 108, 255, 1))
+              : null,
           foregroundColor: MaterialStateProperty.all(isSelected
-              ? Color.fromARGB(255, 0, 0, 0)
+              ? Color.fromARGB(255, 255, 255, 255)
               : Theme.of(context).textTheme.labelLarge!.color),
           shape: MaterialStateProperty.all<OutlinedBorder>(
             RoundedRectangleBorder(
-              side: BorderSide(color: Colors.black),
+              side: BorderSide(color: Colors.white),
               borderRadius: BorderRadius.circular(10.0),
               
             ),

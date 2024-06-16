@@ -1,4 +1,3 @@
-
 import 'package:admin_portal/Screens/Candidate.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
 import 'package:admin_portal/Screens/Questions.dart';
@@ -23,9 +22,6 @@ class _sidemenubarState extends State<sidemenubar> {
     Candidate(),
     Questions(),
     Questions()
-    // Feedback(),
-    // Ques
-    
   ];
 
   void _onItemTapped(int index) {
@@ -61,7 +57,6 @@ class _sidemenubarState extends State<sidemenubar> {
               child: ListView(
                 children: <Widget>[
                   const Padding(padding: EdgeInsets.all(4)),
-
                   ListTile(
                     title: CustomTextButton(
                       text: "Leader Board",
@@ -70,7 +65,8 @@ class _sidemenubarState extends State<sidemenubar> {
                         _onItemTapped(0);
                       },
                       imagePath: 'assets/icons/icon _leaderboard star_.png',
-                      selectedImagePath: 'assets/icons/icon _leaderboard star_.png',
+                      selectedImagePath:
+                          'assets/icons/icon _leaderboard star_.png',
                     ),
                   ),
                   const Padding(padding: EdgeInsets.all(4)),
@@ -94,10 +90,11 @@ class _sidemenubarState extends State<sidemenubar> {
                         _onItemTapped(2);
                       },
                       imagePath: 'assets/icons/icon _question mark circle_.png',
-                      selectedImagePath: 'assets/icons/icon _question mark circle_.png',
+                      selectedImagePath:
+                          'assets/icons/icon _question mark circle_.png',
                     ),
                   ),
-                      const Padding(padding: EdgeInsets.all(4)),
+                  const Padding(padding: EdgeInsets.all(4)),
                   ListTile(
                     title: CustomTextButton(
                       text: "Feedback",
@@ -108,106 +105,86 @@ class _sidemenubarState extends State<sidemenubar> {
                       imagePath: 'assets/icons/Vector (2).png',
                       selectedImagePath: 'assets/icons/Vector (2).png',
                     ),
-                 
                   ),
-              
-     Container(
-      margin: EdgeInsets.only(top:200),
-       child: ListTile(
-        title: ElevatedButton(
-           style: ElevatedButton.styleFrom(
-        foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-        backgroundColor: Color.fromARGB(255, 255, 255, 255), // Text color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), 
-            side: BorderSide(color: Colors.black)// Border radius
-        ),
-      ),
-          onPressed: () {
-          },
-          child: Text("Login",style: GoogleFonts.poppins(),),
-        ),
-           ),
-     ),
-      Container(
-      // margin: EdgeInsets.only(top:200),
-       child: ListTile(
-        title: ElevatedButton(
-           style: ElevatedButton.styleFrom(
-        foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-        backgroundColor: Color.fromARGB(255, 255, 255, 255), // Text color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(color: Colors.black) // Border radius
-        ),
-      ),
-          onPressed: () {
-          },
-          child: Text("Log out",style: GoogleFonts.poppins(),),
-        ),
-           ),
-     ),
-     
-         
-               
+                  SizedBox(height: 200,),
+                  Spacer(),
+                  // Container(
+                  //   margin: EdgeInsets.only(top: 200),
+                  //   child: ListTile(
+                  //     title: ElevatedButton(
+                  //       style: ElevatedButton.styleFrom(
+                  //         foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                  //         backgroundColor:
+                  //             Color.fromARGB(255, 255, 255, 255), // Text color
+                  //         shape: RoundedRectangleBorder(
+                  //             borderRadius: BorderRadius.circular(8),
+                  //             side: BorderSide(
+                  //                 color: Colors.black) // Border radius
+                  //             ),
+                  //       ),
+                  //       onPressed: () {},
+                  //       child: Text(
+                  //         "Login",
+                  //         style: GoogleFonts.poppins(),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
+                  Container(
+                    // margin: EdgeInsets.only(top:200),
+                    child: ListTile(
+                      title: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                          backgroundColor:
+                              Color.fromARGB(255, 255, 255, 255), // Text color
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                  color: Colors.black) // Border radius
+                              ),
+                        ),
+                        onPressed: () {},
+                        child: Text(
+                          "Log out",
+                          style: GoogleFonts.poppins(),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          
+
           // VerticalDivider(), // Optional: add a vertical divider between side menu and content
           Expanded(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
-   
         ],
       ),
     );
   }
 
-  // Function to build the AppBar
-  // AppBar buildAppBar(BuildContext context, double _widthFactor,
-  //     double _heightFactor, String userName) {
-  //   return AppBar(
-  //     toolbarHeight: _heightFactor * 120,
-  //     backgroundColor: Color.fromRGBO(62, 84, 204, 1),
-  //     leadingWidth: _widthFactor * 273,
-  //     leading:Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //     children: [
-       
-  //   Container(
-  //     margin: EdgeInsets.only(left: 10),
-  //           child: Image.asset('assets/icons/Group 43 (2).png',),
-  //         ),
-
-  //     ],
-  //   )
-  //   );
-  // }
-  AppBar buildAppBar(BuildContext context, double _widthFactor, double _heightFactor, String userName) {
-  return AppBar(
-    toolbarHeight: _heightFactor * 120,
-    backgroundColor: Color.fromRGBO(62, 84, 204, 1),
-    leadingWidth: _widthFactor * 273,
-    leading: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Padding(padding: EdgeInsets.only(left: 40*widthFactor(context))),
-        Image.asset(
-          'assets/icons/Group 43 (2).png',
-          height: _heightFactor * 200,  // Adjust the height of the image responsively
-          width: _widthFactor * 200,   // Adjust the width of the image responsively
-        ),
-      ],
-    ),
-    // title: Text(
-    //   userName,
-    //   style: TextStyle(
-    //     fontSize: 24 * _widthFactor,  // Adjust the font size responsively
-    //   ),
-    // ),
-  );
-}
-
+  AppBar buildAppBar(BuildContext context, double _widthFactor,
+      double _heightFactor, String userName) {
+    return AppBar(
+      toolbarHeight: _heightFactor * 120,
+      backgroundColor: Color.fromRGBO(62, 84, 204, 1),
+      leadingWidth: _widthFactor * 273,
+      leading: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Padding(padding: EdgeInsets.only(left: 40 * widthFactor(context))),
+          Image.asset(
+            'assets/icons/Group 43 (2).png',
+            height: _heightFactor *
+                200, // Adjust the height of the image responsively
+            width: _widthFactor *
+                200, // Adjust the width of the image responsively
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -13,7 +13,7 @@ class _CandidateState extends State<Candidate> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
-       body: Container(color: Colors.amber,),
+       body: Container(color: backgroundColor1,),
     );
   }
 }

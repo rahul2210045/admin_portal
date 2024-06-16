@@ -1,9 +1,8 @@
-import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
+import 'package:admin_portal/components/custom_detail_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class Leaderboard extends StatefulWidget {
@@ -41,7 +40,7 @@ class _LeaderboardState extends State<Leaderboard> {
                         color: Colors.white,
                       ),
                       CustomRoundedContainer(
-                        child: Text("hjgfegfyuegf"),
+                        child: customRankCard("vidhi", "22154141", "2", context),
                         height: heightFactor * 450,
                         width: widthFactor * 450,
                         padding: EdgeInsets.all(10 * widthFactor),
@@ -57,7 +56,7 @@ class _LeaderboardState extends State<Leaderboard> {
                     // height: heightFactor * 920,
                     child: CustomRoundedContainer(
                       // child: SingleChildScrollView(
-                      child: LeaderTabel(),
+                      child: Container(child: LeaderTabel()),
                       // ),
                       height: heightFactor * 920,
                       width: widthFactor * 650,

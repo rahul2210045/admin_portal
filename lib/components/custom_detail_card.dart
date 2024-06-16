@@ -10,10 +10,8 @@ Widget customRankCard(
   rank,
   BuildContext context,
 ) {
-
   return Container(
-      
-      width: widthFactor(context) * 500,
+      width: widthFactor(context) * 680,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

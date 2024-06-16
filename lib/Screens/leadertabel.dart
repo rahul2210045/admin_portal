@@ -9,7 +9,6 @@ class LeaderTabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -27,7 +26,7 @@ class LeaderTabel extends StatelessWidget {
                           topRight: Radius.circular(10)),
                       color: primaryColor,
                     ),
-                    width: widthFactor(context) * 500,
+                    width: widthFactor(context) * 700,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -37,7 +36,7 @@ class LeaderTabel extends StatelessWidget {
                         ),
                         Container(
                           height: 50,
-                          width: widthFactor(context) * 330,
+                          width: widthFactor(context) * 530,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -60,7 +59,7 @@ class LeaderTabel extends StatelessWidget {
                                   ],
                                 ),
                                 height: 40,
-                                width: widthFactor(context) * 300,
+                                width: widthFactor(context) * 480,
                                 // height: screenHeight*0.01,
                                 child: TextField(
                                   style: TextStyle(color: Colors.white),
@@ -97,7 +96,7 @@ class LeaderTabel extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 5.0, horizontal: 10),
                     child: Container(
-                      width: widthFactor(context) * 500,
+                      width: widthFactor(context) * 680,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),

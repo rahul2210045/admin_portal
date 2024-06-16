@@ -2,6 +2,7 @@ import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -31,7 +32,9 @@ class _LeaderboardState extends State<Leaderboard> {
                   Column(
                     children: [
                       CustomRoundedContainer(
-                        child: SingleChildScrollView(child: Container(child: CircularProgressIndicatorWidget())),
+                        child: SingleChildScrollView(
+                            child: Container(
+                                child: CircularProgressIndicatorWidget())),
                         height: heightFactor * 450,
                         width: widthFactor * 450,
                         padding: EdgeInsets.all(10 * widthFactor),
@@ -45,7 +48,9 @@ class _LeaderboardState extends State<Leaderboard> {
                             Text(
                               "Student Types",
                               style: GoogleFonts.poppins(
-                                color: Colors.black, fontSize: 35 * widthFactor, fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                                fontSize: 35 * widthFactor,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             SizedBox(height: 60 * heightFactor),
@@ -56,7 +61,11 @@ class _LeaderboardState extends State<Leaderboard> {
                         ),
                         height: heightFactor * 520,
                         width: widthFactor * 450,
-                        padding: EdgeInsets.fromLTRB(20 * widthFactor, 30 * widthFactor, 20 * widthFactor, 40 * widthFactor),
+                        padding: EdgeInsets.fromLTRB(
+                            20 * widthFactor,
+                            30 * widthFactor,
+                            20 * widthFactor,
+                            40 * widthFactor),
                         margin: EdgeInsets.only(top: 20 * heightFactor),
                         borderRadiusRadius: 5,
                         color: Colors.white,
@@ -66,7 +75,7 @@ class _LeaderboardState extends State<Leaderboard> {
                   // SizedBox(width: 10 * widthFactor), // Add this line to adjust the space between the columns
                   Expanded(
                     child: CustomRoundedContainer(
-                      child: Text("hjgfegfyuegf"),
+                      child: LeaderTabel(),
                       height: heightFactor * 920,
                       width: widthFactor * 650,
                       padding: EdgeInsets.all(10 * widthFactor),

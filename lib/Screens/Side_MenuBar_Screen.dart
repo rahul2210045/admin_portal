@@ -166,93 +166,48 @@ class _sidemenubarState extends State<sidemenubar> {
   }
 
   // Function to build the AppBar
-  AppBar buildAppBar(BuildContext context, double _widthFactor,
-      double _heightFactor, String userName) {
-    return AppBar(
-      toolbarHeight: _heightFactor * 120,
-      backgroundColor: Color.fromRGBO(62, 84, 204, 1),
-      leadingWidth: _widthFactor * 273,
-      leading: buildAppBarLeading(_widthFactor, _heightFactor),
-    );
-  }
-
-  // Function to build the leading part of the AppBar
-  Row buildAppBarLeading(double _widthFactor, double _heightFactor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
+  // AppBar buildAppBar(BuildContext context, double _widthFactor,
+  //     double _heightFactor, String userName) {
+  //   return AppBar(
+  //     toolbarHeight: _heightFactor * 120,
+  //     backgroundColor: Color.fromRGBO(62, 84, 204, 1),
+  //     leadingWidth: _widthFactor * 273,
+  //     leading:Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: [
        
-    Container(
-      // padding: EdgeInsets.only(left: 70),
-      margin: EdgeInsets.only(left: 10),
-            // height: _heightFactor * 60,
-            // width: _widthFactor * 60,
-            child: Image.asset('assets/icons/Group 43 (2).png',),
-          ),
-        
-        // Container(
-        //   width: _widthFactor * 139,
-        //   height: _heightFactor * 45,
-        //   child: Theme.of(context).brightness == Brightness.light
-        //       ? Image.asset('assets/logos/Kickoff.png')
-        //       : Image.asset('assets/logos/KickoffD.png'),
-        // ),
-      ],
-    );
-  }
+  //   Container(
+  //     margin: EdgeInsets.only(left: 10),
+  //           child: Image.asset('assets/icons/Group 43 (2).png',),
+  //         ),
 
-  // Function to build the actions part of the AppBar
-  Widget buildAppBarActions(BuildContext context, double _widthFactor,
-      double _heightFactor, bool isMorning, String userName) {
-
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        _widthFactor * 668,
-        _heightFactor * 24,
-        _widthFactor * 84,
-        _heightFactor * 25,
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: _heightFactor * 70,
-            width: _widthFactor * 140,
-          
-           
-            // child: buildFlutterSwitch(_heightFactor, _widthFactor, status),
-          ),
-          buildColumn(
-              context, _widthFactor, _heightFactor, isMorning, userName),
-        ],
-      ),
-    );
-  }
-
-
-  // Function to build the column containing weather icon and greeting text
-  Column buildColumn(BuildContext context, double _widthFactor,
-      double _heightFactor, bool isMorning, String userName) {
-    return Column(
+  //     ],
+  //   )
+  //   );
+  // }
+  AppBar buildAppBar(BuildContext context, double _widthFactor, double _heightFactor, String userName) {
+  return AppBar(
+    toolbarHeight: _heightFactor * 120,
+    backgroundColor: Color.fromRGBO(62, 84, 204, 1),
+    leadingWidth: _widthFactor * 273,
+    leading: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            SizedBox(width: _widthFactor * 6),
-          ],
+        Padding(padding: EdgeInsets.only(left: 40*widthFactor(context))),
+        Image.asset(
+          'assets/icons/Group 43 (2).png',
+          height: _heightFactor * 200,  // Adjust the height of the image responsively
+          width: _widthFactor * 200,   // Adjust the width of the image responsively
         ),
-        Text(
-          "Name",
-          // PreferencesManager().name,
-          style: GoogleFonts.inter(
-            textStyle: TextStyle(
-              fontSize: 24 * _widthFactor * _heightFactor,
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        )
       ],
-    );
-  }
+    ),
+    // title: Text(
+    //   userName,
+    //   style: TextStyle(
+    //     fontSize: 24 * _widthFactor,  // Adjust the font size responsively
+    //   ),
+    // ),
+  );
+}
 
 }

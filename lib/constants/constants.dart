@@ -27,6 +27,7 @@ Color tintcolor4 = HexColor("#5E72D5");
 Color tintcolor2 = HexColor("#AEB8EB");
 Color tintcolor1 = HexColor("#D7DBF4");
 Color tintcolor3 = HexColor("#8795E0");
+Color tintcolor5 = HexColor("#3143B4");
 
 
 TextStyle headingH1 = GoogleFonts.dmSans(

@@ -9,8 +9,7 @@ class LeaderTabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -28,7 +27,7 @@ class LeaderTabel extends StatelessWidget {
                           topRight: Radius.circular(10)),
                       color: primaryColor,
                     ),
-                    width: screenWidth * 0.5,
+                    width: widthFactor(context) * 500,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -38,7 +37,7 @@ class LeaderTabel extends StatelessWidget {
                         ),
                         Container(
                           height: 50,
-                          width: screenWidth * 0.23,
+                          width: widthFactor(context) * 330,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -61,7 +60,7 @@ class LeaderTabel extends StatelessWidget {
                                   ],
                                 ),
                                 height: 40,
-                                width: screenWidth * 0.2,
+                                width: widthFactor(context) * 300,
                                 // height: screenHeight*0.01,
                                 child: TextField(
                                   style: TextStyle(color: Colors.white),
@@ -98,7 +97,7 @@ class LeaderTabel extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 5.0, horizontal: 10),
                     child: Container(
-                      width: screenWidth * 0.49,
+                      width: widthFactor(context) * 500,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),

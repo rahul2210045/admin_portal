@@ -1,3 +1,5 @@
+// ignore_for_file: sort_child_properties_last
+
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/constants/constants.dart';
@@ -20,12 +22,12 @@ class _LeaderboardState extends State<Leaderboard> {
            children: [
              Column(
                children: [
-                 CustomRoundedContainer(child: Text("Static"), height: heightFactor(context)*420, width: widthFactor(context)*450,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20),),
-                  CustomRoundedContainer(child: Text("0987654"), height: heightFactor(context)*420, width: widthFactor(context)*450,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20,bottom: 10),)
+                 CustomRoundedContainer(child: const Text("Static"), height: heightFactor(context)*420, width: widthFactor(context)*450,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20),),
+                  CustomRoundedContainer(child:const  Text("0987654"), height: heightFactor(context)*420, width: widthFactor(context)*450,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20,bottom: 10),)
                ],
                
              ),
-              CustomRoundedContainer(child: Text("asdfghjk"), height: heightFactor(context)*858, width: widthFactor(context)*700,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20,left: 20),)
+              CustomRoundedContainer(child:const  Text("asdfghjk"), height: heightFactor(context)*858, width: widthFactor(context)*700,padding: EdgeInsets.all(10),margin: EdgeInsets.only(top: 20,left: 20),)
            ],
          ),
        ),

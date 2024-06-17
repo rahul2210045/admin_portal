@@ -1,9 +1,10 @@
+import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 // Primary Colors
-Color primaryColor = HexColor("#3E54CC");
+Color primaryColor = HexColor("#3068E0");
 Color secondaryColor = HexColor("#E8F0FC");
 
 
@@ -22,6 +23,13 @@ Color additionalDarkBlueLight = HexColor("#0A58CA");
 Color primaryText = HexColor("#292930");
 Color backgroundColor = HexColor("#F7F8FD");
 
+Color tintcolor4 = HexColor("#5E72D5");
+Color tintcolor2 = HexColor("#AEB8EB");
+Color tintcolor1 = HexColor("#D7DBF4");
+Color tintcolor3 = HexColor("#8795E0");
+Color tintcolor5 = HexColor("#3143B4");
+
+
 TextStyle headingH1 = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 28, fontWeight: FontWeight.bold);
 TextStyle headingH2 = GoogleFonts.dmSans(
@@ -32,5 +40,9 @@ TextStyle headingH4 = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold);
 TextStyle bodyBig = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 18, fontWeight: FontWeight.normal);
+TextStyle containerHeading = GoogleFonts.poppins(
+  color: Colors.black, fontSize: 20 , fontWeight: FontWeight.w600,
+);
+
 
 Color backgroundColor1= Color.fromRGBO(215, 219, 244, 1);

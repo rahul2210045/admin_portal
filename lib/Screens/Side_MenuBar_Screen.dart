@@ -1,5 +1,6 @@
 
 import 'package:admin_portal/Screens/Candidate.dart';
+import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
 import 'package:admin_portal/Screens/Questions.dart';
 import 'package:admin_portal/Widgets/Customtextbutton.dart';
@@ -22,8 +23,8 @@ class _sidemenubarState extends State<sidemenubar> {
     Leaderboard(),
     Candidate(),
     Questions(),
-    Questions()
-    // Feedback(),
+    //Questions()
+    feedback_page(),
     // Ques
     
   ];

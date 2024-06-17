@@ -76,7 +76,7 @@ class Graph extends StatelessWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 40 * heightFactor,
+                  reservedSize: 50 * heightFactor,
                   getTitlesWidget: (double value, TitleMeta meta) {
                     if (value.toInt() >= 0 && value.toInt() < xLabels.length) {
                       return Padding(
@@ -87,7 +87,7 @@ class Graph extends StatelessWidget {
                           style: GoogleFonts.poppins(
                             color: Colors.black,
                             fontWeight: FontWeight.w600,
-                            fontSize: 8 * widthFactor,
+                            fontSize: 9 * widthFactor,
                           ),
                         ),
                       );

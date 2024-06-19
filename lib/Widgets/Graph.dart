@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class Graph extends StatelessWidget {
   final List<String> xLabels; // List of x-axis labels

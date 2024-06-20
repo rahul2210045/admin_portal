@@ -16,17 +16,7 @@ class _CandidateState extends State<Candidate> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => QuizScreen()),
-            );
-          },
-          child: Text('Start Quiz'),
-        ),
-      ),
+       body: Container(color: backgroundColor1,),
     );
   }
 }

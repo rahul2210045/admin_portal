@@ -1,3 +1,4 @@
+import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -24,26 +25,28 @@ class CustomTextButton extends StatelessWidget {
         onPressed: onPressed,
         style: ButtonStyle(
           padding: MaterialStateProperty.all(EdgeInsets.all(10.0)),
-          // backgroundColor: isSelected
-          //     ? MaterialStateProperty.all(Color.fromARGB(255, 0, 0, 0))
-          //     : null,
-          foregroundColor: MaterialStateProperty.all(isSelected
-              ? Color.fromARGB(255, 0, 0, 0)
-              : Theme.of(context).textTheme.labelLarge!.color),
-          shape: MaterialStateProperty.all<OutlinedBorder>(
-            RoundedRectangleBorder(
-              side: BorderSide(color: Colors.black),
-              borderRadius: BorderRadius.circular(10.0),
-              
-            ),
+          foregroundColor: MaterialStateProperty.all(
+            isSelected
+                ? Colors.white // Text color when selected
+                : primaryColor, // Default text color
+          ),
+          backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+              if (states.contains(MaterialState.pressed)) {
+                return primaryColor.withOpacity(0.5); // Apply opacity when pressed
+              } else if (isSelected) {
+                return primaryColor; // Change to primaryColor when selected
+              }
+              return null; // No background color when not selected or pressed
+            },
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Image.asset(
               isSelected ? selectedImagePath : imagePath,
-              height: 40,
+              // height: 40,
               scale: 1,
             ),
             Text(

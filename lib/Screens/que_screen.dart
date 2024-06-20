@@ -9,7 +9,7 @@ class QuizScreen extends StatelessWidget {
       length: 4, // Number of tabs
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Quiz App'),
+          title: Text('Questions'),
           bottom: TabBar(
             tabs: [
               Tab(text: 'HTML'),

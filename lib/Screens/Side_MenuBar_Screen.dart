@@ -1,6 +1,7 @@
 import 'package:admin_portal/Screens/Candidate.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
-import 'package:admin_portal/Screens/Questions.dart';
+import 'package:admin_portal/Screens/que_screen.dart';
+// import 'package:admin_portal/Screens/QuizScreen.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,8 +23,8 @@ class _SideMenuBarState extends State<SideMenuBar> {
   static List<Widget> _widgetOptions = <Widget>[
     Leaderboard(),
     Candidate(),
-    Questions(),
-    Questions(),
+    QuizScreen(), // Ensure this is the correct reference
+    QuizScreen(), // Ensure this is the correct reference for Feedback, or use another relevant widget
   ];
 
   void _onItemTapped(int index) {
@@ -50,30 +51,66 @@ class _SideMenuBarState extends State<SideMenuBar> {
       body: Row(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.fromLTRB(0, 0, 16 * _widthFactor, 0), // Set the desired left padding
+            padding: EdgeInsets.fromLTRB(
+                0, 0, 16 * _widthFactor, 0), // Set the desired left padding
             child: Container(
               width: 200 * _widthFactor, // Width of the side menu
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onPrimary, // Background color of the side menu
+                color: Theme.of(context)
+                    .colorScheme
+                    .onPrimary, // Background color of the side menu
               ),
-              padding: EdgeInsets.fromLTRB(10 * _widthFactor, 25 * _widthFactor, 10 * _widthFactor, 25 * _widthFactor),
+              padding: EdgeInsets.fromLTRB(10 * _widthFactor, 25 * _widthFactor,
+                  10 * _widthFactor, 25 * _widthFactor),
               child: Column(
                 children: <Widget>[
                   Expanded(
                     child: ListView(
                       children: <Widget>[
-                        buildListTile("Leader Board", 'assets/icons/icon _leaderboard starPurple_.png', 'assets/icons/LeaderboardWhite.png', 0, _widthFactor, _heightFactor),
+                        buildListTile(
+                            "Leader Board",
+                            'assets/icons/icon _leaderboard starPurple_.png',
+                            'assets/icons/LeaderboardWhite.png',
+                            0,
+                            _widthFactor,
+                            _heightFactor),
                         SizedBox(height: 4 * _heightFactor),
-                        buildListTile("Candidates", 'assets/icons/icon _UsersPurple_.png', 'assets/icons/CandidatesWhite.png', 1, _widthFactor, _heightFactor),
+                        buildListTile(
+                            "Candidates",
+                            'assets/icons/icon _UsersPurple_.png',
+                            'assets/icons/CandidatesWhite.png',
+                            1,
+                            _widthFactor,
+                            _heightFactor),
                         SizedBox(height: 4 * _heightFactor),
-                        buildListTile("Questions", 'assets/icons/icon _question mark circlePurple_.png', 'assets/icons/icon _question mark circlePurple_.png', 2, _widthFactor, _heightFactor),
+                        buildListTile(
+                            "Questions",
+                            'assets/icons/icon _question mark circlePurple_.png',
+                            'assets/icons/icon _question mark circlePurple_.png',
+                            2,
+                            _widthFactor,
+                            _heightFactor),
                         SizedBox(height: 4 * _heightFactor),
-                        buildListTile("Feedback", 'assets/icons/icon _Person FeedbackPurple_.png', 'assets/icons/FeedbackWhite.png', 3, _widthFactor, _heightFactor),
-                        SizedBox(height: 12 * _heightFactor), // Adjust vertical spacing
+                        buildListTile(
+                            "Feedback",
+                            'assets/icons/icon _Person FeedbackPurple_.png',
+                            'assets/icons/FeedbackWhite.png',
+                            3,
+                            _widthFactor,
+                            _heightFactor),
+                        SizedBox(
+                            height:
+                                12 * _heightFactor), // Adjust vertical spacing
                       ],
                     ),
                   ),
-                  buildListTile("Log out", 'assets/icons/Group 54.png', 'assets/icons/Group 54.png', 4, _widthFactor, _heightFactor),
+                  buildListTile(
+                      "Log out",
+                      'assets/icons/Group 54.png',
+                      'assets/icons/Group 54.png',
+                      4,
+                      _widthFactor,
+                      _heightFactor),
                 ],
               ),
             ),
@@ -86,7 +123,13 @@ class _SideMenuBarState extends State<SideMenuBar> {
     );
   }
 
-  Widget buildListTile(String text, String iconPathUnselected, String iconPathSelected, int index, double widthFactor, double heightFactor) {
+  Widget buildListTile(
+      String text,
+      String iconPathUnselected,
+      String iconPathSelected,
+      int index,
+      double widthFactor,
+      double heightFactor) {
     return Container(
       decoration: BoxDecoration(
         color: _selectedIndex == index ? primaryColor : null,
@@ -99,8 +142,6 @@ class _SideMenuBarState extends State<SideMenuBar> {
               Image.asset(
                 _selectedIndex == index ? iconPathSelected : iconPathUnselected,
                 scale: 5.5,
-                // height: 40 * heightFactor,
-                // width: 40 * widthFactor,
               ),
               SizedBox(width: 7 * widthFactor),
             ],
@@ -124,7 +165,8 @@ class _SideMenuBarState extends State<SideMenuBar> {
     );
   }
 
-  AppBar buildAppBar(BuildContext context, double _widthFactor, double _heightFactor) {
+  AppBar buildAppBar(
+      BuildContext context, double _widthFactor, double _heightFactor) {
     return AppBar(
       toolbarHeight: _heightFactor * 120,
       backgroundColor: primaryColor,

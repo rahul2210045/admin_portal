@@ -1,5 +1,6 @@
-import 'package:admin_portal/Screens/Questions.dart';
+import 'package:admin_portal/Screens/questions_page.dart';
 import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
+import 'package:admin_portal/Screens/questions_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: SideMenuBar(userName: "Srishti",),
+      home: SideMenuBar(userName: 'srishti',),
     );
   }
 }

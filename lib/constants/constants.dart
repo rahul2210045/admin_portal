@@ -1,10 +1,9 @@
-import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 // Primary Colors
-Color primaryColor = HexColor("#3068E0");
+Color primaryColor = HexColor("#546CFF");
 Color secondaryColor = HexColor("#E8F0FC");
 
 
@@ -21,7 +20,7 @@ Color dividerColor = HexColor("#F1F3F6");
 
 Color additionalDarkBlueLight = HexColor("#0A58CA");
 Color primaryText = HexColor("#292930");
-Color backgroundColor = HexColor("#F7F8FD");
+Color backgroundColor = HexColor("##F9F9F9");
 
 Color tintcolor4 = HexColor("#5E72D5");
 Color tintcolor2 = HexColor("#AEB8EB");

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/widgets/custom_container.dart';
-import 'package:admin_portal/widgets/graph.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'leadertabel.dart'; // Assuming your graph widget is correctly imported
@@ -43,8 +43,9 @@ class _LeaderboardState extends State<Leaderboard> {
 
           return SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.all(15 * widthFactor),
+              padding: EdgeInsets.all(10 * widthFactor),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +71,7 @@ class _LeaderboardState extends State<Leaderboard> {
                                   "Total Marks: 100",
                                   style: GoogleFonts.poppins(
                                     color: Colors.black,
-                                    fontSize: 12 * widthFactor,
+                                    fontSize: 14 * widthFactor,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -87,16 +88,15 @@ class _LeaderboardState extends State<Leaderboard> {
                             ),
                           ],
                         ),
-                        height: heightFactor * 650,
+                        height: heightFactor * 660,
                         width: widthFactor * 500,
                         padding: EdgeInsets.fromLTRB(
                           20 * widthFactor,
-                          30 * widthFactor,
+                          30 * heightFactor,
                           20 * widthFactor,
-                          40 * widthFactor,
+                          40 * heightFactor,
                         ),
                         margin: EdgeInsets.only(top: 20 * heightFactor),
-                        borderRadiusRadius: 5,
                         color: Colors.white,
                       ),
                       SizedBox(height: 20 * heightFactor),
@@ -123,29 +123,30 @@ class _LeaderboardState extends State<Leaderboard> {
                             ),
                           ],
                         ),
-                        height: heightFactor * 650,
+                        height: heightFactor * 660,
                         width: widthFactor * 500,
                         padding: EdgeInsets.fromLTRB(
                           20 * widthFactor,
-                          30 * widthFactor,
+                          30 * heightFactor,
                           20 * widthFactor,
-                          40 * widthFactor,
+                          40 * heightFactor,
                         ),
                         margin: EdgeInsets.only(top: 20 * heightFactor),
-                        borderRadiusRadius: 5,
                         color: Colors.white,
                       ),
                       SizedBox(height: 20 * heightFactor),
-
                     ],
                   ),
-                  CustomRoundedContainer(
-                    child: LeaderTabel(),
-                    height: heightFactor * 1340,
-                    width: widthFactor * 870,
-                    padding: EdgeInsets.all(10 * widthFactor),
-                    margin: EdgeInsets.all(20 * widthFactor),
-                    color: Color.fromARGB(255, 255, 255, 255),
+                  SizedBox(width: 20 * widthFactor),
+                  Flexible(
+                    child: CustomRoundedContainer(
+                      child: LeaderTabel(),
+                      height: heightFactor * 1360,
+                      width: widthFactor * 870,
+                      padding: EdgeInsets.all(10 * heightFactor),
+                      margin: EdgeInsets.all(20 * heightFactor),
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),

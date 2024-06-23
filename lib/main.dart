@@ -1,9 +1,10 @@
 import 'package:admin_portal/Screens/Questions.dart';
 import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
+import 'package:admin_portal/Screens/search_bar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(EditApp());
 }
 
 class MyApp extends StatelessWidget {

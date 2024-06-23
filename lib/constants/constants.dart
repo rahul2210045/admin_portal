@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 // Primary Colors
-Color primaryColor = HexColor("#546CFF");
-Color secondaryColor = HexColor("#E8F0FC");
+Color primaryColor = HexColor("#3068E0");
+Color secondaryColor = HexColor("#546CFF");
 
 
 // additional Colors

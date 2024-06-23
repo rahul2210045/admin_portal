@@ -1,6 +1,8 @@
 import 'package:admin_portal/Screens/questions_page.dart';
 import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
 import 'package:admin_portal/Screens/questions_page.dart';
+import 'package:admin_portal/components/custom_inputfield.dart';
+import 'package:admin_portal/components/registered_candidate_card.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -21,6 +23,8 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: SideMenuBar(userName: 'srishti',),
+      // home: customInputField(),
+      // home: sidemenubar(userName: "vidhi"),
     );
   }
 }

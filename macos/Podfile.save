@@ -1,0 +1,36 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'Runner' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for Runner
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end
+
+
+
+
+
+^G Get Help  ^O WriteOut  ^R Read File ^Y Prev Pg   ^K Cut Text  ^C Cur Pos   
+^X Exit      ^J Justify   ^W Where is  ^V Next Pg   ^U UnCut Text^T To Spell# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'Runner' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for Runner
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+end

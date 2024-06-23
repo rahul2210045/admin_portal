@@ -41,7 +41,7 @@ Widget customInputFieldCard(
                             height: 40,
                             width: widthFactor(context) * 250,
                             child: TextField(
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.black),
                               decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.symmetric(horizontal: 20),

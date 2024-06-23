@@ -53,15 +53,13 @@ class registeredCandidate extends StatelessWidget {
                           // height: 50,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            
                             color: Colors.white,
-                           
                           ),
                           height: 40,
                           width: widthFactor(context) * 310,
                           // height: screenHeight*0.01,
                           child: TextField(
-                            style: TextStyle(color: Colors.white),
+                            style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               suffix: const Icon(
                                 Icons.search_rounded,
@@ -103,7 +101,6 @@ class registeredCandidate extends StatelessWidget {
                   SizedBox(
                     height: 5,
                   ),
-                 
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10.0, vertical: 5),

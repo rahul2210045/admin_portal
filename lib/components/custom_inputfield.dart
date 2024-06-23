@@ -1,9 +1,11 @@
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
+import 'package:admin_portal/components/custom_button.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfieldcard.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:admin_portal/screens/Candidate.dart';
 import 'package:flutter/material.dart';
 
 class customInputField extends StatelessWidget {
@@ -33,15 +35,28 @@ class customInputField extends StatelessWidget {
                   SizedBox(
                     height: 100,
                   ),
-                  Container(
-                    height: 35,
-                    width: widthFactor(context) * 330,
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [],
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomButton(
+                            widthFactor: widthFactor(context),
+                            heightFactor: heightFactor(context),
+                            text: "back",
+                            onPressed: (){},
+                            icon: Icons.arrow_back_ios_new_rounded),
+                        CustomButton(
+                            widthFactor: widthFactor(context),
+                            heightFactor: heightFactor(context),
+                            text: "Register",
+                            onPressed: () {})
+                      ],
                     ),
                   ),
+                  // ),
                 ],
               )),
         ),

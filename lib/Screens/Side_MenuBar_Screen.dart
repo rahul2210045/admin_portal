@@ -1,37 +1,48 @@
 import 'package:admin_portal/Screens/Candidate.dart';
+import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
-import 'package:admin_portal/Screens/Questions.dart';
-import 'package:admin_portal/Widgets/Customtextbutton.dart';
+import 'package:admin_portal/Screens/questions_page.dart';
+import 'package:admin_portal/Screens/questions_page.dart';
+import 'package:admin_portal/Screens/questions_download.dart';
+// import 'package:admin_portal/Screens/QuizScreen.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class sidemenubar extends StatefulWidget {
-  String userName;
-  sidemenubar({super.key, required this.userName});
+import '../constants/constants.dart';
+
+class SideMenuBar extends StatefulWidget {
+  final String userName;
+
+  const SideMenuBar({Key? key, required this.userName}) : super(key: key);
+
   @override
-  _sidemenubarState createState() => _sidemenubarState();
+  _SideMenuBarState createState() => _SideMenuBarState();
 }
 
-class _sidemenubarState extends State<sidemenubar> {
-  String? globalUserImage;
+class _SideMenuBarState extends State<SideMenuBar> {
   int _selectedIndex = 0;
 
   static List<Widget> _widgetOptions = <Widget>[
     Leaderboard(),
     candidateAdd(),
-    // Candidate(),
-    Questions(),
-    Questions()
-    // Feedback(),
-    // Ques
+    QuestionScreen(), // Ensure this is the correct reference for Feedback, or use another relevant widget
+    feedback_page(),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == 4) {
+      _handleLogout();
+    } else {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void _handleLogout() {
+    print("Logged out");
   }
 
   @override
@@ -39,127 +50,75 @@ class _sidemenubarState extends State<sidemenubar> {
     double _widthFactor = widthFactor(context);
     double _heightFactor = heightFactor(context);
     return Scaffold(
-      backgroundColor: Color.fromRGBO(215, 219, 244, 1),
-      appBar:
-          buildAppBar(context, _widthFactor, _heightFactor, widget.userName),
+      backgroundColor: const Color.fromRGBO(215, 219, 244, 1),
+      appBar: buildAppBar(context, _widthFactor, _heightFactor),
       body: Row(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-                0, 0, 16, 0), // Set the desired left padding
+            padding: EdgeInsets.fromLTRB(
+                0, 0, 16 * _widthFactor, 0), // Set the desired left padding
             child: Container(
-              width: 250, // Increased width of the side menu
+              width: 200 * _widthFactor, // Width of the side menu
               decoration: BoxDecoration(
                 color: Theme.of(context)
                     .colorScheme
                     .onPrimary, // Background color of the side menu
-                // borderRadius: BorderRadius.circular(
-                //     20.0), // Rounded corners for all four corners
               ),
-              padding: const EdgeInsets.all(15),
-              // margin:EdgeInsets.fromLTRB(0, 90, 0, 4),
-              child: ListView(
+              padding: EdgeInsets.fromLTRB(10 * _widthFactor, 25 * _widthFactor,
+                  10 * _widthFactor, 25 * _widthFactor),
+              child: Column(
                 children: <Widget>[
-                  const Padding(padding: EdgeInsets.all(4)),
-                  ListTile(
-                    title: CustomTextButton(
-                      text: "Leader Board",
-                      isSelected: _selectedIndex == 0,
-                      onPressed: () {
-                        _onItemTapped(0);
-                      },
-                      imagePath: 'assets/icons/icon _leaderboard star_.png',
-                      selectedImagePath:
-                          'assets/icons/icon _leaderboard star_.png',
+                  Expanded(
+                    child: ListView(
+                      children: <Widget>[
+                        buildListTile(
+                            "Leader Board",
+                            'assets/icons/icon _leaderboard starPurple_.png',
+                            'assets/icons/LeaderboardWhite.png',
+                            0,
+                            _widthFactor,
+                            _heightFactor),
+                        SizedBox(height: 4 * _heightFactor),
+                        buildListTile(
+                            "Candidates",
+                            'assets/icons/icon _UsersPurple_.png',
+                            'assets/icons/CandidatesWhite.png',
+                            1,
+                            _widthFactor,
+                            _heightFactor),
+                        SizedBox(height: 4 * _heightFactor),
+                        buildListTile(
+                            "Questions",
+                            'assets/icons/icon _question mark circlePurple_.png',
+                            'assets/icons/icon _question mark circlePurple_.png',
+                            2,
+                            _widthFactor,
+                            _heightFactor),
+                        SizedBox(height: 4 * _heightFactor),
+                        buildListTile(
+                            "Feedback",
+                            'assets/icons/icon _Person FeedbackPurple_.png',
+                            'assets/icons/FeedbackWhite.png',
+                            3,
+                            _widthFactor,
+                            _heightFactor),
+                        SizedBox(
+                            height:
+                                12 * _heightFactor), // Adjust vertical spacing
+                      ],
                     ),
                   ),
-                  const Padding(padding: EdgeInsets.all(4)),
-                  ListTile(
-                    title: CustomTextButton(
-                      text: "Candidates",
-                      isSelected: _selectedIndex == 1,
-                      onPressed: () {
-                        _onItemTapped(1);
-                      },
-                      imagePath: 'assets/icons/icon _Users_.png',
-                      selectedImagePath: 'assets/icons/icon _Users_.png',
-                    ),
-                  ),
-                  const Padding(padding: EdgeInsets.all(4)),
-                  ListTile(
-                    title: CustomTextButton(
-                      text: "Questions",
-                      isSelected: _selectedIndex == 2,
-                      onPressed: () {
-                        _onItemTapped(2);
-                      },
-                      imagePath: 'assets/icons/icon _question mark circle_.png',
-                      selectedImagePath:
-                          'assets/icons/icon _question mark circle_.png',
-                    ),
-                  ),
-                  const Padding(padding: EdgeInsets.all(4)),
-                  ListTile(
-                    title: CustomTextButton(
-                      text: "Feedback",
-                      isSelected: _selectedIndex == 3,
-                      onPressed: () {
-                        _onItemTapped(3);
-                      },
-                      imagePath: 'assets/icons/Vector (2).png',
-                      selectedImagePath: 'assets/icons/Vector (2).png',
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 200),
-                    child: ListTile(
-                      title: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          backgroundColor:
-                              Color.fromARGB(255, 255, 255, 255), // Text color
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                  color: Colors.black) // Border radius
-                              ),
-                        ),
-                        onPressed: () {},
-                        child: Text(
-                          "Login",
-                          style: GoogleFonts.poppins(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    // margin: EdgeInsets.only(top:200),
-                    child: ListTile(
-                      title: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          backgroundColor:
-                              Color.fromARGB(255, 255, 255, 255), // Text color
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                  color: Colors.black) // Border radius
-                              ),
-                        ),
-                        onPressed: () {},
-                        child: Text(
-                          "Log out",
-                          style: GoogleFonts.poppins(),
-                        ),
-                      ),
-                    ),
-                  ),
+                  buildListTile(
+                      "Log out",
+                      'assets/icons/Group 54.png',
+                      'assets/icons/Group 54.png',
+                      4,
+                      _widthFactor,
+                      _heightFactor),
                 ],
               ),
             ),
           ),
-
-          // VerticalDivider(), // Optional: add a vertical divider between side menu and content
           Expanded(
             child: _widgetOptions.elementAt(_selectedIndex),
           ),
@@ -168,51 +127,72 @@ class _sidemenubarState extends State<sidemenubar> {
     );
   }
 
-  // Function to build the AppBar
-  // AppBar buildAppBar(BuildContext context, double _widthFactor,
-  //     double _heightFactor, String userName) {
-  //   return AppBar(
-  //     toolbarHeight: _heightFactor * 120,
-  //     backgroundColor: Color.fromRGBO(62, 84, 204, 1),
-  //     leadingWidth: _widthFactor * 273,
-  //     leading:Row(
-  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //     children: [
+  Widget buildListTile(
+      String text,
+      String iconPathUnselected,
+      String iconPathSelected,
+      int index,
+      double widthFactor,
+      double heightFactor) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _selectedIndex == index ? primaryColor : null,
+        borderRadius: BorderRadius.circular(15 * widthFactor),
+      ),
+      child: ListTile(
+        title: Row(
+          children: [
+            if (iconPathUnselected.isNotEmpty) ...[
+              Image.asset(
+                _selectedIndex == index ? iconPathSelected : iconPathUnselected,
+                scale: 5.5,
+              ),
+              SizedBox(width: 7 * widthFactor),
+            ],
+            Flexible(
+              child: Text(
+                text,
+                style: GoogleFonts.poppins(
+                  color: _selectedIndex == index ? Colors.white : primaryColor,
+                  fontSize: 14 * widthFactor,
+                  fontWeight: FontWeight.w500,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        onTap: () {
+          _onItemTapped(index);
+        },
+      ),
+    );
+  }
 
-  //   Container(
-  //     margin: EdgeInsets.only(left: 10),
-  //           child: Image.asset('assets/icons/Group 43 (2).png',),
-  //         ),
-
-  //     ],
-  //   )
-  //   );
-  // }
-  AppBar buildAppBar(BuildContext context, double _widthFactor,
-      double _heightFactor, String userName) {
+  AppBar buildAppBar(
+      BuildContext context, double _widthFactor, double _heightFactor) {
     return AppBar(
       toolbarHeight: _heightFactor * 120,
-      backgroundColor: Color.fromRGBO(62, 84, 204, 1),
-      leadingWidth: _widthFactor * 273,
+      backgroundColor: primaryColor,
+      leadingWidth: _widthFactor * 380,
       leading: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Padding(padding: EdgeInsets.only(left: 40 * widthFactor(context))),
+          Padding(padding: EdgeInsets.only(left: 50 * _widthFactor)),
           Image.asset(
-            'assets/icons/Group 43 (2).png',
-            height: _heightFactor *
-                200, // Adjust the height of the image responsively
-            width: _widthFactor *
-                200, // Adjust the width of the image responsively
+            'assets/icons/CSI LOGO.png',
+            scale: 5,
+          ),
+          Text(
+            'CSI Exam Portal',
+            style: GoogleFonts.poppins(
+              fontSize: 30 * _widthFactor,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
-      // title: Text(
-      //   userName,
-      //   style: TextStyle(
-      //     fontSize: 24 * _widthFactor,  // Adjust the font size responsively
-      //   ),
-      // ),
     );
   }
 }

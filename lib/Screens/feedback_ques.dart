@@ -1,19 +1,20 @@
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 
-class Questions extends StatefulWidget {
-  const Questions({super.key});
+class edit_ques extends StatefulWidget {
+  const edit_ques({super.key});
 
   @override
-  State<Questions> createState() => _QuestionsState();
+  State<edit_ques> createState() => _edit_quesState();
 }
 
-class _QuestionsState extends State<Questions> {
+class _edit_quesState extends State<edit_ques> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor1,
-       body: Container(color: Colors.amber,),
+      body: Text(""),
+  
     );
   }
 }

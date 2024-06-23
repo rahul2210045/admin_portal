@@ -1,64 +1,101 @@
-import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class Graph extends StatefulWidget {
-  @override
-  _GraphState createState() => _GraphState();
-}
+class Graph extends StatelessWidget {
+  final List<String> xLabels; // List of x-axis labels
+  final List<double> yData; // List of y-axis data points
 
-class _GraphState extends State<Graph> {
+  Graph({Key? key, required this.xLabels, required this.yData}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     double widthFactor = MediaQuery.of(context).size.width / 1440;
     double heightFactor = MediaQuery.of(context).size.height / 1024;
+
+    // Prepare bar groups with different colors based on yData
+    List<BarChartGroupData> barGroups = List.generate(yData.length, (index) {
+      // Generate a different color for each bar based on its yData value
+      Color barColor = _getBarColor(yData[index]);
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: yData[index], // Use y instead of toY for exact value
+            color: barColor,
+            width: 14 * widthFactor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+            ),
+          ),
+        ],
+      );
+    });
+
+    double maxY = ((yData.reduce((curr, next) => curr > next ? curr : next) + 50) / 50).ceil() * 50;
+    double interval = 50;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         return BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
-            maxY: 250,
+              maxY: maxY, // Adjust maxY dynamically
             barTouchData: BarTouchData(
               touchTooltipData: BarTouchTooltipData(
-                tooltipBgColor: Colors.blueGrey,
+                // tooltipBgColor: Colors.white60,
               ),
             ),
             titlesData: FlTitlesData(
-              leftTitles: SideTitles(
-                showTitles: true,
-                getTextStyles: (context, value) => GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 10 * widthFactor,
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    return Text(
+                      value.toString(),
+                      style: GoogleFonts.poppins(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 10 * widthFactor,
+                      ),
+                    );
+                  },
+                  reservedSize: 45 * heightFactor,
+                  interval: 50,
                 ),
-                margin: 16 * heightFactor,
-                interval: 50,
               ),
-              rightTitles: SideTitles(showTitles: false),
-              topTitles: SideTitles(showTitles: false),
-              bottomTitles: SideTitles(
-                showTitles: true,
-                getTextStyles: (context, value) => GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 8 * widthFactor,
+              rightTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 50 * heightFactor,
+                  getTitlesWidget: (double value, TitleMeta meta) {
+                    if (value.toInt() >= 0 && value.toInt() < xLabels.length) {
+                      return Padding(
+                        padding: EdgeInsets.only(top: 8 * heightFactor),
+                        child: Text(
+                          xLabels[value.toInt()],
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.poppins(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 9 * widthFactor,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return SizedBox(); // Return empty SizedBox for out-of-bound indices
+                    }
+                  },
                 ),
-                getTitles: (double value) {
-                  switch (value.toInt()) {
-                    case 0:
-                      return 'Day Scholar\nBoys';
-                    case 1:
-                      return 'Hosteller\nBoys';
-                    case 2:
-                      return 'Hosteller\nGirls';
-                    case 3:
-                      return 'Day Scholar\nGirls';
-                    default:
-                      return '';
-                  }
-                },
               ),
             ),
             borderData: FlBorderData(show: false),
@@ -74,67 +111,26 @@ class _GraphState extends State<Graph> {
                 );
               },
             ),
-            barGroups: [
-              BarChartGroupData(
-                x: 0,
-                barRods: [
-                  BarChartRodData(
-                    y: 200,
-                    colors: [tintcolor4],
-                    width: 14 * widthFactor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                ],
-              ),
-              BarChartGroupData(
-                x: 1,
-                barRods: [
-                  BarChartRodData(
-                    y: 150,
-                    colors: [tintcolor2],
-                    width: 14 * widthFactor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                ],
-              ),
-              BarChartGroupData(
-                x: 2,
-                barRods: [
-                  BarChartRodData(
-                    y: 100,
-                    colors: [tintcolor1],
-                    width: 14 * widthFactor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                ],
-              ),
-              BarChartGroupData(
-                x: 3,
-                barRods: [
-                  BarChartRodData(
-                    y: 150,
-                    colors: [tintcolor3],
-                    width: 14 * widthFactor,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+            barGroups: barGroups,
           ),
         );
       },
     );
+  }
+
+  // Function to determine bar color based on y-axis value
+  Color _getBarColor(double value) {
+    // Example logic: Assign colors based on value ranges or specific conditions
+    if (value >= 200) {
+      return tintcolor4;
+    }else if (value >= 150) {
+      return tintcolor2;
+    }else if (value >= 100) {
+      return tintcolor3;
+    } else if (value > 50) {
+      return tintcolor1;
+    } else {
+      return tintcolor5;
+    }
   }
 }

@@ -45,13 +45,20 @@ class _QuestionAreaState extends State<QuestionArea> {
             ),
           ),
           SizedBox(height: 10 * widget.heightFactor),
-          Text(
-            widget.question,
-            style: GoogleFonts.poppins(
-              color: primaryText,
-              fontSize: 30 * widget.widthFactor,
-              fontWeight: FontWeight.w400,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                widget.question,
+                style: GoogleFonts.poppins(
+                  color: primaryText,
+                  fontSize: 30 * widget.widthFactor,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+
+              Image.asset('assets/icons/pencil.png',scale: 6,)
+            ],
           ),
           SizedBox(height: 20 * widget.heightFactor),
 
@@ -118,7 +125,7 @@ class _QuestionAreaState extends State<QuestionArea> {
             ],
           ),
 
-          SizedBox(height: 150 * widget.heightFactor),
+          SizedBox(height: 100 * widget.heightFactor),
 
           // Correct Answer and Explanation
           Text(
@@ -143,13 +150,28 @@ class _QuestionAreaState extends State<QuestionArea> {
             ),
           ),
           SizedBox(height: 20 * widget.heightFactor),
-          Text(
-            "Explanation: ${widget.explanation}",
-            style: GoogleFonts.poppins(
-              color: Colors.blue, // Blue text color for explanation
-              fontSize: 18 * widget.widthFactor,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Explanation: ",
+                style: GoogleFonts.poppins(
+                  color: Colors.black, // Black text color for "Explanation: "
+                  fontSize: 18 * widget.widthFactor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  widget.explanation,
+                  style: GoogleFonts.poppins(
+                    color: primaryColor, // Blue text color for widget.explanation
+                    fontSize: 18 * widget.widthFactor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

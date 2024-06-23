@@ -1,8 +1,8 @@
   import 'package:admin_portal/Screens/Candidate.dart';
 import 'package:admin_portal/Screens/Feedback.dart';
   import 'package:admin_portal/Screens/Leaderboard.dart';
-import 'package:admin_portal/Screens/Questions.dart';
-  import 'package:admin_portal/Screens/que_screen.dart';
+import 'package:admin_portal/Screens/questions_page.dart';
+  import 'package:admin_portal/Screens/questions_page.dart';
   import 'package:admin_portal/Screens/questions_download.dart';
   // import 'package:admin_portal/Screens/QuizScreen.dart';
   import 'package:admin_portal/Widgets/Screensize.dart';

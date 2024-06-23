@@ -5,7 +5,7 @@ import 'package:hexcolor/hexcolor.dart';
 
 // Primary Colors
 Color primaryColor = HexColor("#3068E0");
-Color secondaryColor = HexColor("#E8F0FC");
+Color secondaryColor = HexColor("#546CFF");
 
 
 // additional Colors

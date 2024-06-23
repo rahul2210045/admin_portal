@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../constants/constants.dart';
+
 class QuizScreen extends StatefulWidget {
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -8,37 +10,46 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<QuizComponent> htmlQuestions = [
-   const QuizComponent(
-      question: 'What is the full form of HTML?',
-      options: ['Option A', 'Option B', 'Option C', 'Option D'],
-      correctAnswer: 'Option A',
-      explanation: 'HTML stands for HyperText Markup Language.',
-    ),
-  ];
-  List<QuizComponent> sqlQuestions = [
-     const QuizComponent(
-      question: 'What is SQL used for?',
-      options: ['Option A', 'Option B', 'Option C', 'Option D'],
-      correctAnswer: 'Option B',
-      explanation: 'SQL is used for managing data in a relational database.',
-    ),
-  ];
-  List<QuizComponent> cssQuestions = [
-    const QuizComponent(
-      question: 'What is CSS?',
-      options: ['Option A', 'Option B', 'Option C', 'Option D'],
-      correctAnswer: 'Option C',
-      explanation: 'CSS stands for Cascading Style Sheets.',
-    ),
-  ];
+  int _selectedQuestionIndex = 0;
+
+  final List<Map<String, dynamic>> _htmlQuestions = List.generate(
+    9,
+    (index) => {
+      'question': 'HTML Question ${index + 1}',
+      'options': ['Option A', 'Option B', 'Option C', 'Option D'],
+      'correctAnswer': 'Option A',
+      'explanation': 'Explanation for HTML Question ${index + 1}',
+    },
+  );
+
+  final List<Map<String, dynamic>> _sqlQuestions = List.generate(
+    9,
+    (index) => {
+      'question': 'SQL Question ${index + 1}',
+      'options': ['Option A', 'Option B', 'Option C', 'Option D'],
+      'correctAnswer': 'Option B',
+      'explanation': 'Explanation for SQL Question ${index + 1}',
+    },
+  );
+
+  final List<Map<String, dynamic>> _cssQuestions = List.generate(
+    9,
+    (index) => {
+      'question': 'CSS Question ${index + 1}',
+      'options': ['Option A', 'Option B', 'Option C', 'Option D'],
+      'correctAnswer': 'Option C',
+      'explanation': 'Explanation for CSS Question ${index + 1}',
+    },
+  );
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
-      setState(() {}); // Update the UI when tab changes
+      setState(() {
+        _selectedQuestionIndex = 0;
+      });
     });
   }
 
@@ -48,121 +59,159 @@ class _QuizScreenState extends State<QuizScreen>
     super.dispose();
   }
 
-  void _addQuestion(String category, QuizComponent question) {
+  void _selectQuestion(int index) {
     setState(() {
-      if (category == 'HTML') {
-        htmlQuestions.add(question);
-      } else if (category == 'SQL') {
-        sqlQuestions.add(question);
-      } else if (category == 'CSS') {
-        cssQuestions.add(question);
-      }
+      _selectedQuestionIndex = index;
     });
   }
 
-  void _showAddQuestionDialog() {
-    showDialog(
+  Future<void> _createNewQuestion() async {
+    final newQuestionData = await showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (context) {
-        String selectedCategory = 'HTML';
-        String question = '';
-        String optionA = '';
-        String optionB = '';
-        String optionC = '';
-        String optionD = '';
-        String correctAnswer = '';
-        String explanation = '';
+      builder: (BuildContext context) {
+        final TextEditingController questionController =
+            TextEditingController();
+        final TextEditingController optionAController = TextEditingController();
+        final TextEditingController optionBController = TextEditingController();
+        final TextEditingController optionCController = TextEditingController();
+        final TextEditingController optionDController = TextEditingController();
+        final TextEditingController explanationController =
+            TextEditingController();
+        String? correctAnswer;
+        String? selectedCategory;
 
-        return AlertDialog(
-          title:  const Text('Add New Question'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  onChanged: (value) {
-                    selectedCategory = value!;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add New Question'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: questionController,
+                      decoration: InputDecoration(labelText: 'Question'),
+                    ),
+                    TextField(
+                      controller: optionAController,
+                      decoration: InputDecoration(labelText: 'Option A'),
+                    ),
+                    TextField(
+                      controller: optionBController,
+                      decoration: InputDecoration(labelText: 'Option B'),
+                    ),
+                    TextField(
+                      controller: optionCController,
+                      decoration: InputDecoration(labelText: 'Option C'),
+                    ),
+                    TextField(
+                      controller: optionDController,
+                      decoration: InputDecoration(labelText: 'Option D'),
+                    ),
+                    TextField(
+                      controller: explanationController,
+                      decoration: InputDecoration(labelText: 'Explanation'),
+                    ),
+                    DropdownButton<String>(
+                      hint: Text('Select Correct Answer'),
+                      value: correctAnswer,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          correctAnswer = newValue;
+                        });
+                      },
+                      items: <String>[
+                        'Option A',
+                        'Option B',
+                        'Option C',
+                        'Option D'
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                    DropdownButton<String>(
+                      hint: Text('Select Category'),
+                      value: selectedCategory,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedCategory = newValue;
+                        });
+                      },
+                      items: <String>['HTML', 'SQL', 'CSS']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  items: ['HTML', 'SQL', 'CSS']
-                      .map((category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          ))
-                      .toList(),
                 ),
-                TextField(
-                  onChanged: (value) => question = value,
-                  decoration: const InputDecoration(labelText: 'Question'),
-                ),
-                TextField(
-                  onChanged: (value) => optionA = value,
-                  decoration: const InputDecoration(labelText: 'Option A'),
-                ),
-                TextField(
-                  onChanged: (value) => optionB = value,
-                  decoration: const InputDecoration(labelText: 'Option B'),
-                ),
-                TextField(
-                  onChanged: (value) => optionC = value,
-                  decoration: const InputDecoration(labelText: 'Option C'),
-                ),
-                TextField(
-                  onChanged: (value) => optionD = value,
-                  decoration: const InputDecoration(labelText: 'Option D'),
-                ),
-                TextField(
-                  onChanged: (value) => correctAnswer = value,
-                  decoration: const InputDecoration(labelText: 'Correct Answer'),
-                ),
-                TextField(
-                  onChanged: (value) => explanation = value,
-                  decoration: const InputDecoration(labelText: 'Explanation'),
+                ElevatedButton(
+                  child: Text('Add'),
+                  onPressed: () {
+                    Navigator.of(context).pop({
+                      'question': questionController.text,
+                      'options': [
+                        optionAController.text,
+                        optionBController.text,
+                        optionCController.text,
+                        optionDController.text,
+                      ],
+                      'correctAnswer': correctAnswer,
+                      'explanation': explanationController.text,
+                      'category': selectedCategory,
+                    });
+                  },
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _addQuestion(
-                  selectedCategory,
-                  QuizComponent(
-                    question: question,
-                    options: [optionA, optionB, optionC, optionD],
-                    correctAnswer: correctAnswer,
-                    explanation: explanation,
-                  ),
-                );
-                Navigator.of(context).pop();
-              },
-              child: const Text('Add'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
+
+    if (newQuestionData != null) {
+      setState(() {
+        if (newQuestionData['category'] == 'HTML') {
+          _htmlQuestions.add(newQuestionData);
+        } else if (newQuestionData['category'] == 'SQL') {
+          _sqlQuestions.add(newQuestionData);
+        } else if (newQuestionData['category'] == 'CSS') {
+          _cssQuestions.add(newQuestionData);
+        }
+      });
+    }
+  }
+
+  void _addNewQuestion() {
+    _createNewQuestion();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  const Text('Questions'),
+        title: Text('Questions'),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: _tabController.index == 0
-                      ? Colors.blue
+                      ? primaryColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -178,10 +227,10 @@ class _QuizScreenState extends State<QuizScreen>
             ),
             Tab(
               child: Container(
-                padding:  const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: _tabController.index == 1
-                      ? Colors.blue
+                      ? primaryColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -197,10 +246,10 @@ class _QuizScreenState extends State<QuizScreen>
             ),
             Tab(
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: _tabController.index == 2
-                      ? Colors.blue
+                      ? primaryColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -216,10 +265,10 @@ class _QuizScreenState extends State<QuizScreen>
             ),
             Tab(
               child: Container(
-                padding: const EdgeInsets.all(10),
+                padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: _tabController.index == 3
-                      ? Colors.blue
+                      ? primaryColor
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(5),
                 ),
@@ -236,34 +285,112 @@ class _QuizScreenState extends State<QuizScreen>
           ],
           indicator: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: Colors.blue, // Background color of selected tab indicator
+            color: primaryColor,
           ),
         ),
       ),
-      body: Column(
+      body: Row(
         children: [
           Expanded(
+            flex: 2,
             child: TabBarView(
               controller: _tabController,
               children: [
-                ListView(children: htmlQuestions),
-                ListView(children: sqlQuestions),
-                ListView(children: cssQuestions),
-               const  Center(
-                  child: Text('Add your question here'),
-                ),
+                _buildQuestionsTab(_htmlQuestions),
+                _buildQuestionsTab(_sqlQuestions),
+                _buildQuestionsTab(_cssQuestions),
+                _buildAddQuestionTab(),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton(
-              onPressed: _showAddQuestionDialog,
-              child: const Text('Add Question'),
-            ),
+          Expanded(
+            flex: 1,
+            child: _buildQuestionSelector(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuestionsTab(List<Map<String, dynamic>> questions) {
+    if (questions.isEmpty) {
+      return Center(
+        child: Text('No questions available.'),
+      );
+    }
+    final question = questions[_selectedQuestionIndex];
+    return QuizComponent(
+      question: question['question'],
+      options: List<String>.from(question['options']),
+      correctAnswer: question['correctAnswer'],
+      explanation: question['explanation'],
+    );
+  }
+
+  Widget _buildAddQuestionTab() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: _addNewQuestion,
+        child: Text('Add a new question'),
+      ),
+    );
+  }
+
+  Widget _buildQuestionSelector() {
+    List<Map<String, dynamic>> currentQuestions;
+    switch (_tabController.index) {
+      case 0:
+        currentQuestions = _htmlQuestions;
+        break;
+      case 1:
+        currentQuestions = _sqlQuestions;
+        break;
+      case 2:
+        currentQuestions = _cssQuestions;
+        break;
+      default:
+        currentQuestions = [];
+        break;
+    }
+
+    List<Widget> questionButtons =
+        List.generate(currentQuestions.length, (index) {
+      return ElevatedButton(
+        onPressed: () => _selectQuestion(index),
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              index == _selectedQuestionIndex ? Colors.blue : Colors.grey,
+          shape: CircleBorder(),
+          padding: EdgeInsets.all(20),
+        ),
+        child: Text(
+          '${index + 1}',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    });
+
+    questionButtons.add(
+      ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blueAccent,
+          shape: CircleBorder(),
+        ),
+        onPressed: _addNewQuestion,
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+    );
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: questionButtons,
     );
   }
 }
@@ -275,11 +402,12 @@ class QuizComponent extends StatefulWidget {
   final String explanation;
 
   const QuizComponent({
+    Key? key,
     required this.question,
     required this.options,
     required this.correctAnswer,
     required this.explanation,
-  });
+  }) : super(key: key);
 
   @override
   _QuizComponentState createState() => _QuizComponentState();
@@ -311,20 +439,20 @@ class _QuizComponentState extends State<QuizComponent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             widget.question,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-         const  SizedBox(height: 20),
+          SizedBox(height: 20),
           ...widget.options.map((option) {
             return GestureDetector(
               onTap: () => _handleOptionTap(option),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: [
                     Radio<String>(
@@ -334,15 +462,15 @@ class _QuizComponentState extends State<QuizComponent> {
                         _handleOptionTap(value!);
                       },
                     ),
-                 const    SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Text(option),
                   ],
                 ),
               ),
             );
           }).toList(),
-         const  SizedBox(height: 20),
-         const  Text(
+          SizedBox(height: 20),
+          Text(
             'Selected Correct Answer:',
             style: TextStyle(
               color: Colors.black,
@@ -351,31 +479,25 @@ class _QuizComponentState extends State<QuizComponent> {
           ),
           Text(
             _selectedOption ?? 'None',
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.black,
             ),
           ),
-          const SizedBox(height: 10),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             'Explanation:',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           TextField(
             controller: _explanationController,
             maxLines: 3,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
+              hintText: 'Explanation',
               border: OutlineInputBorder(),
-              hintText: 'Write explanation here...',
             ),
-          ),
-         const  SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {
-              // Save the selected option and explanation
-              print('Selected Correct Answer: $_selectedOption');
-              print('Explanation: ${_explanationController.text}');
-            },
-            child:  const Text('Save'),
           ),
         ],
       ),

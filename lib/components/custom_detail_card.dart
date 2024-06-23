@@ -1,8 +1,7 @@
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:admin_portal/constants/constants.dart';
+
 
 Widget customRankCard(
   name,
@@ -20,15 +19,15 @@ Widget customRankCard(
           children: [
             Text(
               rank,
-              style: TextStyle(color: Colors.black, fontSize: 16),
+              style:const  TextStyle(color: Colors.black, fontSize: 16),
             ),
             Text(
               name,
-              style: TextStyle(color: Colors.black, fontSize: 16),
+              style:const  TextStyle(color: Colors.black, fontSize: 16),
             ),
             Text(
               studentNo,
-              style: TextStyle(color: Colors.black, fontSize: 16),
+              style: const TextStyle(color: Colors.black, fontSize: 16),
             ),
           ],
         ),

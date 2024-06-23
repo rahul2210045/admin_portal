@@ -26,8 +26,8 @@ import 'package:admin_portal/Screens/questions_page.dart';
     static List<Widget> _widgetOptions = <Widget>[
       Leaderboard(),
       Candidate(),
-      QuestionScreen(),
-      Candidate()// Ensure this is the correct reference for Feedback, or use another relevant widget
+      QuestionScreen(),// Ensure this is the correct reference for Feedback, or use another relevant widget
+      feedback_page(),
     ];
 
     void _onItemTapped(int index) {

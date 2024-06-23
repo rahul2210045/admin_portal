@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
 class QuestionsSidebar extends StatefulWidget {
+  final List<String> questions;
+  final Function(int) onQuestionSelected;
+  final Function(int) onDeleteQuestion;
+  final Function(List<String>) onSaveQuestions; // Callback to save questions
 
-
-  const QuestionsSidebar({Key? key, }) : super(key: key);
+  const QuestionsSidebar({
+    Key? key,
+    required this.questions,
+    required this.onQuestionSelected,
+    required this.onDeleteQuestion,
+    required this.onSaveQuestions,
+  }) : super(key: key);
 
   @override
   _QuestionsSidebarState createState() => _QuestionsSidebarState();
@@ -14,6 +23,19 @@ class QuestionsSidebar extends StatefulWidget {
 
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
   int selectedIndex = -1; // Track selected index, -1 means none selected
+
+  void deleteQuestion(int index) {
+    widget.onDeleteQuestion(index);
+    setState(() {
+      selectedIndex = -1; // Reset selection
+    });
+  }
+
+  void addQuestion() {
+    setState(() {
+      widget.questions.add('New Question'); // Add a default new question
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +50,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
           height: heightFactor * 80,
           padding: EdgeInsets.all(10 * heightFactor),
           decoration: BoxDecoration(
-            color: primaryColor, // Example primaryColor
+            color: primaryColor,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -43,7 +65,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
         ),
         SizedBox(height: 20 * heightFactor),
 
-        // Grid of question numbers
+        // Grid of question numbers and Add Question button
         Container(
           width: double.infinity,
           padding: EdgeInsets.all(10 * heightFactor),
@@ -54,101 +76,120 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
               mainAxisSpacing: 10 * heightFactor,
               crossAxisSpacing: 10 * widthFactor,
             ),
-            itemCount: 10,
+            itemCount: widget.questions.length + 1, // +1 for Add Question button
             itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-                child: Container(
-                  width: 60 * widthFactor, // Adjust width as needed
-                  height: 60 * heightFactor, // Adjust height as needed
-                  margin: EdgeInsets.all(10), // Adjust margin as needed
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selectedIndex == index ? primaryColor : Colors.white, // Toggle color based on selection
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
+              if (index == widget.questions.length) {
+                // Add Question button
+                return GestureDetector(
+                  onTap: addQuestion,
+                  child: Container(
+                    width: 60 * widthFactor,
+                    height: 60 * heightFactor,
+                    margin: EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white, // White background for the button
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.add,
+                      color: primaryColor, // Blue color for the "+" icon
+                      size: 30 * widthFactor,
                     ),
                   ),
-                  child: Text(
-                    index == 9 ? '+' : (index + 1).toString(),
-                    style: TextStyle(
-                      color: selectedIndex == index ? Colors.white : primaryColor,
-                      fontSize: 18 * widthFactor,
-                      fontWeight: FontWeight.bold,
+                );
+              } else {
+                // Existing question tiles
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedIndex = index;
+                      widget.onQuestionSelected(index);
+                    });
+                  },
+                  child: Container(
+                    width: 60 * widthFactor,
+                    height: 60 * heightFactor,
+                    margin: EdgeInsets.all(10),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: selectedIndex == index ? primaryColor : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      (index + 1).toString(),
+                      style: TextStyle(
+                        color: selectedIndex == index ? Colors.white : primaryColor,
+                        fontSize: 18 * widthFactor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
+              }
             },
           ),
         ),
-        SizedBox(height: 40 * heightFactor),
+        SizedBox(height: 20 * heightFactor),
 
         // Delete and Save buttons
-        Container(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: widthFactor * 180,
-                height: heightFactor * 70, // Set the desired width here
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, // Example background color to blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Adjust border radius as needed
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20 * widthFactor,
-                      vertical: 10 * heightFactor,
-                    ),
-                  ),
-                  child: Text(
-                    "Delete",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthFactor * 18,
-                    ),
-                  ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ElevatedButton(
+              onPressed: selectedIndex != -1 ? () => deleteQuestion(selectedIndex) : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20 * widthFactor,
+                  vertical: 10 * heightFactor,
                 ),
               ),
-
-              SizedBox(
-                width: widthFactor * 180,
-                height: heightFactor * 70,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, // Example background color to blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Adjust border radius as needed
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20 * widthFactor,
-                      vertical: 10 * heightFactor,
-                    ),
-                  ),
-                  child: Text(
-                    "Save",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthFactor * 18,
-                    ),
-                  ),
+              child: Text(
+                "Delete",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: widthFactor * 18,
                 ),
               ),
-            ],
-          ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Save questions and navigate to QuestionsDownload page
+                widget.onSaveQuestions(widget.questions);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => QuestionsDownload(savedQuestions: widget.questions)),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20 * widthFactor,
+                  vertical: 10 * heightFactor,
+                ),
+              ),
+              child: Text(
+                "Save",
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: widthFactor * 18,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

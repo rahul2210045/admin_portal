@@ -19,8 +19,10 @@ Color textColor = HexColor("#8A90A2");
 Color dividerColor = HexColor("#F1F3F6");
 
 Color additionalDarkBlueLight = HexColor("#0A58CA");
-Color primaryText = HexColor("#292930");
+Color primaryText = HexColor("#7084FF");
 Color backgroundColor = HexColor("##F9F9F9");
+
+Color success = HexColor("#00C289");
 
 Color tintcolor4 = HexColor("#5E72D5");
 Color tintcolor2 = HexColor("#AEB8EB");

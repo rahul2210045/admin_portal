@@ -504,3 +504,4 @@ class _QuizComponentState extends State<QuizComponent> {
     );
   }
 }
+

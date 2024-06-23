@@ -1,12 +1,14 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 
-class QuizComponent extends StatelessWidget {
+class QuizComponent extends StatefulWidget {
   final String question;
   final List<String> options;
   final String correctAnswer;
   final String explanation;
 
-  QuizComponent({
+  const QuizComponent({
     required this.question,
     required this.options,
     required this.correctAnswer,
@@ -14,53 +16,113 @@ class QuizComponent extends StatelessWidget {
   });
 
   @override
+  _QuizComponentState createState() => _QuizComponentState();
+}
+
+class _QuizComponentState extends State<QuizComponent> {
+  String? _selectedOption;
+  final TextEditingController _explanationController = TextEditingController();
+  bool _isAnswerSelected = false; // Track if an answer is selected
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedOption = widget.correctAnswer;
+    _explanationController.text = widget.explanation;
+    if (_selectedOption != null) {
+      _isAnswerSelected = true; // Set to true if a default answer is provided
+    }
+  }
+
+  @override
+  void dispose() {
+    _explanationController.dispose();
+    super.dispose();
+  }
+
+  void _handleOptionTap(String option) {
+    setState(() {
+      _selectedOption = option;
+      _isAnswerSelected = true; // Mark as selected when an option is tapped
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Question-1',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              question,
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            SizedBox(height: 20),
-            ...options.map((option) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.question,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          ...widget.options.map((option) {
+            return GestureDetector(
+              onTap: () => _handleOptionTap(option),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Row(
                   children: [
-                    Radio(
+                    Radio<String>(
                       value: option,
-                      groupValue: correctAnswer,
-                      onChanged: (value) {},
+                      groupValue: _selectedOption,
+                      onChanged: (value) {
+                        _handleOptionTap(value!);
+                      },
                     ),
+                    const SizedBox(width: 10),
                     Text(option),
                   ],
                 ),
-              );
-            }).toList(),
-            SizedBox(height: 20),
-            Divider(),
-            Text(
-              'Correct Answer',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            );
+          }).toList(),
+          const SizedBox(height: 40),
+          Text(
+            'Correct Answer:',
+            style: TextStyle(
+              fontWeight: FontWeight.normal,
+              fontSize: 20,
+              color: _isAnswerSelected ? Colors.black : Colors.black,
             ),
-            SizedBox(height: 10),
-            Text(correctAnswer),
-            SizedBox(height: 10),
-            Text(
-              'Explanation: $explanation',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+          ),
+          const Divider(
+            color: Colors.black,
+          ),
+          Text(
+            _selectedOption ?? 'None',
+            style: TextStyle(
+              fontSize: 18,
+              color: _isAnswerSelected ? Colors.green : Colors.black,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Explanation:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          TextField(
+            controller: _explanationController,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Write explanation here...',
+            ),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              // Save the selected option and explanation
+
+              print('Selected Correct Answer: $_selectedOption');
+              print('Explanation: ${_explanationController.text}');
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
     );
   }

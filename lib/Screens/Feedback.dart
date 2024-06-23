@@ -24,134 +24,134 @@ class _feedback_pageState extends State<feedback_page> {
               color: Colors.grey[300],
               width: screenWidth * 0.49,
               height: screenHeight * 0.80,
-              //child: Column(
-               // children: [
-                 // Row(
-                  //  children: [
+              child: Column(
+               children: [
+                 Row(
+                   children: [
+                     // first box
+                      Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 27,
+                          width: 120,
+                        )
+                      ]),
+                      //second box
+                       Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 27,
+                          width: 120,
+                        )
+                      ]),
+                    ],
+                  ),
+
+
+                Row(
+                    children: [
                       //first box
-                //       Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 27,
-                //           width: 120,
-                //         )
-                //       ]),
-                //       //second box
-                //        Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 27,
-                //           width: 120,
-                //         )
-                //       ]),
-                //     ],
-                //   ),
-
-
-                // Row(
-                //     children: [
-                //       //first box
-                //       Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 27,
-                //           width: 120,
-                //         )
-                //       ]),
-                //       //second box
-                //        Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 27,
-                //           width: 120,
-                //         )
-                //       ]),
-                //     ],
-                //   ),
+                      Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 27,
+                          width: 120,
+                        )
+                      ]),
+                      //second box
+                       Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 27,
+                          width: 120,
+                        )
+                      ]),
+                    ],
+                  ),
 
 
 
-                //   Row(
-                //     children: [
-                //       //first box
-                //       Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 27,
-                //           width: 120,
-                //         )
-                //       ]),
-                //     ],
-                //   ),
+                  Row(
+                    children: [
+                      //first box
+                      Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 27,
+                          width: 120,
+                        )
+                      ]),
+                    ],
+                  ),
 
 
-                //   Row(
-                //     children: [
-                //       //first box
-                //       Column(children: [
-                //         Text("Name"),
-                //         SizedBox(
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               borderRadius: BorderRadius.circular(6),
-                //               border:Border.all(color: Colors.black),
-                //             ),
-                //             child: Center(child: Text("Ashirwad")),
-                //           ),
-                //           height: 150,
-                //           width: 350,
-                //         )
-                //       ]),
-                //     ],
-                //   ),
+                  Row(
+                    children: [
+                      //first box
+                      Column(children: [
+                        Text("Name"),
+                        SizedBox(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border:Border.all(color: Colors.black),
+                            ),
+                            child: Center(child: Text("Ashirwad")),
+                          ),
+                          height: 150,
+                          width: 350,
+                        )
+                      ]),
+                    ],
+                  ),
 
 
 
 
 
-              //  ],
-             // ),
+               ],
+             ),
             ),
           ),
           Padding(

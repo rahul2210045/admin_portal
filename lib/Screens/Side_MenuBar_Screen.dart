@@ -23,8 +23,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
   static List<Widget> _widgetOptions = <Widget>[
     Leaderboard(),
     Candidate(),
-    QuizScreen(), // Ensure this is the correct reference
-    QuizScreen(), // Ensure this is the correct reference for Feedback, or use another relevant widget
+    QuizScreen()// Ensure this is the correct reference for Feedback, or use another relevant widget
   ];
 
   void _onItemTapped(int index) {

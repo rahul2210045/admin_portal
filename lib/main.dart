@@ -1,4 +1,4 @@
-import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
+import 'package:admin_portal/Screens/Login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,8 +18,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: SideMenuBar(userName: 'srishti',),
-      // home: customInputField(),
+      // home: SideMenuBar(userName: 'srishti',),
+      home: LoginPage(),
       // home: sidemenubar(userName: "vidhi"),
     );
   }

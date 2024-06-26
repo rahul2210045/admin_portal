@@ -82,6 +82,8 @@ flutter:
     - assets/icons/FeedbackWhite.png
     - assets/icons/CSI LOGO.png
     - assets/icons/pencil.png
+    - assets/icons/Login Page.png
+    - assets/icons/Logo.png
 
 
     # - assets/icons

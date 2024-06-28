@@ -1,4 +1,5 @@
 import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
+import 'package:admin_portal/repository/models/LoginApi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,7 +11,80 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _apiService = LoginApi();
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _isUsernameEmpty = false;
+  bool _isPasswordEmpty = false;
+  
+
+  void _login() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+     setState(() {
+      _isUsernameEmpty = username.isEmpty;
+      _isPasswordEmpty = password.isEmpty;
+    });
+
+    // Validation
+    if (username.isEmpty || password.isEmpty) {
+      // _showErrorDialog('Please fill in all fields.');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final success = await _apiService.login(username, password);
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login successful')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SideMenuBar(userName: username)),
+        );
+      } else {
+        _showErrorDialog('Login failed. Please check your credentials and try again.');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      _showErrorDialog('An error occurred. Please try again.');
+      print('Error during login: $e');
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,16 +156,31 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person),
                     hintText: 'Username',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: _isUsernameEmpty ? Colors.red : Colors.grey,
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.3),
                   ),
                 ),
+                if (_isUsernameEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Please enter the username',
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -101,12 +190,16 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 TextField(
+                  controller: _passwordController,
                   obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.lock),
                     hintText: 'Password',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: _isPasswordEmpty ? Colors.red : Colors.grey,
+                      ),
                     ),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.3),
@@ -122,40 +215,44 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 30),
-                // // Placeholder for reCAPTCHA
-                // Container(
-                //   height: 50,
-                //   color: Colors.grey.withOpacity(0.3),
-                //   child: Center(
-                //     child: Text(
-                //       'reCAPTCHA Placeholder',
-                //       style: TextStyle(color: Colors.black.withOpacity(0.6)),
-                //     ),
-                //   ),
-                // ),
-                // SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> SideMenuBar(userName: "Vidhi")));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(84, 108, 255, 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        
+                if (_isPasswordEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Please enter the password',
+                        style: TextStyle(color: Colors.red, fontSize: 12),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                    ),
-                    child: Text(
-                      'Login',
-                      style: TextStyle(fontSize: 16,color: Colors.white),
                     ),
                   ),
-                ),
+             SizedBox(height: 30),
+                if (_isLoading)
+                  CircularProgressIndicator(),
+                if (!_isLoading)
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromRGBO(84, 108, 255, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: Text(
+                        'Login',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 40),
+                if (_errorMessage != null)
+                  Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  ),
               ],
             ),
           ),

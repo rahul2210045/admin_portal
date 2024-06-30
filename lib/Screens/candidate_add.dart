@@ -39,7 +39,7 @@ class _candidateAddState extends State<candidateAdd> {
                   // child:
                   CustomRoundedContainer(
                     child: customInputField(),
-                    height: heightFactor * 840,
+                    height: heightFactor * 950,
                     width: widthFactor * 850,
                     padding: EdgeInsets.all(10 * widthFactor),
                     margin: EdgeInsets.all(20 * widthFactor),
@@ -140,60 +140,20 @@ class _candidateAddState extends State<candidateAdd> {
                           SizedBox(
                             height: 10,
                           ),
-                          //search box inserted
-                          // Row(
-                          //   crossAxisAlignment: CrossAxisAlignment.center,
-                          //   mainAxisAlignment: MainAxisAlignment.center,
-                          //   children: [
-                          //     Container(
-                          //       decoration: BoxDecoration(
-                          //         borderRadius: BorderRadius.circular(5),
-                          //         border: Border.all(
-                          //           color: Colors.grey.shade600,
-                          //         ),
-                          //         color: Colors.white,
-                          //         boxShadow: [
-                          //           BoxShadow(
-                          //             color: Colors.grey.shade100,
-                          //             blurRadius: 100.0,
-                          //             offset: Offset(1.0, 1.0),
-                          //           )
-                          //         ],
-                          //       ),
-                          //       height: screenHeight * 0.06,
-                          //       width: screenWidth * 0.25,
-                          //       child: TextField(
-                          //         style: TextStyle(color: Colors.white),
-                          //         decoration: InputDecoration(
-                          //           suffix: const Icon(
-                          //             Icons.search_rounded,
-                          //             color: Colors.black,
-                          //           ),
-                          //           labelText: "Search something here...",
-                          //           border: OutlineInputBorder(
-                          //               borderSide: BorderSide(
-                          //                 color: dividerColor,
-                          //               ),
-                          //               borderRadius: BorderRadius.circular(5)),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ), //search box done
+                         
 
                           SizedBox(
                             width: screenWidth * 0.25,
                             child: SingleChildScrollView(
                               child: Column(children: [
-                                // customDetailCard(
-                                //     "Rahul Yadav", "2210045", context),
+                                
                                 feedback_card(
                                     studentname: "Rahul Yadav",
                                     studenNo: "2210045"),
-                                // feedback_card(
-                                //     studentname: "Ashirwad", studenNo: "2210647"),
-                                // feedback_card(
-                                //     studentname: "Ashirwad", studenNo: "2210647"),
+                                    SizedBox(height: 8,),
+                                feedback_card(
+                                    studentname: "Ashirwad", studenNo: "2210647"),
+                                
                               ]),
                             ),
                           ),
@@ -203,19 +163,7 @@ class _candidateAddState extends State<candidateAdd> {
                       height: screenHeight * 0.82,
                     ),
                   ),
-                  // ),
-                  // Expanded(
-                  // child:
-                  // CustomRoundedContainer(
-                  //   child: registeredCandidate(),
-                  //   height: heightFactor * 920,
-                  //   width: widthFactor * 450,
-                  //   padding: EdgeInsets.all(10 * widthFactor),
-                  //   margin: EdgeInsets.all(20 * widthFactor),
-                  //   color: Color.fromARGB(255, 255, 255, 255),
-                  // ),
-                  // ),
-                  // SizedBox(width: 10 * widthFactor), // Add this line to adjust the space between the columns
+                 
                 ],
               ),
             ),

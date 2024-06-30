@@ -1,12 +1,12 @@
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Import custom widgets and screens
 import '../Widgets/Custom_Container.dart'; // Adjust path as per your project structure
 import '../Widgets/questions_sidebar.dart'; // Import the updated QuestionsSidebar widget
 import '../components/questions_area.dart'; // Adjust path as per your project structure
 import '../constants/constants.dart'; // Adjust path as per your project structure
-import '../Screens/questions_download.dart'; // Import the QuestionsDownload screen
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({Key? key}) : super(key: key);
@@ -18,131 +18,108 @@ class QuestionScreen extends StatefulWidget {
 class _QuestionScreenState extends State<QuestionScreen> {
   int selectedIndex = 0; // Track selected tab index
   int selectedQuestionIndex = 0; // Track selected question index
+   bool _editMode = false; // Track edit mode
+  final TextEditingController _categoryController = TextEditingController();
 
-  // Data for HTML questions
-  List<String> htmlQuestions = [
-    'What is the full form of HTML?',
-    'What is the purpose of HTML?',
-    'What are HTML elements?',
-  ];
-  List<List<String>> htmlOptions = [
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-  ];
-  List<String> htmlCorrectAnswers = ['Option A', 'Option B', 'Option C'];
-  List<String> htmlExplanations = [
-    'HTML stands for HyperText Markup Language.',
-    'HTML is used for creating structured documents.',
-    'HTML elements are building blocks of HTML pages.',
-  ];
+  // Data for questions and answers
+  Map<String, List<String>> questions = {
+    'HTML': [
+      'What is the full form of HTML?',
+      'What is the purpose of HTML?',
+      'What are HTML elements?',
+    ],
+    'SQL': [
+      'What is SQL used for?',
+      'What are the types of SQL statements?',
+      'Explain SQL SELECT statement.',
+      'What is a SQL JOIN?',
+      'Explain SQL indexing.',
+      'What is the difference between SQL and NoSQL?',
+      'Explain ACID properties in SQL databases.',
+    ],
+    'CSS': [
+      'What is CSS?',
+      'What are CSS selectors?',
+      'Explain CSS box model.',
+    ],
+  };
 
-  // Data for SQL questions
-  List<String> sqlQuestions = [
-    'What is SQL used for?',
-    'What are the types of SQL statements?',
-    'Explain SQL SELECT statement.',
-    'What is a SQL JOIN?',
-    'Explain SQL indexing.',
-    'What is the difference between SQL and NoSQL?',
-    'Explain ACID properties in SQL databases.',
-  ];
-  List<List<String>> sqlOptions = [
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-  ];
-  List<String> sqlCorrectAnswers = [
-    'Option A',
-    'Option B',
-    'Option C',
-    'Option D',
-    'Option A',
-    'Option B',
-    'Option C',
-  ];
-  List<String> sqlExplanations = [
-    'SQL is used for managing data in a relational database.',
-    'Types include DDL, DML, DCL, TCL.',
-    'SELECT statement retrieves data from a database.',
-    'JOIN combines rows from two or more tables.',
-    'Indexing improves data retrieval speed.',
-    'SQL is relational, NoSQL is non-relational.',
-    'ACID stands for Atomicity, Consistency, Isolation, Durability.',
-  ];
+  Map<String, List<List<String>>> options = {
+    'HTML': [
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+    ],
+    'SQL': [
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+    ],
+    'CSS': [
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+      ['Option A', 'Option B', 'Option C', 'Option D'],
+    ],
+  };
 
-  // Data for CSS questions
-  List<String> cssQuestions = [
-    'What is CSS?',
-    'What are CSS selectors?',
-    'Explain CSS box model.',
-  ];
-  List<List<String>> cssOptions = [
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-    ['Option A', 'Option B', 'Option C', 'Option D'],
-  ];
-  List<String> cssCorrectAnswers = ['Option A', 'Option B', 'Option C'];
-  List<String> cssExplanations = [
-    'CSS stands for Cascading Style Sheets.',
-    'Selectors target specific HTML elements.',
-    'Box model describes layout of elements.',
-  ];
+  Map<String, List<String>> correctAnswers = {
+    'HTML': ['Option A', 'Option B', 'Option C'],
+    'SQL': [
+      'Option A',
+      'Option B',
+      'Option C',
+      'Option D',
+      'Option A',
+      'Option B',
+      'Option C',
+    ],
+    'CSS': ['Option A', 'Option B', 'Option C'],
+  };
+
+  Map<String, List<String>> explanations = {
+    'HTML': [
+      'HTML stands for HyperText Markup Language.',
+      'HTML is used for creating structured documents.',
+      'HTML elements are building blocks of HTML pages.',
+    ],
+    'SQL': [
+      'SQL is used for managing data in a relational database.',
+      'Types include DDL, DML, DCL, TCL.',
+      'SELECT statement retrieves data from a database.',
+      'JOIN combines rows from two or more tables.',
+      'Indexing improves data retrieval speed.',
+      'SQL is relational, NoSQL is non-relational.',
+      'ACID stands for Atomicity, Consistency, Isolation, Durability.',
+    ],
+    'CSS': [
+      'CSS stands for Cascading Style Sheets.',
+      'Selectors target specific HTML elements.',
+      'Box model describes layout of elements.',
+    ],
+  };
 
   List<String> get currentQuestions {
-    switch (selectedIndex) {
-      case 0:
-        return htmlQuestions;
-      case 1:
-        return sqlQuestions;
-      case 2:
-        return cssQuestions;
-      default:
-        return []; // Handle any other cases
-    }
+    String category = tabs[selectedIndex];
+    return questions[category] ?? [];
   }
 
   List<List<String>> get currentOptions {
-    switch (selectedIndex) {
-      case 0:
-        return htmlOptions;
-      case 1:
-        return sqlOptions;
-      case 2:
-        return cssOptions;
-      default:
-        return [[]]; // Handle any other cases
-    }
+    String category = tabs[selectedIndex];
+    return options[category] ?? [[]];
   }
 
   List<String> get currentCorrectAnswers {
-    switch (selectedIndex) {
-      case 0:
-        return htmlCorrectAnswers;
-      case 1:
-        return sqlCorrectAnswers;
-      case 2:
-        return cssCorrectAnswers;
-      default:
-        return []; // Handle any other cases
-    }
+    String category = tabs[selectedIndex];
+    return correctAnswers[category] ?? [];
   }
 
   List<String> get currentExplanations {
-    switch (selectedIndex) {
-      case 0:
-        return htmlExplanations;
-      case 1:
-        return sqlExplanations;
-      case 2:
-        return cssExplanations;
-      default:
-        return []; // Handle any other cases
-    }
+    String category = tabs[selectedIndex];
+    return explanations[category] ?? [];
   }
 
   void updateQuestionIndex(int index) {
@@ -153,12 +130,16 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   void deleteQuestion(int index) {
     setState(() {
+      String category = tabs[selectedIndex];
       if (index >= 0 && index < currentQuestions.length) {
-        currentQuestions.removeAt(index);
+        questions[category]?.removeAt(index);
+        options[category]?.removeAt(index);
+        correctAnswers[category]?.removeAt(index);
+        explanations[category]?.removeAt(index);
         if (selectedQuestionIndex == index) {
-          selectedQuestionIndex = 0; // Reset to first question if the selected question is deleted
+          selectedQuestionIndex = 0;
         } else if (selectedQuestionIndex > index) {
-          selectedQuestionIndex--; // Adjust index if the selected question was after the deleted question
+          selectedQuestionIndex--;
         }
       }
     });
@@ -170,8 +151,22 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   void addNewQuestion() {
     setState(() {
-      currentQuestions.add('New Question');
-      selectedQuestionIndex = currentQuestions.length - 1; // Select the newly added question
+      String category = tabs[selectedIndex];
+      questions[category]?.add('New Question');
+      options[category]?.add(['Option A', 'Option B', 'Option C', 'Option D']);
+      correctAnswers[category]?.add('Option A');
+      explanations[category]?.add('New Explanation');
+      selectedQuestionIndex = currentQuestions.length - 1;
+    });
+  }
+
+  void addNewCategory(String category) {
+    setState(() {
+      tabs.insert(tabs.length - 1, category);
+      questions[category] = [];
+      options[category] = [];
+      correctAnswers[category] = [];
+      explanations[category] = [];
     });
   }
 
@@ -179,12 +174,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
     // Not implemented in this example
   }
 
+  List<String> tabs = [
+    "HTML",
+    "SQL",
+    "CSS",
+    "Add+"
+  ]; // Assuming you have tabs corresponding to questions
+
   @override
   Widget build(BuildContext context) {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
     double widthFactor = MediaQuery.of(context).size.width / 1440;
-
-    List<String> tabs = ["HTML", "SQL", "CSS", "Add+"]; // Assuming you have tabs corresponding to questions
 
     return Scaffold(
       backgroundColor: backgroundColor1,
@@ -194,33 +194,71 @@ class _QuestionScreenState extends State<QuestionScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Main Content Area
               Expanded(
                 child: CustomRoundedContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Tab Bar
                       Container(
-                        padding: EdgeInsets.symmetric(vertical: 10 * heightFactor),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10 * heightFactor),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             for (int index = 0; index < tabs.length; index++)
                               SizedBox(
-                                width: widthFactor * 127, // Adjust width as needed
-                                height: heightFactor * 51, // Adjust height as needed
+                                width: widthFactor * 127,
+                                height: heightFactor * 51,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    setState(() {
-                                      selectedIndex = index; // Update selected index
-                                      selectedQuestionIndex = 0; // Reset selected question index on tab change
-                                    });
+                                    if (tabs[index] == 'Add+') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Add New Category'),
+                                            content: TextField(
+                                              controller: _categoryController,
+                                              decoration: InputDecoration(
+                                                  hintText: "Category Name"),
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                child: Text('Cancel'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text('Add'),
+                                                onPressed: () {
+                                                  String newCategory =
+                                                      _categoryController.text
+                                                          .trim();
+                                                  if (newCategory.isNotEmpty) {
+                                                    addNewCategory(newCategory);
+                                                    _categoryController.clear();
+                                                    Navigator.of(context).pop();
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      setState(() {
+                                        selectedIndex = index;
+                                        selectedQuestionIndex = 0;
+                                      });
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: index == selectedIndex ? primaryColor : Colors.white,
+                                    backgroundColor: index == selectedIndex
+                                        ? primaryColor
+                                        : Colors.white,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5), // Adjust border radius as needed
+                                      borderRadius: BorderRadius.circular(5),
                                     ),
                                   ),
                                   child: Text(
@@ -228,7 +266,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                     style: GoogleFonts.poppins(
                                       fontSize: widthFactor * 18,
                                       fontWeight: FontWeight.w500,
-                                      color: index == selectedIndex ? Colors.white : Colors.black, // Change text color based on selection
+                                      color: index == selectedIndex
+                                          ? Colors.white
+                                          : Colors.black,
                                     ),
                                   ),
                                 ),
@@ -236,19 +276,26 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           ],
                         ),
                       ),
-
-                      // Question Area for the selected tab and question
-                      if (selectedIndex < tabs.length - 1 && selectedQuestionIndex >= 0)
+                      if (selectedIndex < tabs.length - 1 &&
+                          selectedQuestionIndex >= 0)
                         QuestionArea(
-                          questionNumber: "Question-${selectedQuestionIndex + 1}",
-                          question: currentQuestions[selectedQuestionIndex],
-                          options: currentOptions[selectedQuestionIndex],
-                          correctAnswer: currentCorrectAnswers[selectedQuestionIndex],
-                          explanation: currentExplanations[selectedQuestionIndex],
+                          questionNumber:
+                              "Question-${selectedQuestionIndex + 1}",
+                          question: currentQuestions.isNotEmpty
+                              ? currentQuestions[selectedQuestionIndex]
+                              : '',
+                          options: currentOptions.isNotEmpty
+                              ? currentOptions[selectedQuestionIndex]
+                              : [],
+                          correctAnswer: currentCorrectAnswers.isNotEmpty
+                              ? currentCorrectAnswers[selectedQuestionIndex]
+                              : '',
+                          explanation: currentExplanations.isNotEmpty
+                              ? currentExplanations[selectedQuestionIndex]
+                              : '',
                           heightFactor: heightFactor,
                           widthFactor: widthFactor,
                         ),
-
                     ],
                   ),
                   height: heightFactor * 1200,
@@ -263,10 +310,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   color: backgroundColor,
                 ),
               ),
-
               SizedBox(width: 20 * widthFactor),
-
-              // Right Sidebar
               CustomRoundedContainer(
                 child: QuestionsSidebar(
                   questions: currentQuestions,

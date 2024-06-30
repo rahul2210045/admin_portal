@@ -23,6 +23,46 @@ class LoginApi {
       print("Response body: ${response.body}");
 
       if (response.statusCode == 200) {
+
+        // dynamic setCookieHeader = response.headers['Set-Cookie'];
+
+        // List<String>? cookies;
+        // // print(response.Cookies);
+        // print('Response headers: ${response.headers}');
+        // print('Cookies from response: ${response.headers['Set-Cookie']}');
+
+        // if (setCookieHeader is String) {
+        //   cookies = [setCookieHeader];
+        // } else if (setCookieHeader is List<String>) {
+        //   cookies = setCookieHeader;
+        // } else {
+        //   cookies = [];
+        // }
+
+        // print('Response Headers: $setCookieHeader');
+
+        // String accessToken = '';
+        // // String
+
+        // if (cookies.isNotEmpty) {
+        //   accessToken = cookies
+        //       .map((cookie) => cookie.split(';').first)
+        //       .firstWhere((value) => value.startsWith('accessToken='),
+        //           orElse: () => '');
+        // }
+        // String actualAccessToken = accessToken.substring("accesstoken=".length);
+
+        // print('Access Token from Cookie: $actualAccessToken');
+        // PreferencesManager().token = actualAccessToken;
+
+        // if (actualAccessToken.isNotEmpty) {
+        //   // prefs.setString('token', actualAccessToken);
+        //   print('Token stored in prefs: $actualAccessToken');
+        // } else {
+        //   // Handle the case where the token is empty
+        //   print('Token is empty');
+        // }
+
         return true; 
       } else {
         return false;

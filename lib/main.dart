@@ -1,4 +1,5 @@
 import 'package:admin_portal/Screens/Login.dart';
+import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,7 +20,8 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: SideMenuBar(userName: 'srishti',),
-      home: LoginPage(),
+      // home: LoginPage(),
+      home: candidateAdd(),
       // home: sidemenubar(userName: "vidhi"),
     );
   }

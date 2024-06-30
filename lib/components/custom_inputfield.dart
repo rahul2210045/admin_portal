@@ -7,9 +7,47 @@ import 'package:admin_portal/components/custom_inputfieldcard.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/screens/Candidate.dart';
 import 'package:flutter/material.dart';
+  import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class customInputField extends StatelessWidget {
-  const customInputField({super.key});
+   customInputField({super.key});
+  TextEditingController _name = TextEditingController();
+  TextEditingController _studentNo = TextEditingController();
+  TextEditingController _section = TextEditingController();
+  TextEditingController _branch = TextEditingController();
+  TextEditingController _mobileNo = TextEditingController();
+  TextEditingController _email = TextEditingController();
+
+
+
+Future<void> addStudent() async {
+  var url = Uri.parse('http://localhost:3000/admin/addStudent');
+  var request = http.Request('POST', url);
+
+  request.body = jsonEncode({
+    "name": _name.text,
+    "studentNumber": _studentNo.text,
+    "branch": _branch.text,
+    "gender": 'male',
+    "residency": "day scholar",
+    "email": _email.text,
+    "phone": _mobileNo.text,
+  });
+
+  request.headers.addAll({
+    'Content-Type': 'application/json',
+  });
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    print(await response.stream.bytesToString());
+  } else {
+    print(response.reasonPhrase);
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +61,15 @@ class customInputField extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  customInputFieldCard("Name", "Studnet No", '', context),
+                  customInputFieldCard("Name", "Studnet No", '',_name, _studentNo, context),
                   SizedBox(
                     height: 10,
                   ),
-                  customInputFieldCard("Section", "Branch", '', context),
+                  customInputFieldCard("Section", "Branch", '',_section, _branch, context),
                   SizedBox(
                     height: 10,
                   ),
-                  customInputFieldCard("Mobile No", "Email", '', context),
+                  customInputFieldCard("Mobile No", "Email", '',_mobileNo,_email, context),
                   SizedBox(
                     height: 100,
                   ),
@@ -52,7 +90,13 @@ class customInputField extends StatelessWidget {
                             widthFactor: widthFactor(context),
                             heightFactor: heightFactor(context),
                             text: "Register",
-                            onPressed: () {})
+                            onPressed: () {
+                              addStudent();
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(builder: (context) => Candidate()),
+                              // );
+                            })
                       ],
                     ),
                   ),

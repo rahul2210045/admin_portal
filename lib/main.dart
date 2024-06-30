@@ -23,8 +23,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: SideMenuBar(userName: 'srishti',),
-      // home: customInputField(),
-      // home: sidemenubar(userName: "vidhi"),
+      
     );
   }
 }

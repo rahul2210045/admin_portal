@@ -22,7 +22,7 @@ class customInputField extends StatelessWidget {
 
 
 Future<void> addStudent() async {
-  var url = Uri.parse('http://localhost:3000/admin/addStudent');
+  var url = Uri.parse('https://cine-admin-xar9.onrender.com/admin/addStudent');
   var request = http.Request('POST', url);
 
   request.body = jsonEncode({

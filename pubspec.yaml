@@ -42,9 +42,12 @@ dependencies:
   percent_indicator: ^4.2.3
   fl_chart: ^0.68.0
   http: ^1.2.1
+  cookie_jar: ^2.0.0
   shared_preferences: ^2.2.3
   get: ^4.6.6
   toastification: ^2.0.0
+
+
   # fl_chart: ^0.40.0
 
 dev_dependencies:

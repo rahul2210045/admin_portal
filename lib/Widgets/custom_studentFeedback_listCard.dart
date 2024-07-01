@@ -1,4 +1,4 @@
-import 'package:admin_portal/constants/constants.dart';
+// import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -27,7 +27,7 @@ class _feedback_cardState extends State<feedback_card> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
         tileColor: Colors.white,
         enabled: true,
-        minTileHeight:20,
+        // minTileHeight:20,
            
         
         

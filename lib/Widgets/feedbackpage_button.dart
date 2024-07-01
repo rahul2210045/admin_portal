@@ -26,11 +26,11 @@ class _feedback_buttonState extends State<feedback_button> {
       child: ElevatedButton(
         onPressed: widget.onTap,
         child: Text(widget.text),
-        style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(primaryColor),
-            foregroundColor: WidgetStatePropertyAll(Colors.white),
-            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5)))),
+        // style: ButtonStyle(
+        //     backgroundColor: WidgetStatePropertyAll(primaryColor),
+        //     foregroundColor: WidgetStatePropertyAll(Colors.white),
+        //     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(5)))),
       ),
     );
   }

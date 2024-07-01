@@ -1,5 +1,7 @@
 // ignore_for_file: sort_child_properties_last, prefer_const_constructors
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -7,6 +9,7 @@ import '../Widgets/Custom_Container.dart'; // Adjust path as per your project st
 import '../Widgets/questions_sidebar.dart'; // Import the updated QuestionsSidebar widget
 import '../components/questions_area.dart'; // Adjust path as per your project structure
 import '../constants/constants.dart'; // Adjust path as per your project structure
+import 'package:http/http.dart' as http;
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({Key? key}) : super(key: key);
@@ -18,7 +21,7 @@ class QuestionScreen extends StatefulWidget {
 class _QuestionScreenState extends State<QuestionScreen> {
   int selectedIndex = 0; // Track selected tab index
   int selectedQuestionIndex = 0; // Track selected question index
-   bool _editMode = false; // Track edit mode
+  bool _editMode = false; // Track edit mode
   final TextEditingController _categoryController = TextEditingController();
 
   // Data for questions and answers
@@ -128,6 +131,28 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
+  Future<void> deleteQuestionApi(String quesId) async {
+    var url = Uri.parse('http://localhost:3000/admin/deleteQuestion');
+    var request = http.Request('POST', url);
+
+    request.body = jsonEncode({
+      'quesId': quesId,
+    });
+
+    request.headers.addAll({
+      'Content-Type': 'application/json',
+    });
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseBody = await response.stream.bytesToString();
+      print(responseBody);
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   void deleteQuestion(int index) {
     setState(() {
       String category = tabs[selectedIndex];
@@ -142,6 +167,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
           selectedQuestionIndex--;
         }
       }
+      ;
+      deleteQuestionApi('201');
     });
   }
 

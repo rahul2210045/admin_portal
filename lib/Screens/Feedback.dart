@@ -16,7 +16,7 @@ class feedback_page extends StatefulWidget {
 }
 
 bool isEditing = false;
-final FeedbackRepository feedbackRepository = FeedbackRepository(baseUrl:"https://cine-student.onrender.com");
+final FeedbackRepository feedbackRepository = FeedbackRepository(baseUrl:"https://cine-admin-xar9.onrender.com");
 class _feedback_pageState extends State<feedback_page> {
   @override
   Widget build(BuildContext context) {

@@ -1,9 +1,6 @@
-import 'package:admin_portal/Screens/Candidate.dart';
 import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
 import 'package:admin_portal/Screens/questions_page.dart';
-import 'package:admin_portal/Screens/questions_page.dart';
-import 'package:admin_portal/Screens/questions_download.dart';
 // import 'package:admin_portal/Screens/QuizScreen.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
@@ -150,14 +147,17 @@ class _SideMenuBarState extends State<SideMenuBar> {
               SizedBox(width: 7 * widthFactor),
             ],
             Flexible(
-              child: Text(
-                text,
-                style: GoogleFonts.poppins(
-                  color: _selectedIndex == index ? Colors.white : primaryColor,
-                  fontSize: 14 * widthFactor,
-                  fontWeight: FontWeight.w500,
+              child: Tooltip(
+                message: text,
+                child: Text(
+                  text,
+                  style: GoogleFonts.poppins(
+                    color: _selectedIndex == index ? Colors.white : primaryColor,
+                    fontSize: 14 * widthFactor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

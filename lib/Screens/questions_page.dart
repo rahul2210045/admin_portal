@@ -4,9 +4,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../Widgets/Custom_Container.dart'; // Adjust path as per your project structure
 import '../Widgets/questions_sidebar.dart'; // Import the updated QuestionsSidebar widget
+import '../components/custom_button.dart';
 import '../components/questions_area.dart'; // Adjust path as per your project structure
 import '../constants/constants.dart'; // Adjust path as per your project structure
 import 'package:http/http.dart' as http;
@@ -19,110 +22,96 @@ class QuestionScreen extends StatefulWidget {
 }
 
 class _QuestionScreenState extends State<QuestionScreen> {
+  bool isEditing = false;
   int selectedIndex = 0; // Track selected tab index
   int selectedQuestionIndex = 0; // Track selected question index
-  bool _editMode = false; // Track edit mode
-  final TextEditingController _categoryController = TextEditingController();
+  final List<String> savedQuestions = []; // Initialize savedQuestions here
 
-  // Data for questions and answers
-  Map<String, List<String>> questions = {
-    'HTML': [
-      'What is the full form of HTML?',
-      'What is the purpose of HTML?',
-      'What are HTML elements?',
-    ],
-    'SQL': [
-      'What is SQL used for?',
-      'What are the types of SQL statements?',
-      'Explain SQL SELECT statement.',
-      'What is a SQL JOIN?',
-      'Explain SQL indexing.',
-      'What is the difference between SQL and NoSQL?',
-      'Explain ACID properties in SQL databases.',
-    ],
-    'CSS': [
-      'What is CSS?',
-      'What are CSS selectors?',
-      'Explain CSS box model.',
-    ],
-  };
+  List<String> currentQuestions = [];
+  List<List<String>> currentOptions = [];
+  List<String> currentCorrectAnswers = [];
+  List<String> currentExplanations = [];
 
-  Map<String, List<List<String>>> options = {
-    'HTML': [
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-    ],
-    'SQL': [
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-    ],
-    'CSS': [
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-      ['Option A', 'Option B', 'Option C', 'Option D'],
-    ],
-  };
+  bool isLoading = true;
+  bool isError = false;
 
-  Map<String, List<String>> correctAnswers = {
-    'HTML': ['Option A', 'Option B', 'Option C'],
-    'SQL': [
-      'Option A',
-      'Option B',
-      'Option C',
-      'Option D',
-      'Option A',
-      'Option B',
-      'Option C',
-    ],
-    'CSS': ['Option A', 'Option B', 'Option C'],
-  };
+  late http.Client client;
 
-  Map<String, List<String>> explanations = {
-    'HTML': [
-      'HTML stands for HyperText Markup Language.',
-      'HTML is used for creating structured documents.',
-      'HTML elements are building blocks of HTML pages.',
-    ],
-    'SQL': [
-      'SQL is used for managing data in a relational database.',
-      'Types include DDL, DML, DCL, TCL.',
-      'SELECT statement retrieves data from a database.',
-      'JOIN combines rows from two or more tables.',
-      'Indexing improves data retrieval speed.',
-      'SQL is relational, NoSQL is non-relational.',
-      'ACID stands for Atomicity, Consistency, Isolation, Durability.',
-    ],
-    'CSS': [
-      'CSS stands for Cascading Style Sheets.',
-      'Selectors target specific HTML elements.',
-      'Box model describes layout of elements.',
-    ],
-  };
+  List<String> tabs = ["HTML", "CSS", "Aptitude", "Java"];
+  Map<String, List<String>> allQuestions = {};
+  Map<String, List<List<String>>> allOptions = {};
+  Map<String, List<String>> allCorrectAnswers = {};
+  Map<String, List<String>> allExplanations = {};
 
-  List<String> get currentQuestions {
-    String category = tabs[selectedIndex];
-    return questions[category] ?? [];
+  @override
+  void initState() {
+    super.initState();
+    client = http.Client();
+    fetchData(); // Call your API fetch function here for the initial tab
   }
 
-  List<List<String>> get currentOptions {
-    String category = tabs[selectedIndex];
-    return options[category] ?? [[]];
+  @override
+  void dispose() {
+    client.close(); // Close the HTTP client when no longer needed
+    super.dispose();
   }
 
-  List<String> get currentCorrectAnswers {
-    String category = tabs[selectedIndex];
-    return correctAnswers[category] ?? [];
-  }
+  Future<void> fetchData() async {
+    final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
 
-  List<String> get currentExplanations {
-    String category = tabs[selectedIndex];
-    return explanations[category] ?? [];
+    try {
+      final response = await client.get(Uri.parse(apiUrl));
+
+      print('Response status code: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        // Parsing questions for each tab
+        for (var tab in tabs) {
+          if (jsonData[tab] != null) {
+            List<String> questions = [];
+            List<List<String>> options = [];
+            List<String> correctAnswers = [];
+            List<String> explanations = [];
+
+            for (var item in jsonData[tab]) {
+              questions.add(item['question'].toString());
+              options.add(List<String>.from(
+                  item['options'].map((option) => option['desc'].toString())));
+              correctAnswers.add(item['answer'].toString());
+              explanations.add('');
+            }
+
+            allQuestions[tab] = questions;
+            allOptions[tab] = options;
+            allCorrectAnswers[tab] = correctAnswers;
+            allExplanations[tab] = explanations;
+          }
+        }
+
+        setState(() {
+          // Update state for the initial tab
+          currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
+          currentOptions = allOptions[tabs[selectedIndex]] ?? [];
+          currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
+          currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
+          isLoading = false;
+          isError = false;
+        });
+      } else {
+        setState(() {
+          isError = true;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Exception while fetching questions: $e');
+      setState(() {
+        isError = true;
+        isLoading = false;
+      });
+    }
   }
 
   void updateQuestionIndex(int index) {
@@ -157,10 +146,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
     setState(() {
       String category = tabs[selectedIndex];
       if (index >= 0 && index < currentQuestions.length) {
-        questions[category]?.removeAt(index);
-        options[category]?.removeAt(index);
-        correctAnswers[category]?.removeAt(index);
-        explanations[category]?.removeAt(index);
+        currentQuestions.removeAt(index);
+        currentOptions.removeAt(index);
+        currentCorrectAnswers.removeAt(index);
+        currentExplanations.removeAt(index);
         if (selectedQuestionIndex == index) {
           selectedQuestionIndex = 0;
         } else if (selectedQuestionIndex > index) {
@@ -173,43 +162,42 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   void saveQuestions(List<String> updatedQuestions) {
-    // Not implemented in this example
+    setState(() {
+      savedQuestions.clear();
+      savedQuestions.addAll(updatedQuestions);
+    });
   }
 
   void addNewQuestion() {
     setState(() {
-      String category = tabs[selectedIndex];
-      questions[category]?.add('New Question');
-      options[category]?.add(['Option A', 'Option B', 'Option C', 'Option D']);
-      correctAnswers[category]?.add('Option A');
-      explanations[category]?.add('New Explanation');
-      selectedQuestionIndex = currentQuestions.length - 1;
+      currentQuestions.add('New Question');
+      currentOptions.add(['Option A', 'Option B', 'Option C', 'Option D']);
+      currentCorrectAnswers.add('Option A');
+      currentExplanations.add('Explanation for the new question');
+      selectedQuestionIndex = currentQuestions.length - 1; // Select the newly added question
     });
   }
 
-  void addNewCategory(String category) {
-    setState(() {
-      tabs.insert(tabs.length - 1, category);
-      questions[category] = [];
-      options[category] = [];
-      correctAnswers[category] = [];
-      explanations[category] = [];
-    });
-  }
-
-  void navigateToDownloadPage() {
-    // Not implemented in this example
-  }
-
-  List<String> tabs = [
-    "HTML",
-    "SQL",
-    "CSS",
-    "Add+"
-  ]; // Assuming you have tabs corresponding to questions
+  void navigateToDownloadPage() {}
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (isError) {
+      return Center(child: Text('Failed to load questions.'));
+    } else {
+      if (isEditing) {
+        return _buildQuestionEditingPage();
+      }
+      return _buildQuestionPage();
+    }
+  }
+
+  Widget _buildQuestionPage() {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
     double widthFactor = MediaQuery.of(context).size.width / 1440;
 
@@ -238,46 +226,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                 height: heightFactor * 51,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    if (tabs[index] == 'Add+') {
-                                      showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Add New Category'),
-                                            content: TextField(
-                                              controller: _categoryController,
-                                              decoration: InputDecoration(
-                                                  hintText: "Category Name"),
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                child: Text('Cancel'),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                              TextButton(
-                                                child: Text('Add'),
-                                                onPressed: () {
-                                                  String newCategory =
-                                                      _categoryController.text
-                                                          .trim();
-                                                  if (newCategory.isNotEmpty) {
-                                                    addNewCategory(newCategory);
-                                                    _categoryController.clear();
-                                                    Navigator.of(context).pop();
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    } else {
+                                    if (index >= 0 && index < tabs.length) {
                                       setState(() {
                                         selectedIndex = index;
-                                        selectedQuestionIndex = 0;
+                                        selectedQuestionIndex = 0; // Reset selected question index on tab change
+                                        // Update current questions based on selected tab
+                                        currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
+                                        currentOptions = allOptions[tabs[selectedIndex]] ?? [];
+                                        currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
+                                        currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
                                       });
+
+                                      // Fetch data for the selected tab if not already fetched
+                                      if (allQuestions[tabs[selectedIndex]] == null) {
+                                        fetchData();
+                                      }
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -293,9 +256,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                                     style: GoogleFonts.poppins(
                                       fontSize: widthFactor * 18,
                                       fontWeight: FontWeight.w500,
-                                      color: index == selectedIndex
-                                          ? Colors.white
-                                          : Colors.black,
+                                      color: index == selectedIndex ? Colors.white : Colors.black,
                                     ),
                                   ),
                                 ),
@@ -303,26 +264,19 @@ class _QuestionScreenState extends State<QuestionScreen> {
                           ],
                         ),
                       ),
-                      if (selectedIndex < tabs.length - 1 &&
-                          selectedQuestionIndex >= 0)
-                        QuestionArea(
-                          questionNumber:
-                              "Question-${selectedQuestionIndex + 1}",
-                          question: currentQuestions.isNotEmpty
-                              ? currentQuestions[selectedQuestionIndex]
-                              : '',
-                          options: currentOptions.isNotEmpty
-                              ? currentOptions[selectedQuestionIndex]
-                              : [],
-                          correctAnswer: currentCorrectAnswers.isNotEmpty
-                              ? currentCorrectAnswers[selectedQuestionIndex]
-                              : '',
-                          explanation: currentExplanations.isNotEmpty
-                              ? currentExplanations[selectedQuestionIndex]
-                              : '',
-                          heightFactor: heightFactor,
-                          widthFactor: widthFactor,
-                        ),
+
+                      // Question Area for the selected tab and question
+                      if (selectedIndex >= 0 && selectedIndex < tabs.length)
+                        if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length)
+                          QuestionArea(
+                            questionNumber: "Question-${selectedQuestionIndex + 1}",
+                            question: currentQuestions[selectedQuestionIndex],
+                            options: currentOptions[selectedQuestionIndex],
+                            correctAnswer: currentCorrectAnswers[selectedQuestionIndex],
+                            explanation: currentExplanations[selectedQuestionIndex],
+                            heightFactor: heightFactor,
+                            widthFactor: widthFactor,
+                          ),
                     ],
                   ),
                   height: heightFactor * 1200,
@@ -358,6 +312,44 @@ class _QuestionScreenState extends State<QuestionScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuestionEditingPage() {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Questions'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                isEditing = false;
+              });
+            },
+            icon: Icon(Icons.done),
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Editing Mode'),
+            ElevatedButton(
+              onPressed: () {
+                addNewQuestion();
+              },
+              child: Text('Add New Question'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                navigateToDownloadPage();
+              },
+              child: Text('Download Questions'),
+            ),
+          ],
         ),
       ),
     );

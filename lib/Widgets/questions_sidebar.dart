@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert'; // For using jsonEncode
 import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
@@ -31,10 +33,47 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     });
   }
 
-  void addQuestion() {
-    setState(() {
-      widget.questions.add('New Question'); // Add a default new question
-    });
+  void addQuestion() async {
+    final newQuestion = {
+      "quesId": "51",
+      "question": "Full form of HTML",
+      "options": [
+        {"desc": "option 1", "id": "1"},
+        {"desc": "option 2", "id": "2"},
+        {"desc": "option 3", "id": "3"},
+        {"desc": "option 4", "id": "4"},
+      ],
+      "subject": "HTML",
+      "answer": "3"
+    };
+
+    final String authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk3NTk3NzUsImV4cCI6MTcxOTc2Njk3NSwiYXVkIjoiNjY3NmExNzIyOGQzOTQwZWQwMTgxNDdhIiwiaXNzIjoiY2luZV9jc2kifQ.KM5CaRAGdjtmDnufZ4CAcEIdGlH68cf5-35Ls2AvNe4';
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+        headers: {
+          'Content-Type': 'application/json',
+          // No Authorization header needed here since token is in cookies
+        },
+        body: jsonEncode(newQuestion),
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        setState(() {
+          widget.questions.add(newQuestion['question'] as String); // Add the new question
+        });
+      } else {
+        // Handle error
+        print('Failed to add question: ${response.reasonPhrase}');
+        print('Error message: ${jsonDecode(response.body)['message']}'); // Print detailed error message if available
+      }
+    } catch (e) {
+      print('Error adding question: $e');
+    }
   }
 
   @override

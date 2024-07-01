@@ -2,6 +2,7 @@ import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
 import 'package:admin_portal/repository/models/LoginApi.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,7 +32,6 @@ class _LoginPageState extends State<LoginPage> {
 
     // Validation
     if (username.isEmpty || password.isEmpty) {
-      // _showErrorDialog('Please fill in all fields.');
       return;
     }
 
@@ -47,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       if (success) {
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful')),
         );
@@ -67,23 +68,66 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Error'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return AlertDialog(
+    //       title: Text('Error'),
+    //       content: Text(message),
+    //       actions: [
+    //         TextButton(
+    //           child: Text('OK'),
+    //           onPressed: () {
+    //             Navigator.of(context).pop();
+    //           },
+    //         ),
+    //       ],
+    //     );
+    //   },
+    // );
+    toastification.show(
+  context: context, // optional if you use ToastificationWrapper
+  type: ToastificationType.success,
+  style: ToastificationStyle.flatColored,
+  autoCloseDuration: const Duration(seconds: 5),
+  title: Text(message),
+  alignment: Alignment.topRight,
+  direction: TextDirection.ltr,
+  animationDuration: const Duration(milliseconds: 300),
+  // animationBuilder: (context, animation, alignment, child) {
+  //   // return FadeTransition(
+  //   //   turns: animation,
+  //   //   child: child,
+  //   // );
+  // },
+  icon: const Icon(Icons.check),
+  primaryColor: Colors.green,
+  backgroundColor: Colors.white,
+  foregroundColor: Colors.black,
+  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  borderRadius: BorderRadius.circular(12),
+  boxShadow: const [
+    BoxShadow(
+      color: Color(0x07000000),
+      blurRadius: 16,
+      offset: Offset(0, 16),
+      spreadRadius: 0,
+    )
+  ],
+  showProgressBar: true,
+  closeButtonShowType: CloseButtonShowType.onHover,
+  closeOnClick: false,
+  pauseOnHover: true,
+  dragToClose: true,
+  applyBlurEffect: true,
+  callbacks: ToastificationCallbacks(
+    onTap: (toastItem) => print('Toast ${toastItem.id} tapped'),
+    onCloseButtonTap: (toastItem) => print('Toast ${toastItem.id} close button tapped'),
+    onAutoCompleteCompleted: (toastItem) => print('Toast ${toastItem.id} auto complete completed'),
+    onDismissed: (toastItem) => print('Toast ${toastItem.id} dismissed'),
+  ),
+);
   }
 
   @override

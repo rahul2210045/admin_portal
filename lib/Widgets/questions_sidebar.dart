@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; // For using jsonEncode
 import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
@@ -9,7 +7,8 @@ class QuestionsSidebar extends StatefulWidget {
   final List<String> questions;
   final Function(int) onQuestionSelected;
   final Function(int) onDeleteQuestion;
-  final Function(List<String>) onSaveQuestions; // Callback to save questions
+  final Function(List<String>) onSaveQuestions;
+  final Function() onAddNewQuestion; // Callback to add a new question
 
   const QuestionsSidebar({
     Key? key,
@@ -17,6 +16,7 @@ class QuestionsSidebar extends StatefulWidget {
     required this.onQuestionSelected,
     required this.onDeleteQuestion,
     required this.onSaveQuestions,
+    required this.onAddNewQuestion,
   }) : super(key: key);
 
   @override
@@ -24,57 +24,54 @@ class QuestionsSidebar extends StatefulWidget {
 }
 
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
-  int selectedIndex = -1; // Track selected index, -1 means none selected
+  int selectedIndex = -1;
+  TextEditingController _questionController = TextEditingController();
 
   void deleteQuestion(int index) {
     widget.onDeleteQuestion(index);
     setState(() {
-      selectedIndex = -1; // Reset selection
+      selectedIndex = -1;
     });
   }
 
-  void addQuestion() async {
-    final newQuestion = {
-      "quesId": "51",
-      "question": "Full form of HTML",
-      "options": [
-        {"desc": "option 1", "id": "1"},
-        {"desc": "option 2", "id": "2"},
-        {"desc": "option 3", "id": "3"},
-        {"desc": "option 4", "id": "4"},
-      ],
-      "subject": "HTML",
-      "answer": "3"
-    };
-
-    final String authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk3NTk3NzUsImV4cCI6MTcxOTc2Njk3NSwiYXVkIjoiNjY3NmExNzIyOGQzOTQwZWQwMTgxNDdhIiwiaXNzIjoiY2luZV9jc2kifQ.KM5CaRAGdjtmDnufZ4CAcEIdGlH68cf5-35Ls2AvNe4';
-
-    try {
-      final response = await http.post(
-        Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
-        headers: {
-          'Content-Type': 'application/json',
-          // No Authorization header needed here since token is in cookies
-        },
-        body: jsonEncode(newQuestion),
-      );
-
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        setState(() {
-          widget.questions.add(newQuestion['question'] as String); // Add the new question
-        });
-      } else {
-        // Handle error
-        print('Failed to add question: ${response.reasonPhrase}');
-        print('Error message: ${jsonDecode(response.body)['message']}'); // Print detailed error message if available
-      }
-    } catch (e) {
-      print('Error adding question: $e');
-    }
+  void showAddQuestionDialog() {
+    _questionController.clear();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add New Question'),
+          content: TextField(
+            controller: _questionController,
+            decoration: InputDecoration(hintText: "Enter your question"),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_questionController.text.isNotEmpty) {
+                  // Add the question only if it's not empty
+                  widget.questions.add(_questionController.text);
+                  widget.onAddNewQuestion(); // Notify the parent widget
+                  widget.onQuestionSelected(widget.questions.length - 1); // Select the newly added question
+                }
+                Navigator.of(context).pop();
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +81,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          // Top "Question" label
           Container(
             width: double.infinity,
             height: heightFactor * 80,
@@ -104,8 +100,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
             ),
           ),
           SizedBox(height: 20 * heightFactor),
-
-          // Grid of question numbers and Add Question button
           Container(
             width: double.infinity,
             padding: EdgeInsets.all(10 * heightFactor),
@@ -116,30 +110,28 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                 mainAxisSpacing: 10 * heightFactor,
                 crossAxisSpacing: 10 * widthFactor,
               ),
-              itemCount: widget.questions.length + 1, // +1 for Add Question button
+              itemCount: widget.questions.length + 1,
               itemBuilder: (context, index) {
                 if (index == widget.questions.length) {
-                  // Add Question button
                   return GestureDetector(
-                    onTap: addQuestion,
+                    onTap: showAddQuestionDialog,
                     child: Container(
                       width: 60 * widthFactor,
                       height: 60 * heightFactor,
                       margin: EdgeInsets.all(10),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Colors.white, // White background for the button
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         Icons.add,
-                        color: primaryColor, // Blue color for the "+" icon
+                        color: primaryColor,
                         size: 30 * widthFactor,
                       ),
                     ),
                   );
                 } else {
-                  // Existing question tiles
                   return GestureDetector(
                     onTap: () {
                       setState(() {
@@ -175,8 +167,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
             ),
           ),
           SizedBox(height: 20 * heightFactor),
-
-          // Delete and Save buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -203,7 +193,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Save questions and navigate to QuestionsDownload page
                   widget.onSaveQuestions(widget.questions);
                   Navigator.push(
                     context,

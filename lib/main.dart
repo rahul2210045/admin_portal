@@ -1,3 +1,4 @@
+import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Login.dart';
 import 'package:admin_portal/Screens/Candidate.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
@@ -29,7 +30,6 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: LoginPage(),
-      // home: candidateAdd(),
     );
   }
 }

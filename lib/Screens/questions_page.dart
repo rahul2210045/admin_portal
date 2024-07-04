@@ -19,6 +19,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   bool isEditing = false;
   int selectedIndex = 0;
   int selectedQuestionIndex = 0;
+  int editingQuestionIndex = -1; // Track the index of the question being edited
 
   List<String> currentQuestions = [];
   List<List<String>> currentOptions = [];
@@ -205,6 +206,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
+  void toggleEditingMode(int index) {
+    setState(() {
+      editingQuestionIndex = editingQuestionIndex == index ? -1 : index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -322,6 +329,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
           explanation: currentExplanations.length > selectedQuestionIndex ? currentExplanations[selectedQuestionIndex] : '',
           heightFactor: heightFactor,
           widthFactor: widthFactor,
+          isEditing: editingQuestionIndex == selectedQuestionIndex,
+          toggleEditingMode: () => toggleEditingMode(selectedQuestionIndex),
         );
       } else {
         // Handle case when selectedQuestionIndex is out of bounds
@@ -392,4 +401,3 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 }
-

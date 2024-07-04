@@ -13,6 +13,7 @@ class QuestionArea extends StatefulWidget {
   final double widthFactor;
   final bool isEditing;
   final VoidCallback toggleEditingMode;
+  final Function(String question, List<String> options, String correctAnswer, String explanation) updateQuestionDetails;
 
   const QuestionArea({
     Key? key,
@@ -25,6 +26,7 @@ class QuestionArea extends StatefulWidget {
     required this.widthFactor,
     required this.isEditing,
     required this.toggleEditingMode,
+    required this.updateQuestionDetails,
   }) : super(key: key);
 
   @override
@@ -53,7 +55,6 @@ class _QuestionAreaState extends State<QuestionArea> {
   @override
   void didUpdateWidget(covariant QuestionArea oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Update controllers when widget properties change
     if (oldWidget.question != widget.question) {
       _questionController.text = widget.question;
     }
@@ -81,6 +82,15 @@ class _QuestionAreaState extends State<QuestionArea> {
     _correctAnswerController.dispose();
     _explanationController.dispose();
     super.dispose();
+  }
+
+  void _handleTickIconPressed() {
+    widget.updateQuestionDetails(
+      _questionController.text,
+      _optionControllers.map((controller) => controller.text).toList(),
+      _correctAnswerController.text,
+      _explanationController.text,
+    );
   }
 
   @override
@@ -130,39 +140,34 @@ class _QuestionAreaState extends State<QuestionArea> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: widget.toggleEditingMode,
+                    onTap: widget.isEditing ? _handleTickIconPressed : widget.toggleEditingMode,
                     child: Icon(widget.isEditing ? Icons.check : Icons.edit),
                   ),
                 ],
               ),
               SizedBox(height: 20 * widget.heightFactor),
-
-              // Divider between question and options
               Divider(
                 color: Colors.black,
                 thickness: 1,
                 height: 20 * widget.heightFactor,
               ),
-
               SizedBox(height: 20 * widget.heightFactor),
-
-              // Options
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (int index = 0; index < widget.options.length; index++)
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 12 * widget.heightFactor),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedOptionIndex = index;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 28 * widget.widthFactor, // Adjust radio button size
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedOptionIndex = index;
+                              });
+                            },
+                            child: Container(
+                              width: 28 * widget.widthFactor,
                               height: 28 * widget.heightFactor,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
@@ -170,23 +175,38 @@ class _QuestionAreaState extends State<QuestionArea> {
                                   color: selectedOptionIndex == index ? Colors.blue : primaryColor,
                                   width: 2,
                                 ),
-                                // color: selectedOptionIndex == index ? Colors.transparent : primaryColor,
                               ),
                               child: selectedOptionIndex == index
                                   ? Center(
                                 child: Container(
-                                  width: 14 * widget.widthFactor, // Adjust selected indicator size
+                                  width: 14 * widget.widthFactor,
                                   height: 14 * widget.heightFactor,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: primaryColor, // Selected indicator color
+                                    color: primaryColor,
                                   ),
                                 ),
                               )
                                   : null,
                             ),
-                            SizedBox(width: 20 * widget.widthFactor),
-                            Expanded(
+                          ),
+                          SizedBox(width: 20 * widget.widthFactor),
+                          Expanded(
+                            child: widget.isEditing
+                                ? TextField(
+                              controller: _optionControllers[index],
+                              style: GoogleFonts.poppins(
+                                fontSize: 20 * widget.widthFactor,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                              ),
+                              maxLines: null,
+                            )
+                                : GestureDetector(
+                              onTap: widget.toggleEditingMode,
                               child: Text(
                                 widget.options[index],
                                 style: GoogleFonts.poppins(
@@ -196,17 +216,13 @@ class _QuestionAreaState extends State<QuestionArea> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                 ],
               ),
-
-
               SizedBox(height: 100 * widget.heightFactor),
-
-              // Correct Answer and Explanation
               Text(
                 "Correct Answer",
                 style: GoogleFonts.poppins(

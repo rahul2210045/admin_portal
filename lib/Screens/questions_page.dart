@@ -153,12 +153,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
       currentOptions.add(options);
       currentCorrectAnswers.add(correctAnswer);
       currentExplanations.add(description);
-      // Optionally, add logic to save to backend or perform any other actions
-      // saveNewQuestion(question, options, correctAnswer, description, questionId);
       selectedQuestionIndex = currentQuestions.length - 1;
     });
   }
-
 
   void navigateToDownloadPage() {
     // Implement navigation logic
@@ -211,7 +208,20 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   void toggleEditingMode(int index) {
     setState(() {
+      // Toggle the editing mode for the selected question
       editingQuestionIndex = editingQuestionIndex == index ? -1 : index;
+    });
+  }
+
+  void updateQuestionDetails(String newQuestion, List<String> newOptions, String newCorrectAnswer, String newExplanation) {
+    setState(() {
+      // Update the details of the selected question
+      currentQuestions[selectedQuestionIndex] = newQuestion;
+      currentOptions[selectedQuestionIndex] = newOptions;
+      currentCorrectAnswers[selectedQuestionIndex] = newCorrectAnswer;
+      currentExplanations[selectedQuestionIndex] = newExplanation;
+      // Exit editing mode after updating
+      editingQuestionIndex = -1;
     });
   }
 
@@ -222,7 +232,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     } else if (isError) {
       return Center(child: Text('Failed to load questions.'));
     } else {
-      return isEditing ? _buildQuestionEditingPage() : _buildQuestionPage();
+      return _buildQuestionPage();
     }
   }
 
@@ -334,6 +344,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
           widthFactor: widthFactor,
           isEditing: editingQuestionIndex == selectedQuestionIndex,
           toggleEditingMode: () => toggleEditingMode(selectedQuestionIndex),
+          updateQuestionDetails: updateQuestionDetails, // Pass the callback
         );
       } else {
         // Handle case when selectedQuestionIndex is out of bounds
@@ -347,6 +358,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
       return Container();
     }
   }
+
 
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(
@@ -367,40 +379,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
       ),
       margin: EdgeInsets.only(top: 20 * heightFactor),
       color: backgroundColor,
-    );
-  }
-
-  Widget _buildQuestionEditingPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Questions'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                isEditing = false;
-              });
-            },
-            icon: Icon(Icons.done),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Editing Mode'),
-            // ElevatedButton(
-            //   onPressed: addNewQuestion,
-            //   child: Text('Add New Question'),
-            // ),
-            ElevatedButton(
-              onPressed: navigateToDownloadPage,
-              child: Text('Download Questions'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

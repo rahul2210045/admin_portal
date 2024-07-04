@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: feedback_page(),
+      home: LoginPage(),
       // home: candidateAdd(),
     );
   }

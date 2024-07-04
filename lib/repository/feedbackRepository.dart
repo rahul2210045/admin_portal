@@ -9,7 +9,7 @@ class FeedbackRepository {
   FeedbackRepository({required this.baseUrl});
 
   Future<List<feedbackModel>> fetchFeedbackQuestions() async {
-    final url = Uri.parse('$baseUrl/admin/feedback/feedbackQuestions');
+    final url = Uri.parse('${baseUrl}/admin/feedback/getFeedbackQuestions');
     
     // Retrieve the access token
     final String accessToken = PreferencesManager().token;

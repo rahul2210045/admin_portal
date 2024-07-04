@@ -16,18 +16,19 @@ class feedback_page extends StatefulWidget {
 }
 
 bool isEditing = false;
-final FeedbackRepository feedbackRepository = FeedbackRepository(baseUrl:"https://cine-admin-xar9.onrender.com");
+final FeedbackRepository feedbackRepository =
+    FeedbackRepository(baseUrl: "https://cine-admin-xar9.onrender.com");
+
 class _feedback_pageState extends State<feedback_page> {
   @override
   Widget build(BuildContext context) {
-   
     if (isEditing == true) {
       return _buildFeedbackEditingPage();
     }
     return _buildFeedbackPage();
   }
-  
-Widget _buildFeedbackEditingPage() {
+
+  Widget _buildFeedbackEditingPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -306,13 +307,3 @@ Widget _buildFeedbackEditingPage() {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

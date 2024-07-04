@@ -37,7 +37,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   late http.Client client;
 
-  List<String> tabs = ["HTML", "CSS", "Aptitude", "Java"];
+  List<String> tabs = ["HTML", "CSS", "Java", "ADD+"]; // Added ADD+ for adding new tabs
   Map<String, List<String>> allQuestions = {};
   Map<String, List<List<String>>> allOptions = {};
   Map<String, List<String>> allCorrectAnswers = {};
@@ -47,7 +47,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   void initState() {
     super.initState();
     client = http.Client();
-    fetchData(); // Call your API fetch function here for the initial tab
+    fetchData(tab: tabs[selectedIndex]); // Call your API fetch function here for the initial tab
   }
 
   @override
@@ -56,7 +56,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     super.dispose();
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({required String tab}) async {
     final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
 
     try {
@@ -67,38 +67,43 @@ class _QuestionScreenState extends State<QuestionScreen> {
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
 
-        // Parsing questions for each tab
-        for (var tab in tabs) {
-          if (jsonData[tab] != null) {
-            List<String> questions = [];
-            List<List<String>> options = [];
-            List<String> correctAnswers = [];
-            List<String> explanations = [];
+        // Parsing questions for the specified tab
+        if (jsonData[tab] != null) {
+          List<String> questions = [];
+          List<List<String>> options = [];
+          List<String> correctAnswers = [];
+          List<String> explanations = [];
 
-            for (var item in jsonData[tab]) {
-              questions.add(item['question'].toString());
-              options.add(List<String>.from(
-                  item['options'].map((option) => option['desc'].toString())));
-              correctAnswers.add(item['answer'].toString());
-              explanations.add('');
-            }
+          for (var item in jsonData[tab]) {
+            questions.add(item['question'].toString());
+            options.add(List<String>.from(
+                item['options'].map((option) => option['desc'].toString())));
+            correctAnswers.add(item['answer'].toString());
+            explanations.add('');
+          }
 
+          setState(() {
             allQuestions[tab] = questions;
             allOptions[tab] = options;
             allCorrectAnswers[tab] = correctAnswers;
             allExplanations[tab] = explanations;
-          }
-        }
 
-        setState(() {
-          // Update state for the initial tab
-          currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
-          currentOptions = allOptions[tabs[selectedIndex]] ?? [];
-          currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
-          currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
-          isLoading = false;
-          isError = false;
-        });
+            if (tab == tabs[selectedIndex]) {
+              // Update state for the currently selected tab
+              currentQuestions = allQuestions[tab] ?? [];
+              currentOptions = allOptions[tab] ?? [];
+              currentCorrectAnswers = allCorrectAnswers[tab] ?? [];
+              currentExplanations = allExplanations[tab] ?? [];
+              isLoading = false;
+              isError = false;
+            }
+          });
+        } else {
+          setState(() {
+            isError = true;
+            isLoading = false;
+          });
+        }
       } else {
         setState(() {
           isError = true;
@@ -180,6 +185,50 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   void navigateToDownloadPage() {}
 
+  void showAddTabDialog() {
+    TextEditingController tabNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Add New Tab"),
+          content: TextField(
+            controller: tabNameController,
+            decoration: InputDecoration(hintText: "Enter tab name"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                String newTab = tabNameController.text.trim();
+                if (newTab.isNotEmpty && !tabs.contains(newTab)) {
+                  setState(() {
+                    tabs.insert(tabs.length - 1, newTab); // Add new tab before "ADD+"
+                    // Initialize the new tab data structures
+                    allQuestions[newTab] = [];
+                    allOptions[newTab] = [];
+                    allCorrectAnswers[newTab] = [];
+                    allExplanations[newTab] = [];
+                  });
+                  Navigator.of(context).pop();
+                  // Fetch data for the new tab
+                  fetchData(tab: newTab);
+                }
+              },
+              child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -215,58 +264,56 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10 * heightFactor),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            for (int index = 0; index < tabs.length; index++)
-                              SizedBox(
-                                width: widthFactor * 127,
-                                height: heightFactor * 51,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (index >= 0 && index < tabs.length) {
-                                      setState(() {
-                                        selectedIndex = index;
-                                        selectedQuestionIndex = 0; // Reset selected question index on tab change
-                                        // Update current questions based on selected tab
-                                        currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
-                                        currentOptions = allOptions[tabs[selectedIndex]] ?? [];
-                                        currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
-                                        currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
-                                      });
+                        padding: EdgeInsets.symmetric(vertical: 10 * heightFactor),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              for (int index = 0; index < tabs.length; index++)
+                                SizedBox(
+                                  width: widthFactor * 127,
+                                  height: heightFactor * 51,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (index >= 0 && index < tabs.length) {
+                                        if (tabs[index] == "ADD+") {
+                                          showAddTabDialog();
+                                        } else {
+                                          setState(() {
+                                            selectedIndex = index;
+                                            selectedQuestionIndex = 0; // Reset selected question index on tab change
+                                            isLoading = true; // Set loading state to true
+                                          });
 
-                                      // Fetch data for the selected tab if not already fetched
-                                      if (allQuestions[tabs[selectedIndex]] == null) {
-                                        fetchData();
+                                          // Fetch data for the selected tab
+                                          fetchData(tab: tabs[index]);
+                                        }
                                       }
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: index == selectedIndex
-                                        ? primaryColor
-                                        : Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: index == selectedIndex ? primaryColor : Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
                                     ),
-                                  ),
-                                  child: Text(
-                                    tabs[index],
-                                    style: GoogleFonts.poppins(
-                                      fontSize: widthFactor * 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: index == selectedIndex ? Colors.white : Colors.black,
+                                    child: Text(
+                                      tabs[index],
+                                      style: GoogleFonts.poppins(
+                                        fontSize: widthFactor * 17,
+                                        fontWeight: FontWeight.w500,
+                                        color: index == selectedIndex ? Colors.white : Colors.black,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
 
                       // Question Area for the selected tab and question
-                      if (selectedIndex >= 0 && selectedIndex < tabs.length)
+                      if (selectedIndex >= 0 && selectedIndex < tabs.length && tabs[selectedIndex] != "ADD+")
                         if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length)
                           QuestionArea(
                             questionNumber: "Question-${selectedQuestionIndex + 1}",

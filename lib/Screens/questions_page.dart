@@ -147,15 +147,18 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  void addNewQuestion() {
+  void addNewQuestion(String question, List<String> options, String correctAnswer, String description, String questionId) {
     setState(() {
-      // currentQuestions.add('New Question');
-      currentOptions.add(['Option A', 'Option B', 'Option C', 'Option D']);
-      currentCorrectAnswers.add('Option A');
-      currentExplanations.add('Explanation for the new question');
+      currentQuestions.add(question);
+      currentOptions.add(options);
+      currentCorrectAnswers.add(correctAnswer);
+      currentExplanations.add(description);
+      // Optionally, add logic to save to backend or perform any other actions
+      // saveNewQuestion(question, options, correctAnswer, description, questionId);
       selectedQuestionIndex = currentQuestions.length - 1;
     });
   }
+
 
   void navigateToDownloadPage() {
     // Implement navigation logic
@@ -387,10 +390,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Editing Mode'),
-            ElevatedButton(
-              onPressed: addNewQuestion,
-              child: Text('Add New Question'),
-            ),
+            // ElevatedButton(
+            //   onPressed: addNewQuestion,
+            //   child: Text('Add New Question'),
+            // ),
             ElevatedButton(
               onPressed: navigateToDownloadPage,
               child: Text('Download Questions'),

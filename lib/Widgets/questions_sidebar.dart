@@ -8,7 +8,7 @@ class QuestionsSidebar extends StatefulWidget {
   final Function(int) onQuestionSelected;
   final Function(int) onDeleteQuestion;
   final Function(List<String>) onSaveQuestions;
-  final Function() onAddNewQuestion; // Callback to add a new question
+  final Function(String, List<String>, String, String, String) onAddNewQuestion; // Callback to add a new question
 
   const QuestionsSidebar({
     Key? key,
@@ -26,6 +26,13 @@ class QuestionsSidebar extends StatefulWidget {
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
   int selectedIndex = -1;
   TextEditingController _questionController = TextEditingController();
+  TextEditingController _option1Controller = TextEditingController();
+  TextEditingController _option2Controller = TextEditingController();
+  TextEditingController _option3Controller = TextEditingController();
+  TextEditingController _option4Controller = TextEditingController();
+  TextEditingController _correctAnswerController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _questionIdController = TextEditingController();
 
   void deleteQuestion(int index) {
     widget.onDeleteQuestion(index);
@@ -36,14 +43,64 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
 
   void showAddQuestionDialog() {
     _questionController.clear();
+    _option1Controller.clear();
+    _option2Controller.clear();
+    _option3Controller.clear();
+    _option4Controller.clear();
+    _correctAnswerController.clear();
+    _descriptionController.clear();
+    _questionIdController.clear();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Add New Question'),
-          content: TextField(
-            controller: _questionController,
-            decoration: InputDecoration(hintText: "Enter your question"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _questionController,
+                  decoration: InputDecoration(hintText: "Enter your question"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _option1Controller,
+                  decoration: InputDecoration(hintText: "Option 1"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _option2Controller,
+                  decoration: InputDecoration(hintText: "Option 2"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _option3Controller,
+                  decoration: InputDecoration(hintText: "Option 3"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _option4Controller,
+                  decoration: InputDecoration(hintText: "Option 4"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _correctAnswerController,
+                  decoration: InputDecoration(hintText: "Correct Answer"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: InputDecoration(hintText: "Description"),
+                ),
+                SizedBox(height: 8.0),
+                TextField(
+                  controller: _questionIdController,
+                  decoration: InputDecoration(hintText: "Question ID"),
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             ElevatedButton(
@@ -54,13 +111,29 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (_questionController.text.isNotEmpty) {
-                  // Add the question only if it's not empty
-                  widget.questions.add(_questionController.text);
-                  widget.onAddNewQuestion(); // Notify the parent widget
-                  widget.onQuestionSelected(widget.questions.length - 1); // Select the newly added question
+                if (_questionController.text.isNotEmpty &&
+                    _option1Controller.text.isNotEmpty &&
+                    _option2Controller.text.isNotEmpty &&
+                    _option3Controller.text.isNotEmpty &&
+                    _option4Controller.text.isNotEmpty &&
+                    _correctAnswerController.text.isNotEmpty &&
+                    _descriptionController.text.isNotEmpty &&
+                    _questionIdController.text.isNotEmpty) {
+                  // Add the question only if all fields are not empty
+                  widget.onAddNewQuestion(
+                    _questionController.text,
+                    [
+                      _option1Controller.text,
+                      _option2Controller.text,
+                      _option3Controller.text,
+                      _option4Controller.text,
+                    ],
+                    _correctAnswerController.text,
+                    _descriptionController.text,
+                    _questionIdController.text,
+                  );
+                  Navigator.of(context).pop();
                 }
-                Navigator.of(context).pop();
               },
               child: Text('Add'),
             ),
@@ -69,6 +142,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
       },
     );
   }
+
 
 
 

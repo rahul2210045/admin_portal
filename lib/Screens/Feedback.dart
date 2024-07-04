@@ -3,9 +3,11 @@ import 'package:admin_portal/Widgets/feedback_display_fields.dart';
 import 'package:admin_portal/Widgets/feedbackpage_button.dart';
 import 'package:admin_portal/Widgets/ques_feedback.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:admin_portal/repository/Feedback_addQues_Repository.dart';
 import 'package:admin_portal/repository/feedbackRepository.dart';
 import 'package:admin_portal/repository/models/feedbackModel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class feedback_page extends StatefulWidget {
@@ -29,15 +31,19 @@ class _feedback_pageState extends State<feedback_page> {
   }
 
   Widget _buildFeedbackEditingPage() {
+    TextEditingController _addQuestioncontroller = TextEditingController();
+    TextEditingController _addQuestionIDcontroller = TextEditingController();
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final repository =
+        addFeedbackRepository(baseUrl: 'https://cine-admin-xar9.onrender.com');
     return Scaffold(
-      backgroundColor: Colors.white, // Use your background color
+      backgroundColor: Colors.white,
       body: Center(
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.grey[200], // Use your background color
+            color: Colors.grey[200],
           ),
           height: screenHeight * 0.80,
           width: screenWidth * 0.82,
@@ -67,32 +73,136 @@ class _feedback_pageState extends State<feedback_page> {
                         },
                       ),
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        feedback_button(
-                          buttonHeight: screenHeight * 0.06,
-                          buttonWidth: screenWidth * 0.15,
-                          text: "Back to feedback",
-                          onTap: () {
-                            setState(() {
-                              isEditing = false;
-                            });
-                          },
-                        ),
-                        SizedBox(
-                          width: screenWidth * 0.15,
-                        ),
-                        feedback_button(
+                    
+                  
+
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          feedback_button(
+                            buttonHeight: screenHeight * 0.06,
+                            buttonWidth: screenWidth * 0.15,
+                            text: "Back to feedback",
+                            onTap: () {
+                              setState(() {
+                                isEditing = false;
+                              });
+                            },
+                          ),
+                          SizedBox(
+                            width: screenWidth * 0.15,
+                          ),
+                          feedback_button(
                             text: "Add +",
                             buttonHeight: screenHeight * 0.06,
-                            buttonWidth: screenWidth * 0.1),
-                        feedback_button(
-                            text: "Save",
-                            buttonHeight: screenHeight * 0.06,
-                            buttonWidth: screenWidth * 0.1)
-                      ],
+                            buttonWidth: screenWidth * 0.1,
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    backgroundColor: Colors.grey[200],
+                                    content: SizedBox(
+                                      height: screenHeight * 0.4,
+                                      width: screenWidth * 0.4,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        mainAxisSize: MainAxisSize
+                                            .min, 
+                                        children: [
+                                          Padding(
+                                            padding:EdgeInsets.symmetric(vertical:8),
+                                            child: TextField(
+                                              controller: _addQuestioncontroller,
+                                              decoration: InputDecoration(
+                                                hintText: " Question",
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8)),
+                                              ),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding:EdgeInsets.symmetric(vertical:8),
+                                            child: TextField(
+                                              keyboardType: TextInputType
+                                                  .number, 
+                                              inputFormatters: <TextInputFormatter>[
+                                                FilteringTextInputFormatter
+                                                    .digitsOnly // Accepts only digits
+                                              ],
+                                              controller:
+                                                  _addQuestionIDcontroller,
+                                              decoration: InputDecoration(
+                                                hintText: " Question ID ",
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(8)),
+                                              ),
+                                            ),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              feedback_button(
+                                                text: "Cancel",
+                                                buttonHeight: screenHeight * 0.05,
+                                                buttonWidth: screenWidth * 0.074,
+                                                onTap: () {
+                                                  Navigator.of(context)
+                                                      .pop(); 
+                                                },
+                                              ),
+                                              feedback_button(
+                                                text: "Add",
+                                                buttonHeight: screenHeight * 0.05,
+                                                buttonWidth: screenWidth * 0.07,
+                                                onTap: () async {
+                                                  AddFeedback feedback =
+                                                      await repository
+                                                          .addFeedbackQuestion(
+                                                              _addQuestioncontroller
+                                                                  .text,
+                                                              _addQuestionIDcontroller
+                                                                  .text);
+                                                  _addQuestioncontroller.clear();
+                                                  _addQuestionIDcontroller
+                                                      .clear();
+                                                  Navigator.of(context)
+                                                      .pop(); 
+                                                      setState(() {
+                                                  
+                                                      });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    title: Text(
+                                      "Add Question",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          feedback_button(
+                              text: "Save",
+                              buttonHeight: screenHeight * 0.06,
+                              buttonWidth: screenWidth * 0.1),
+                        ],
+                      ),
                     ),
                   ],
                 );

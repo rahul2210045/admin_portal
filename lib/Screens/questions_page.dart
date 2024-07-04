@@ -1,3 +1,7 @@
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +12,7 @@ import '../Widgets/questions_sidebar.dart'; // Import the updated QuestionsSideb
 import '../components/custom_button.dart';
 import '../components/questions_area.dart'; // Adjust path as per your project structure
 import '../constants/constants.dart'; // Adjust path as per your project structure
+import 'package:http/http.dart' as http;
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({Key? key}) : super(key: key);
@@ -120,19 +125,44 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
+  Future<void> deleteQuestionApi(String quesId) async {
+    var url = Uri.parse('http://localhost:3000/admin/deleteQuestion');
+    var request = http.Request('POST', url);
+
+    request.body = jsonEncode({
+      'quesId': quesId,
+    });
+
+    request.headers.addAll({
+      'Content-Type': 'application/json',
+    });
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseBody = await response.stream.bytesToString();
+      print(responseBody);
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   void deleteQuestion(int index) {
     setState(() {
+      String category = tabs[selectedIndex];
       if (index >= 0 && index < currentQuestions.length) {
         currentQuestions.removeAt(index);
         currentOptions.removeAt(index);
         currentCorrectAnswers.removeAt(index);
         currentExplanations.removeAt(index);
         if (selectedQuestionIndex == index) {
-          selectedQuestionIndex = 0; // Reset to first question if the selected question is deleted
+          selectedQuestionIndex = 0;
         } else if (selectedQuestionIndex > index) {
-          selectedQuestionIndex--; // Adjust index if the selected question was after the deleted question
+          selectedQuestionIndex--;
         }
       }
+      ;
+      deleteQuestionApi('201');
     });
   }
 
@@ -228,13 +258,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Main Content Area
               Expanded(
                 child: CustomRoundedContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Tab Bar
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10 * heightFactor),
                         child: SingleChildScrollView(
@@ -310,10 +338,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   color: backgroundColor,
                 ),
               ),
-
               SizedBox(width: 20 * widthFactor),
-
-              // Right Sidebar
               CustomRoundedContainer(
                 child: QuestionsSidebar(
                   questions: currentQuestions,

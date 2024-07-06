@@ -38,30 +38,33 @@ class _feedback_pageState extends State<feedback_page> {
     final repository =
         addFeedbackRepository(baseUrl: 'https://cine-admin-xar9.onrender.com');
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor1,
       body: Center(
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            color: Colors.grey[200],
+            color: backgroundColor,
           ),
           height: screenHeight * 0.80,
           width: screenWidth * 0.82,
-          child: FutureBuilder<List<feedbackModel>>(
-            future: feedbackRepository.fetchFeedbackQuestions(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                print(snapshot.error);
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No feedback questions available'));
-              } else {
-                final questions = snapshot.data!;
-                return Column(
-                  children: [
-                    Expanded(
+          child: Column(
+            children: [
+              FutureBuilder<List<feedbackModel>>(
+                future: feedbackRepository.fetchFeedbackQuestions(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                        height: screenHeight * 0.65,
+                        child: Center(child: CircularProgressIndicator()));
+                  } else if (snapshot.hasError) {
+                    print(snapshot.error);
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                        child: Text('No feedback questions available'));
+                  } else {
+                    final questions = snapshot.data!;
+                    return Expanded(
                       child: ListView.builder(
                         itemCount: questions.length,
                         itemBuilder: (context, index) {
@@ -72,142 +75,138 @@ class _feedback_pageState extends State<feedback_page> {
                           );
                         },
                       ),
+                    );
+                  }
+                },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    feedback_button(
+                      buttonHeight: screenHeight * 0.06,
+                      fontSize:screenWidth*0.01,
+                      buttonWidth: screenWidth * 0.15,
+                      text: "Back to feedback",
+                      onTap: () {
+                        setState(() {
+                          isEditing = false;
+                        });
+                      },
                     ),
-                    
-                  
-
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          feedback_button(
-                            buttonHeight: screenHeight * 0.06,
-                            buttonWidth: screenWidth * 0.15,
-                            text: "Back to feedback",
-                            onTap: () {
-                              setState(() {
-                                isEditing = false;
-                              });
-                            },
-                          ),
-                          SizedBox(
-                            width: screenWidth * 0.15,
-                          ),
-                          feedback_button(
-                            text: "Add +",
-                            buttonHeight: screenHeight * 0.06,
-                            buttonWidth: screenWidth * 0.1,
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    backgroundColor: Colors.grey[200],
-                                    content: SizedBox(
-                                      height: screenHeight * 0.4,
-                                      width: screenWidth * 0.4,
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        mainAxisSize: MainAxisSize
-                                            .min, 
-                                        children: [
-                                          Padding(
-                                            padding:EdgeInsets.symmetric(vertical:8),
-                                            child: TextField(
-                                              controller: _addQuestioncontroller,
-                                              decoration: InputDecoration(
-                                                hintText: " Question",
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(8)),
-                                              ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding:EdgeInsets.symmetric(vertical:8),
-                                            child: TextField(
-                                              keyboardType: TextInputType
-                                                  .number, 
-                                              inputFormatters: <TextInputFormatter>[
-                                                FilteringTextInputFormatter
-                                                    .digitsOnly // Accepts only digits
-                                              ],
-                                              controller:
-                                                  _addQuestionIDcontroller,
-                                              decoration: InputDecoration(
-                                                hintText: " Question ID ",
-                                                border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(8)),
-                                              ),
-                                            ),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              feedback_button(
-                                                text: "Cancel",
-                                                buttonHeight: screenHeight * 0.05,
-                                                buttonWidth: screenWidth * 0.074,
-                                                onTap: () {
-                                                  Navigator.of(context)
-                                                      .pop(); 
-                                                },
-                                              ),
-                                              feedback_button(
-                                                text: "Add",
-                                                buttonHeight: screenHeight * 0.05,
-                                                buttonWidth: screenWidth * 0.07,
-                                                onTap: () async {
-                                                  AddFeedback feedback =
-                                                      await repository
-                                                          .addFeedbackQuestion(
-                                                              _addQuestioncontroller
-                                                                  .text,
-                                                              _addQuestionIDcontroller
-                                                                  .text);
-                                                  _addQuestioncontroller.clear();
-                                                  _addQuestionIDcontroller
-                                                      .clear();
-                                                  Navigator.of(context)
-                                                      .pop(); 
-                                                      setState(() {
-                                                  
-                                                      });
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                    SizedBox(
+                      width: screenWidth * 0.15,
+                    ),
+                    feedback_button(
+                      text: "Add +",
+                      buttonHeight: screenHeight * 0.06,
+                      fontSize:screenWidth*0.01,
+                      buttonWidth: screenWidth * 0.1,
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.grey[200],
+                              content: SizedBox(
+                                height: screenHeight * 0.4,
+                                width: screenWidth * 0.4,
+                                child: Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8),
+                                      child: TextField(
+                                        controller: _addQuestioncontroller,
+                                        decoration: InputDecoration(
+                                          hintText: " Question",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                        ),
                                       ),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8),
+                                      child: TextField(
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: <TextInputFormatter>[
+                                          FilteringTextInputFormatter
+                                              .digitsOnly // Accepts only digits
+                                        ],
+                                        controller: _addQuestionIDcontroller,
+                                        decoration: InputDecoration(
+                                          hintText: " Question ID ",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                        ),
+                                      ),
                                     ),
-                                    title: Text(
-                                      "Add Question",
-                                      style: TextStyle(fontSize: 16),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        feedback_button(
+                                          text: "Cancel",
+                                          buttonHeight: screenHeight * 0.06,
+                                          fontSize:screenWidth*0.01,
+                                          buttonWidth: screenWidth * 0.084,
+                                          onTap: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                        feedback_button(
+                                          text: "Add",
+                                          buttonHeight: screenHeight * 0.06,
+                                          fontSize:screenWidth*0.01,
+                                          buttonWidth: screenWidth * 0.084,
+                                          onTap: () async {
+                                            AddFeedback feedback =
+                                                await repository
+                                                    .addFeedbackQuestion(
+                                                        _addQuestioncontroller
+                                                            .text,
+                                                        _addQuestionIDcontroller
+                                                            .text);
+                                            _addQuestioncontroller.clear();
+                                            _addQuestionIDcontroller.clear();
+                                            Navigator.of(context).pop();
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ],
                                     ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                          feedback_button(
-                              text: "Save",
-                              buttonHeight: screenHeight * 0.06,
-                              buttonWidth: screenWidth * 0.1),
-                        ],
-                      ),
+                                  ],
+                                ),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              title: Text(
+                                "Add Question",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
+                    feedback_button(
+                        text: "Save",
+                        fontSize:screenWidth*0.01,
+                        buttonHeight: screenHeight * 0.06,
+                        buttonWidth: screenWidth * 0.1),
                   ],
-                );
-              }
-            },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -306,6 +305,7 @@ class _feedback_pageState extends State<feedback_page> {
                             horizontal: screenWidth * 0.01),
                         child: feedback_button(
                           text: "Edit feedback questions",
+                          fontSize:screenWidth*0.01,
                           buttonHeight: screenHeight * 0.06,
                           buttonWidth: screenWidth * 0.2,
                           onTap: () {

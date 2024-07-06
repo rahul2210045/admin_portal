@@ -1,6 +1,7 @@
 import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Login.dart';
 import 'package:admin_portal/Screens/Candidate.dart';
+import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      home: SideMenuBar(userName: 'srishti'),
     );
   }
 }

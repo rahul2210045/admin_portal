@@ -1,3 +1,7 @@
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -121,8 +125,31 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
+  Future<void> deleteQuestionApi(String quesId) async {
+    var url = Uri.parse('http://localhost:3000/admin/deleteQuestion');
+    var request = http.Request('POST', url);
+
+    request.body = jsonEncode({
+      'quesId': quesId,
+    });
+
+    request.headers.addAll({
+      'Content-Type': 'application/json',
+    });
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      String responseBody = await response.stream.bytesToString();
+      print(responseBody);
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
   void deleteQuestion(int index) {
     setState(() {
+      String category = tabs[selectedIndex];
       if (index >= 0 && index < currentQuestions.length) {
         currentQuestions.removeAt(index);
         currentOptions.removeAt(index);

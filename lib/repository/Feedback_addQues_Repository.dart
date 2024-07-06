@@ -23,7 +23,7 @@ class addFeedbackRepository {
 
   addFeedbackRepository({required this.baseUrl});
 
-  Future<AddFeedback> addFeedbackQuestion(String question, String quesId) async {
+  Future<AddFeedback> addFeedbackQuestion(String question, ) async {
     final url = Uri.parse('$baseUrl/admin/feedback/addFeedbackQuestion');
     
     // Retrieve the access token
@@ -37,7 +37,7 @@ class addFeedbackRepository {
 
     final Map<String, dynamic> requestBody = {
       'question': question,
-      'quesId': quesId,
+      // 'quesId': quesId,
     };
 
     final response = await http.post(

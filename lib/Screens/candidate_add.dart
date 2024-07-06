@@ -147,12 +147,12 @@ class _candidateAddState extends State<candidateAdd> {
                             child: SingleChildScrollView(
                               child: Column(children: [
                                 
-                                feedback_card(
-                                    studentname: "Rahul Yadav",
-                                    studenNo: "2210045"),
-                                    SizedBox(height: 8,),
-                                feedback_card(
-                                    studentname: "Ashirwad", studenNo: "2210647"),
+                                // feedback_card(
+                                //     studentname: "Rahul Yadav",
+                                //     studenNo: "2210045"),
+                                //     SizedBox(height: 8,),
+                                // feedback_card(
+                                //     studentname: "Ashirwad", studenNo: "2210647"),
                                 
                               ]),
                             ),

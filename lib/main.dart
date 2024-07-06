@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       home: SideMenuBar(userName:"hello" ),
+
     );
   }
 }

@@ -147,7 +147,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  void addNewQuestion(String question, List<String> options, String correctAnswer, String description, String questionId) {
+  Future<void> addNewQuestion(String question, List<String> options, String correctAnswer, String description, String questionId) async {
     setState(() {
       currentQuestions.add(question);
       currentOptions.add(options);
@@ -155,6 +155,33 @@ class _QuestionScreenState extends State<QuestionScreen> {
       currentExplanations.add(description);
       selectedQuestionIndex = currentQuestions.length - 1;
     });
+
+    // Get the current tab (subject)
+    String subject = tabs[selectedIndex];
+
+    // Make API call to add question
+    final apiUrl = 'http://localhost:3000/admin/addQuestion';
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'subject': subject,
+        'question': question,
+        'options': options,
+        'correctAnswer': correctAnswer,
+        'description': description,
+        'questionId': questionId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Successfully added question
+    } else {
+      // Handle error
+      debugPrint('Failed to add question: ${response.body}');
+    }
   }
 
   void navigateToDownloadPage() {
@@ -359,7 +386,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(
       child: QuestionsSidebar(
@@ -368,6 +394,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         onDeleteQuestion: deleteQuestion,
         onSaveQuestions: saveQuestions,
         onAddNewQuestion: addNewQuestion,
+        subject: tabs[selectedIndex]
       ),
       height: heightFactor * 1200,
       width: widthFactor * 450,

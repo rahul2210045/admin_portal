@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
@@ -8,7 +11,8 @@ class QuestionsSidebar extends StatefulWidget {
   final Function(int) onQuestionSelected;
   final Function(int) onDeleteQuestion;
   final Function(List<String>) onSaveQuestions;
-  final Function(String, List<String>, String, String, String) onAddNewQuestion; // Callback to add a new question
+  final Function(String, List<String>, String, String, String) onAddNewQuestion;
+  final String subject; // Added subject from tabs
 
   const QuestionsSidebar({
     Key? key,
@@ -17,6 +21,7 @@ class QuestionsSidebar extends StatefulWidget {
     required this.onDeleteQuestion,
     required this.onSaveQuestions,
     required this.onAddNewQuestion,
+    required this.subject,
   }) : super(key: key);
 
   @override
@@ -54,96 +59,169 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add New Question'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _questionController,
-                  decoration: InputDecoration(hintText: "Enter your question"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _option1Controller,
-                  decoration: InputDecoration(hintText: "Option 1"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _option2Controller,
-                  decoration: InputDecoration(hintText: "Option 2"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _option3Controller,
-                  decoration: InputDecoration(hintText: "Option 3"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _option4Controller,
-                  decoration: InputDecoration(hintText: "Option 4"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _correctAnswerController,
-                  decoration: InputDecoration(hintText: "Correct Answer"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _descriptionController,
-                  decoration: InputDecoration(hintText: "Description"),
-                ),
-                SizedBox(height: 8.0),
-                TextField(
-                  controller: _questionIdController,
-                  decoration: InputDecoration(hintText: "Question ID"),
-                ),
-              ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: const Offset(0.0, 10.0),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Add New Question',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: _questionController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your question',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option1Controller, "Option 1", "1"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option2Controller, "Option 2", "2"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option3Controller, "Option 3", "3"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option4Controller, "Option 4", "4"),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _correctAnswerController,
+                    decoration: InputDecoration(
+                      hintText: 'Correct Answer',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      hintText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _questionIdController,
+                    decoration: InputDecoration(
+                      hintText: 'Question ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                        ),
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 12.0),
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Add your logic here for adding the question
+                          if (_questionController.text.isNotEmpty &&
+                              _option1Controller.text.isNotEmpty &&
+                              _option2Controller.text.isNotEmpty &&
+                              _option3Controller.text.isNotEmpty &&
+                              _option4Controller.text.isNotEmpty &&
+                              _correctAnswerController.text.isNotEmpty &&
+                              _descriptionController.text.isNotEmpty &&
+                              _questionIdController.text.isNotEmpty) {
+                            String question = _questionController.text;
+                            List<Map<String, String>> options = [
+                              {"desc": _option1Controller.text, "id": "1"},
+                              {"desc": _option2Controller.text, "id": "2"},
+                              {"desc": _option3Controller.text, "id": "3"},
+                              {"desc": _option4Controller.text, "id": "4"},
+                            ];
+                            String correctAnswer = _correctAnswerController.text;
+                            String description = _descriptionController.text;
+                            String questionId = _questionIdController.text;
+
+                            var response = await http.post(
+                              Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                "quesId": questionId,
+                                "question": question,
+                                "options": options.map((option) => {
+                                  "desc": option["desc"],
+                                  "id": option["id"]
+                                }).toList(),
+                                "subject": widget.subject,
+                                "answer": correctAnswer,
+                                "description": description,
+                              }),
+                            );
+
+                            if (response.statusCode == 201) {
+                              widget.onAddNewQuestion(
+                                question,
+                                options.map((option) => option['desc'] ?? "").toList(),
+                                correctAnswer,
+                                description,
+                                questionId,
+                              );
+                            } else {
+                              if (response.statusCode == 500) {
+                                print('Internal server error occurred');
+                              } else {
+                                print('Failed to add question');
+                              }
+                            }
+
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Text('Add'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_questionController.text.isNotEmpty &&
-                    _option1Controller.text.isNotEmpty &&
-                    _option2Controller.text.isNotEmpty &&
-                    _option3Controller.text.isNotEmpty &&
-                    _option4Controller.text.isNotEmpty &&
-                    _correctAnswerController.text.isNotEmpty &&
-                    _descriptionController.text.isNotEmpty &&
-                    _questionIdController.text.isNotEmpty) {
-                  // Add the question only if all fields are not empty
-                  widget.onAddNewQuestion(
-                    _questionController.text,
-                    [
-                      _option1Controller.text,
-                      _option2Controller.text,
-                      _option3Controller.text,
-                      _option4Controller.text,
-                    ],
-                    _correctAnswerController.text,
-                    _descriptionController.text,
-                    _questionIdController.text,
-                  );
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text('Add'),
-            ),
-          ],
         );
       },
     );
   }
 
 
+  Widget _buildOptionTextField(TextEditingController controller, String hintText, String id) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(hintText: hintText),
+      onChanged: (_) => setState(() {}),
+    );
+  }
 
 
 

@@ -1,156 +1,388 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
 class QuestionsSidebar extends StatefulWidget {
+  final List<String> questions;
+  final Function(int) onQuestionSelected;
+  final Function(int) onDeleteQuestion;
+  final Function(List<String>) onSaveQuestions;
+  final Function(String, List<String>, String, String, String) onAddNewQuestion;
+  final String subject; // Added subject from tabs
 
-
-  const QuestionsSidebar({Key? key, }) : super(key: key);
+  const QuestionsSidebar({
+    Key? key,
+    required this.questions,
+    required this.onQuestionSelected,
+    required this.onDeleteQuestion,
+    required this.onSaveQuestions,
+    required this.onAddNewQuestion,
+    required this.subject,
+  }) : super(key: key);
 
   @override
   _QuestionsSidebarState createState() => _QuestionsSidebarState();
 }
 
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
-  int selectedIndex = -1; // Track selected index, -1 means none selected
+  int selectedIndex = -1;
+  TextEditingController _questionController = TextEditingController();
+  TextEditingController _option1Controller = TextEditingController();
+  TextEditingController _option2Controller = TextEditingController();
+  TextEditingController _option3Controller = TextEditingController();
+  TextEditingController _option4Controller = TextEditingController();
+  TextEditingController _correctAnswerController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _questionIdController = TextEditingController();
 
+  Future<void> saveQuestionId(String questionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    questionIds.add(questionId);
+    await prefs.setStringList('questionIds', questionIds);
+  }
+
+  Future<List<String>> getQuestionIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('questionIds') ?? [];
+  }
+
+  void showAddQuestionDialog() {
+    _questionController.clear();
+    _option1Controller.clear();
+    _option2Controller.clear();
+    _option3Controller.clear();
+    _option4Controller.clear();
+    _correctAnswerController.clear();
+    _descriptionController.clear();
+    _questionIdController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: const Offset(0.0, 10.0),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Add New Question',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: _questionController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your question',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option1Controller, "Option 1", "1"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option2Controller, "Option 2", "2"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option3Controller, "Option 3", "3"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option4Controller, "Option 4", "4"),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _correctAnswerController,
+                    decoration: InputDecoration(
+                      hintText: 'Correct Answer',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      hintText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _questionIdController,
+                    decoration: InputDecoration(
+                      hintText: 'Question ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                        ),
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 12.0),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_questionController.text.isNotEmpty &&
+                              _option1Controller.text.isNotEmpty &&
+                              _option2Controller.text.isNotEmpty &&
+                              _option3Controller.text.isNotEmpty &&
+                              _option4Controller.text.isNotEmpty &&
+                              _correctAnswerController.text.isNotEmpty &&
+                              _descriptionController.text.isNotEmpty &&
+                              _questionIdController.text.isNotEmpty) {
+                            String question = _questionController.text;
+                            List<Map<String, String>> options = [
+                              {"desc": _option1Controller.text, "id": "1"},
+                              {"desc": _option2Controller.text, "id": "2"},
+                              {"desc": _option3Controller.text, "id": "3"},
+                              {"desc": _option4Controller.text, "id": "4"},
+                            ];
+                            String correctAnswer = _correctAnswerController.text;
+                            String description = _descriptionController.text;
+                            String questionId = _questionIdController.text;
+
+                            var response = await http.post(
+                              Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                "question": question,
+                                "options": options.map((option) => {
+                                  "desc": option["desc"],
+                                  "id": option["id"]
+                                }).toList(),
+                                "subject": widget.subject,
+                                "quesId": questionId,
+                                "answer": correctAnswer,
+                                "description": description,
+                              }),
+                            );
+
+                            print('Response status: ${response.statusCode}');
+                            print('Response body: ${response.body}');
+
+                            if (response.statusCode == 201) {
+                              widget.onAddNewQuestion(
+                                question,
+                                options.map((option) => option['desc'] ?? "").toList(),
+                                correctAnswer,
+                                description,
+                                questionId,
+                              );
+
+                              // Save the new question ID to SharedPreferences
+                              await saveQuestionId(questionId);
+                              List<String> savedIds = await getQuestionIds();
+                              print('Question IDs saved: $savedIds');
+
+                              Navigator.of(context).pop();
+                            } else {
+                              if (response.statusCode == 500) {
+                                print('Internal server error occurred');
+                              } else {
+                                print('Failed to add question');
+                              }
+                            }
+                          }
+                        },
+                        child: Text('Add'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOptionTextField(TextEditingController controller, String hintText, String id) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(hintText: hintText),
+      onChanged: (_) => setState(() {}),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
     double widthFactor = MediaQuery.of(context).size.width / 1440;
 
-    return Column(
-      children: [
-        // Top "Question" label
-        Container(
-          width: double.infinity,
-          height: heightFactor * 80,
-          padding: EdgeInsets.all(10 * heightFactor),
-          decoration: BoxDecoration(
-            color: primaryColor, // Example primaryColor
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            "Question",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 24 * widthFactor,
-              fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: heightFactor * 80,
+            padding: EdgeInsets.all(10 * heightFactor),
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "Question",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 24 * widthFactor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 20 * heightFactor),
-
-        // Grid of question numbers
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(10 * heightFactor),
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 10 * heightFactor,
-              crossAxisSpacing: 10 * widthFactor,
-            ),
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    selectedIndex = index;
-                  });
-                },
-                child: Container(
-                  width: 60 * widthFactor, // Adjust width as needed
-                  height: 60 * heightFactor, // Adjust height as needed
-                  margin: EdgeInsets.all(10), // Adjust margin as needed
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: selectedIndex == index ? primaryColor : Colors.white, // Toggle color based on selection
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 2,
+          SizedBox(height: 20 * heightFactor),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(10 * heightFactor),
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 10 * heightFactor,
+                crossAxisSpacing: 10 * widthFactor,
+              ),
+              itemCount: widget.questions.length + 1,
+              itemBuilder: (context, index) {
+                if (index == widget.questions.length) {
+                  return GestureDetector(
+                    onTap: showAddQuestionDialog,
+                    child: Container(
+                      width: 60 * widthFactor,
+                      height: 60 * heightFactor,
+                      margin: EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: primaryColor,
+                        size: 30 * widthFactor,
+                      ),
                     ),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                        widget.onQuestionSelected(index);
+                      });
+                    },
+                    child: Container(
+                      width: 60 * widthFactor,
+                      height: 60 * heightFactor,
+                      margin: EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: selectedIndex == index ? primaryColor : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        (index + 1).toString(),
+                        style: TextStyle(
+                          color: selectedIndex == index ? Colors.white : primaryColor,
+                          fontSize: 18 * widthFactor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            ),
+          ),
+          SizedBox(height: 20 * heightFactor),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: (){},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text(
-                    index == 9 ? '+' : (index + 1).toString(),
-                    style: TextStyle(
-                      color: selectedIndex == index ? Colors.white : primaryColor,
-                      fontSize: 18 * widthFactor,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20 * widthFactor,
+                    vertical: 10 * heightFactor,
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-        SizedBox(height: 40 * heightFactor),
-
-        // Delete and Save buttons
-        Container(
-          width: double.infinity,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: widthFactor * 180,
-                height: heightFactor * 70, // Set the desired width here
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, // Example background color to blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Adjust border radius as needed
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20 * widthFactor,
-                      vertical: 10 * heightFactor,
-                    ),
-                  ),
-                  child: Text(
-                    "Delete",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthFactor * 18,
-                    ),
+                child: Text(
+                  "Delete",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: widthFactor * 18,
                   ),
                 ),
               ),
-
-              SizedBox(
-                width: widthFactor * 180,
-                height: heightFactor * 70,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor, // Example background color to blue
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Adjust border radius as needed
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20 * widthFactor,
-                      vertical: 10 * heightFactor,
-                    ),
+              ElevatedButton(
+                onPressed: () {
+                  widget.onSaveQuestions(widget.questions);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QuestionsDownload(savedQuestions: widget.questions)),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-                  child: Text(
-                    "Save",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthFactor * 18,
-                    ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20 * widthFactor,
+                    vertical: 10 * heightFactor,
+                  ),
+                ),
+                child: Text(
+                  "Save",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: widthFactor * 18,
                   ),
                 ),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

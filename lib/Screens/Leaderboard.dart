@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/widgets/custom_container.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 import 'leadertabel.dart'; // Assuming your graph widget is correctly imported
 
@@ -14,7 +16,6 @@ class Leaderboard extends StatefulWidget {
 }
 
 class _LeaderboardState extends State<Leaderboard> {
-  // Example data for graphs
   final List<String> staticsLabels = [
     '90 or more\nmarks',
     '80 to 90\nmarks',
@@ -24,16 +25,61 @@ class _LeaderboardState extends State<Leaderboard> {
   ];
   final List<double> staticsData = [200, 250, 100, 150, 50];
 
-  final List<String> studentTypesLabels = [
+  List<String> studentTypesLabels = [
     'Day Scholar\nBoys',
     'Hosteller\nBoys',
     'Day Scholar\nGirls',
     'Hosteller\nGirls'
   ];
-  final List<double> studentTypesData = [180, 25, 120, 170];
+  List<double> studentTypesData = [0, 0, 0, 0];
+
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStudentTypesData();
+  }
+
+  Future<void> fetchStudentTypesData() async {
+    final url = Uri.parse('https://cine-admin-xar9.onrender.com/admin/getStudentTypes');
+    print('Fetching student types data from $url');
+    try {
+      final response = await http.get(url);
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Decoded data: $data');
+        setState(() {
+          studentTypesData = [
+            data['boysDayScholar'].toDouble(),
+            data['boysHostel'].toDouble(),
+            data['girlsDayScholar'].toDouble(),
+            data['girlsHostel'].toDouble(),
+          ];
+          isLoading = false;
+          print('Updated studentTypesData: $studentTypesData');
+        });
+      } else {
+        // Handle the error
+        print('Failed to load data. Status code: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle the error
+      print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('Building Leaderboard widget');
     return Scaffold(
       backgroundColor: backgroundColor1,
       body: LayoutBuilder(
@@ -116,7 +162,9 @@ class _LeaderboardState extends State<Leaderboard> {
                             Container(
                               height: heightFactor * 420,
                               width: widthFactor * 450,
-                              child: Graph(
+                              child: isLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : Graph(
                                 xLabels: studentTypesLabels,
                                 yData: studentTypesData,
                               ),

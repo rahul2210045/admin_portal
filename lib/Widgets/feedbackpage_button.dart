@@ -1,17 +1,19 @@
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class feedback_button extends StatefulWidget {
   final String text;
   final double buttonHeight;
   final double buttonWidth;
+  final double fontSize;
   void Function()? onTap;
   feedback_button(
       {super.key,
       required this.text,
       required this.buttonHeight,
       required this.buttonWidth,
-      this.onTap});
+      this.onTap, required this.fontSize});
 
   @override
   State<feedback_button> createState() => _feedback_buttonState();

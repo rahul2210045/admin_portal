@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
@@ -39,11 +40,16 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _questionIdController = TextEditingController();
 
-  void deleteQuestion(int index) {
-    widget.onDeleteQuestion(index);
-    setState(() {
-      selectedIndex = -1;
-    });
+  Future<void> saveQuestionId(String questionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    questionIds.add(questionId);
+    await prefs.setStringList('questionIds', questionIds);
+  }
+
+  Future<List<String>> getQuestionIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('questionIds') ?? [];
   }
 
   void showAddQuestionDialog() {
@@ -146,7 +152,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                       SizedBox(width: 12.0),
                       ElevatedButton(
                         onPressed: () async {
-                          // Add your logic here for adding the question
                           if (_questionController.text.isNotEmpty &&
                               _option1Controller.text.isNotEmpty &&
                               _option2Controller.text.isNotEmpty &&
@@ -170,17 +175,20 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                               Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
                               headers: {"Content-Type": "application/json"},
                               body: jsonEncode({
-                                "quesId": questionId,
                                 "question": question,
                                 "options": options.map((option) => {
                                   "desc": option["desc"],
                                   "id": option["id"]
                                 }).toList(),
                                 "subject": widget.subject,
+                                "quesId": questionId,
                                 "answer": correctAnswer,
                                 "description": description,
                               }),
                             );
+
+                            print('Response status: ${response.statusCode}');
+                            print('Response body: ${response.body}');
 
                             if (response.statusCode == 201) {
                               widget.onAddNewQuestion(
@@ -190,6 +198,13 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                                 description,
                                 questionId,
                               );
+
+                              // Save the new question ID to SharedPreferences
+                              await saveQuestionId(questionId);
+                              List<String> savedIds = await getQuestionIds();
+                              print('Question IDs saved: $savedIds');
+
+                              Navigator.of(context).pop();
                             } else {
                               if (response.statusCode == 500) {
                                 print('Internal server error occurred');
@@ -197,8 +212,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                                 print('Failed to add question');
                               }
                             }
-
-                            Navigator.of(context).pop();
                           }
                         },
                         child: Text('Add'),
@@ -214,7 +227,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     );
   }
 
-
   Widget _buildOptionTextField(TextEditingController controller, String hintText, String id) {
     return TextField(
       controller: controller,
@@ -222,9 +234,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
       onChanged: (_) => setState(() {}),
     );
   }
-
-
-
   @override
   Widget build(BuildContext context) {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
@@ -323,7 +332,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: selectedIndex != -1 ? () => deleteQuestion(selectedIndex) : null,
+                onPressed: (){},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   shape: RoundedRectangleBorder(

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import '../Widgets/Custom_Container.dart';
@@ -54,6 +55,20 @@ class _QuestionScreenState extends State<QuestionScreen> {
     super.dispose();
   }
 
+  Future<void> saveQuestionIds(List<String> questionIds) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('questionIds', questionIds);
+    print('Question IDs saved: $questionIds'); // Print the saved question IDs
+  }
+
+  Future<List<String>> getQuestionIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    print('Stored question IDs: $questionIds'); // Print the retrieved question IDs
+    return questionIds;
+  }
+
+
   Future<void> fetchData({required String tab}) async {
     final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
 
@@ -61,6 +76,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
       final response = await client.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+        // print('API response: $jsonData');
         parseData(jsonData, tab);
       } else {
         setErrorState();
@@ -77,14 +93,31 @@ class _QuestionScreenState extends State<QuestionScreen> {
       List<List<String>> options = [];
       List<String> correctAnswers = [];
       List<String> explanations = [];
+      List<String> questionIds = []; // List to store question IDs
 
       for (var item in jsonData[tab]) {
+        print('Item: $item'); // Print each item to debug
+
         questions.add(item['question'].toString());
-        options.add(List<String>.from(
-            item['options'].map((option) => option['desc'].toString())));
+        options.add(List<String>.from(item['options'].map((option) => option['desc'].toString())));
         correctAnswers.add(item['answer'].toString());
         explanations.add('');
+
+        // Use _id as the question ID
+        if (item.containsKey('_id')) {
+          questionIds.add(item['_id'].toString()); // Add question ID to the list
+        } else {
+          questionIds.add('null'); // Add 'null' if '_id' is missing
+          print('_id missing for item: $item');
+        }
       }
+
+      // Save question IDs to SharedPreferences and print them
+      saveQuestionIds(questionIds).then((_) {
+        getQuestionIds().then((savedIds) {
+          print('Question IDs saved: $savedIds');
+        });
+      });
 
       setState(() {
         allQuestions[tab] = questions;
@@ -100,6 +133,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
       setErrorState();
     }
   }
+
+
+
 
   void updateCurrentState(String tab) {
     setState(() {
@@ -125,27 +161,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  Future<void> deleteQuestionApi(String quesId) async {
-    var url = Uri.parse('http://localhost:3000/admin/deleteQuestion');
-    var request = http.Request('POST', url);
-
-    request.body = jsonEncode({
-      'quesId': quesId,
-    });
-
-    request.headers.addAll({
-      'Content-Type': 'application/json',
-    });
-
-    http.StreamedResponse response = await request.send();
-
-    if (response.statusCode == 200) {
-      String responseBody = await response.stream.bytesToString();
-      print(responseBody);
-    } else {
-      print(response.reasonPhrase);
-    }
-  }
 
   void deleteQuestion(int index) {
     setState(() {
@@ -187,28 +202,28 @@ class _QuestionScreenState extends State<QuestionScreen> {
     String subject = tabs[selectedIndex];
 
     // Make API call to add question
-    final apiUrl = 'http://localhost:3000/admin/addQuestion';
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'subject': subject,
-        'question': question,
-        'options': options,
-        'correctAnswer': correctAnswer,
-        'description': description,
-        'questionId': questionId,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // Successfully added question
-    } else {
-      // Handle error
-      debugPrint('Failed to add question: ${response.body}');
-    }
+    //   final apiUrl = 'http://localhost:3000/admin/addQuestion';
+    //   final response = await http.post(
+    //     Uri.parse(apiUrl),
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: json.encode({
+    //       'subject': subject,
+    //       'question': question,
+    //       'options': options,
+    //       'correctAnswer': correctAnswer,
+    //       'description': description,
+    //       'questionId': questionId,
+    //     }),
+    //   );
+    //
+    //   if (response.statusCode == 201) {
+    //     // Successfully added question
+    //   } else {
+    //     // Handle error
+    //     debugPrint('Failed to add question: ${response.body}');
+    //   }
   }
 
   void navigateToDownloadPage() {
@@ -416,12 +431,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(
       child: QuestionsSidebar(
-        questions: currentQuestions,
-        onQuestionSelected: updateQuestionIndex,
-        onDeleteQuestion: deleteQuestion,
-        onSaveQuestions: saveQuestions,
-        onAddNewQuestion: addNewQuestion,
-        subject: tabs[selectedIndex]
+          questions: currentQuestions,
+          onQuestionSelected: updateQuestionIndex,
+          onDeleteQuestion: deleteQuestion,
+          onSaveQuestions: saveQuestions,
+          onAddNewQuestion: addNewQuestion,
+          subject: tabs[selectedIndex]
       ),
       height: heightFactor * 1200,
       width: widthFactor * 450,

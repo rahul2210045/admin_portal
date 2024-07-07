@@ -35,8 +35,6 @@ class _candidateAddState extends State<candidateAdd> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Expanded(
-                  // child:
                   CustomRoundedContainer(
                     child: customInputField(),
                     height: heightFactor * 950,
@@ -66,7 +64,7 @@ class _candidateAddState extends State<candidateAdd> {
                             ),
                             child: Center(
                                 child: Text(
-                              "Registerd Candidate's",
+                              "Registered Candidate's",
                               style: GoogleFonts.poppins(
                                   color: Colors.white, fontSize: 20),
                             )),
@@ -84,14 +82,12 @@ class _candidateAddState extends State<candidateAdd> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  // height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: Colors.white,
                                   ),
                                   height: 40,
                                   width: screenWidth * 0.25,
-                                  // height: screenHeight*0.01,
                                   child: TextField(
                                     style: TextStyle(color: Colors.black),
                                     decoration: InputDecoration(
@@ -105,29 +101,25 @@ class _candidateAddState extends State<candidateAdd> {
                                       labelText: "Search something here...",
                                       enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       errorBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       border: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -140,20 +132,17 @@ class _candidateAddState extends State<candidateAdd> {
                           SizedBox(
                             height: 10,
                           ),
-                         
-
                           SizedBox(
                             width: screenWidth * 0.25,
                             child: SingleChildScrollView(
                               child: Column(children: [
-                                
                                 feedback_card(
                                     studentname: "Rahul Yadav",
                                     studenNo: "2210045"),
-                                    SizedBox(height: 8,),
+                                SizedBox(height: 8),
                                 feedback_card(
-                                    studentname: "Ashirwad", studenNo: "2210647"),
-                                
+                                    studentname: "Ashirwad",
+                                    studenNo: "2210647"),
                               ]),
                             ),
                           ),
@@ -163,7 +152,6 @@ class _candidateAddState extends State<candidateAdd> {
                       height: screenHeight * 0.82,
                     ),
                   ),
-                 
                 ],
               ),
             ),

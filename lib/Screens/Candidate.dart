@@ -9,6 +9,7 @@ import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:admin_portal/screens/register.dart';
 import 'package:admin_portal/screens/registered_candidates.dart';
+import 'package:admin_portal/screens/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -60,6 +61,7 @@ class _candidateState extends State<candidate> {
                       ),
                       child: Column(
                         children: [
+                          SearchbarWidget(),
                           // Container(
                           //   decoration: BoxDecoration(
                           //     borderRadius: BorderRadius.only(

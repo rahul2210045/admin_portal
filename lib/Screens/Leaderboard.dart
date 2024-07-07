@@ -33,6 +33,8 @@ class _LeaderboardState extends State<Leaderboard> {
   ];
   List<double> studentTypesData = [0, 0, 0, 0];
 
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -56,15 +58,22 @@ class _LeaderboardState extends State<Leaderboard> {
             data['girlsDayScholar'].toDouble(),
             data['girlsHostel'].toDouble(),
           ];
+          isLoading = false;
           print('Updated studentTypesData: $studentTypesData');
         });
       } else {
         // Handle the error
         print('Failed to load data. Status code: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
       }
     } catch (e) {
       // Handle the error
       print('Error: $e');
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -153,7 +162,9 @@ class _LeaderboardState extends State<Leaderboard> {
                             Container(
                               height: heightFactor * 420,
                               width: widthFactor * 450,
-                              child: Graph(
+                              child: isLoading
+                                  ? Center(child: CircularProgressIndicator())
+                                  : Graph(
                                 xLabels: studentTypesLabels,
                                 yData: studentTypesData,
                               ),

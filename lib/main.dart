@@ -1,11 +1,19 @@
 import 'package:admin_portal/Screens/Questions.dart';
 import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
+import 'package:admin_portal/Screens/registered_candidates.dart';
 import 'package:admin_portal/Screens/search_bar.dart';
 import 'package:flutter/material.dart';
 
+// void main() {
+//   runApp(EditApp());
+// }
+
 void main() {
-  runApp(EditApp());
+  runApp(MaterialApp(
+    home: RegisteredCandidates(),
+  ));
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

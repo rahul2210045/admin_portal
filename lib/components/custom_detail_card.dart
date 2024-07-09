@@ -1,12 +1,15 @@
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 
 Widget customRankCard(
   name,
   studentNo,
   rank,
+  score,
+  branch,
+  gender,
+  residency,
   BuildContext context,
 ) {
   return Container(
@@ -26,7 +29,23 @@ Widget customRankCard(
               style:const  TextStyle(color: Colors.black, fontSize: 16),
             ),
             Text(
+              score,
+              style: const TextStyle(color: Colors.black, fontSize: 16),
+            ),
+              Text(
+              branch,
+              style: const TextStyle(color: Colors.black, fontSize: 16),
+            ),
+             Text(
               studentNo,
+              style: const TextStyle(color: Colors.black, fontSize: 16),
+            ),
+             Text(
+              gender,
+              style: const TextStyle(color: Colors.black, fontSize: 16),
+            ),
+             Text(
+              residency,
               style: const TextStyle(color: Colors.black, fontSize: 16),
             ),
           ],

@@ -1,13 +1,17 @@
+// ignore_for_file: sort_child_properties_last, prefer_const_constructors
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-import '../Widgets/Custom_Container.dart'; // Adjust path as per your project structure
-import '../Widgets/questions_sidebar.dart'; // Import the updated QuestionsSidebar widget
-import '../components/custom_button.dart';
-import '../components/questions_area.dart'; // Adjust path as per your project structure
-import '../constants/constants.dart'; // Adjust path as per your project structure
+import '../Widgets/Custom_Container.dart';
+import '../Widgets/questions_sidebar.dart';
+import '../components/questions_area.dart';
+import '../constants/constants.dart';
 
 class QuestionScreen extends StatefulWidget {
   const QuestionScreen({Key? key}) : super(key: key);
@@ -18,9 +22,9 @@ class QuestionScreen extends StatefulWidget {
 
 class _QuestionScreenState extends State<QuestionScreen> {
   bool isEditing = false;
-  int selectedIndex = 0; // Track selected tab index
-  int selectedQuestionIndex = 0; // Track selected question index
-  final List<String> savedQuestions = []; // Initialize savedQuestions here
+  int selectedIndex = 0;
+  int selectedQuestionIndex = 0;
+  int editingQuestionIndex = -1; // Track the index of the question being edited
 
   List<String> currentQuestions = [];
   List<List<String>> currentOptions = [];
@@ -32,7 +36,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   late http.Client client;
 
-  List<String> tabs = ["HTML", "CSS", "Aptitude", "Java"];
+  List<String> tabs = ["HTML", "CSS", "Java", "ADD+"];
   Map<String, List<String>> allQuestions = {};
   Map<String, List<List<String>>> allOptions = {};
   Map<String, List<String>> allCorrectAnswers = {};
@@ -42,71 +46,113 @@ class _QuestionScreenState extends State<QuestionScreen> {
   void initState() {
     super.initState();
     client = http.Client();
-    fetchData(); // Call your API fetch function here for the initial tab
+    fetchData(tab: tabs[selectedIndex]);
   }
 
   @override
   void dispose() {
-    client.close(); // Close the HTTP client when no longer needed
+    client.close();
     super.dispose();
   }
 
-  Future<void> fetchData() async {
+  Future<void> saveQuestionIds(List<String> questionIds) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('questionIds', questionIds);
+    print('Question IDs saved: $questionIds'); // Print the saved question IDs
+  }
+
+  Future<List<String>> getQuestionIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    print('Stored question IDs: $questionIds'); // Print the retrieved question IDs
+    return questionIds;
+  }
+
+
+  Future<void> fetchData({required String tab}) async {
     final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
 
     try {
       final response = await client.get(Uri.parse(apiUrl));
-
-      print('Response status code: ${response.statusCode}');
-
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-
-        // Parsing questions for each tab
-        for (var tab in tabs) {
-          if (jsonData[tab] != null) {
-            List<String> questions = [];
-            List<List<String>> options = [];
-            List<String> correctAnswers = [];
-            List<String> explanations = [];
-
-            for (var item in jsonData[tab]) {
-              questions.add(item['question'].toString());
-              options.add(List<String>.from(
-                  item['options'].map((option) => option['desc'].toString())));
-              correctAnswers.add(item['answer'].toString());
-              explanations.add('');
-            }
-
-            allQuestions[tab] = questions;
-            allOptions[tab] = options;
-            allCorrectAnswers[tab] = correctAnswers;
-            allExplanations[tab] = explanations;
-          }
-        }
-
-        setState(() {
-          // Update state for the initial tab
-          currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
-          currentOptions = allOptions[tabs[selectedIndex]] ?? [];
-          currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
-          currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
-          isLoading = false;
-          isError = false;
-        });
+        // print('API response: $jsonData');
+        parseData(jsonData, tab);
       } else {
-        setState(() {
-          isError = true;
-          isLoading = false;
-        });
+        setErrorState();
       }
     } catch (e) {
       debugPrint('Exception while fetching questions: $e');
-      setState(() {
-        isError = true;
-        isLoading = false;
-      });
+      setErrorState();
     }
+  }
+
+  void parseData(Map<String, dynamic> jsonData, String tab) {
+    if (jsonData[tab] != null) {
+      List<String> questions = [];
+      List<List<String>> options = [];
+      List<String> correctAnswers = [];
+      List<String> explanations = [];
+      List<String> questionIds = []; // List to store question IDs
+
+      for (var item in jsonData[tab]) {
+        print('Item: $item'); // Print each item to debug
+
+        questions.add(item['question'].toString());
+        options.add(List<String>.from(item['options'].map((option) => option['desc'].toString())));
+        correctAnswers.add(item['answer'].toString());
+        explanations.add('');
+
+        // Use _id as the question ID
+        if (item.containsKey('_id')) {
+          questionIds.add(item['_id'].toString()); // Add question ID to the list
+        } else {
+          questionIds.add('null'); // Add 'null' if '_id' is missing
+          print('_id missing for item: $item');
+        }
+      }
+
+      // Save question IDs to SharedPreferences and print them
+      saveQuestionIds(questionIds).then((_) {
+        getQuestionIds().then((savedIds) {
+          print('Question IDs saved: $savedIds');
+        });
+      });
+
+      setState(() {
+        allQuestions[tab] = questions;
+        allOptions[tab] = options;
+        allCorrectAnswers[tab] = correctAnswers;
+        allExplanations[tab] = explanations;
+
+        if (tab == tabs[selectedIndex]) {
+          updateCurrentState(tab);
+        }
+      });
+    } else {
+      setErrorState();
+    }
+  }
+
+
+
+
+  void updateCurrentState(String tab) {
+    setState(() {
+      currentQuestions = allQuestions[tab] ?? [];
+      currentOptions = allOptions[tab] ?? [];
+      currentCorrectAnswers = allCorrectAnswers[tab] ?? [];
+      currentExplanations = allExplanations[tab] ?? [];
+      isLoading = false;
+      isError = false;
+    });
+  }
+
+  void setErrorState() {
+    setState(() {
+      isError = true;
+      isLoading = false;
+    });
   }
 
   void updateQuestionIndex(int index) {
@@ -115,54 +161,146 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
+
   void deleteQuestion(int index) {
     setState(() {
+      String category = tabs[selectedIndex];
       if (index >= 0 && index < currentQuestions.length) {
         currentQuestions.removeAt(index);
         currentOptions.removeAt(index);
         currentCorrectAnswers.removeAt(index);
         currentExplanations.removeAt(index);
-        if (selectedQuestionIndex == index) {
-          selectedQuestionIndex = 0; // Reset to first question if the selected question is deleted
-        } else if (selectedQuestionIndex > index) {
-          selectedQuestionIndex--; // Adjust index if the selected question was after the deleted question
-        }
+        adjustSelectedQuestionIndex(index);
       }
     });
   }
 
+  void adjustSelectedQuestionIndex(int index) {
+    if (selectedQuestionIndex == index) {
+      selectedQuestionIndex = 0;
+    } else if (selectedQuestionIndex > index) {
+      selectedQuestionIndex--;
+    }
+  }
+
   void saveQuestions(List<String> updatedQuestions) {
     setState(() {
-      savedQuestions.clear();
-      savedQuestions.addAll(updatedQuestions);
+      currentQuestions = List.from(updatedQuestions);
     });
   }
 
-  void addNewQuestion() {
+  Future<void> addNewQuestion(String question, List<String> options, String correctAnswer, String description, String questionId) async {
     setState(() {
-      currentQuestions.add('New Question');
-      currentOptions.add(['Option A', 'Option B', 'Option C', 'Option D']);
-      currentCorrectAnswers.add('Option A');
-      currentExplanations.add('Explanation for the new question');
-      selectedQuestionIndex = currentQuestions.length - 1; // Select the newly added question
+      currentQuestions.add(question);
+      currentOptions.add(options);
+      currentCorrectAnswers.add(correctAnswer);
+      currentExplanations.add(description);
+      selectedQuestionIndex = currentQuestions.length - 1;
+    });
+
+    // Get the current tab (subject)
+    String subject = tabs[selectedIndex];
+
+    // Make API call to add question
+    //   final apiUrl = 'http://localhost:3000/admin/addQuestion';
+    //   final response = await http.post(
+    //     Uri.parse(apiUrl),
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: json.encode({
+    //       'subject': subject,
+    //       'question': question,
+    //       'options': options,
+    //       'correctAnswer': correctAnswer,
+    //       'description': description,
+    //       'questionId': questionId,
+    //     }),
+    //   );
+    //
+    //   if (response.statusCode == 201) {
+    //     // Successfully added question
+    //   } else {
+    //     // Handle error
+    //     debugPrint('Failed to add question: ${response.body}');
+    //   }
+  }
+
+  void navigateToDownloadPage() {
+    // Implement navigation logic
+  }
+
+  void showAddTabDialog() {
+    TextEditingController tabNameController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Add New Tab"),
+          content: TextField(
+            controller: tabNameController,
+            decoration: InputDecoration(hintText: "Enter tab name"),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                addNewTab(tabNameController.text.trim());
+                Navigator.of(context).pop();
+              },
+              child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void addNewTab(String newTab) {
+    if (newTab.isNotEmpty && !tabs.contains(newTab)) {
+      setState(() {
+        tabs.insert(tabs.length - 1, newTab);
+        allQuestions[newTab] = [];
+        allOptions[newTab] = [];
+        allCorrectAnswers[newTab] = [];
+        allExplanations[newTab] = [];
+      });
+      fetchData(tab: newTab);
+    }
+  }
+
+  void toggleEditingMode(int index) {
+    setState(() {
+      // Toggle the editing mode for the selected question
+      editingQuestionIndex = editingQuestionIndex == index ? -1 : index;
     });
   }
 
-  void navigateToDownloadPage() {}
+  void updateQuestionDetails(String newQuestion, List<String> newOptions, String newCorrectAnswer, String newExplanation) {
+    setState(() {
+      // Update the details of the selected question
+      currentQuestions[selectedQuestionIndex] = newQuestion;
+      currentOptions[selectedQuestionIndex] = newOptions;
+      currentCorrectAnswers[selectedQuestionIndex] = newCorrectAnswer;
+      currentExplanations[selectedQuestionIndex] = newExplanation;
+      // Exit editing mode after updating
+      editingQuestionIndex = -1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     } else if (isError) {
       return Center(child: Text('Failed to load questions.'));
     } else {
-      if (isEditing) {
-        return _buildQuestionEditingPage();
-      }
       return _buildQuestionPage();
     }
   }
@@ -179,73 +317,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Main Content Area
               Expanded(
                 child: CustomRoundedContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Tab Bar
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 10 * heightFactor),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            for (int index = 0; index < tabs.length; index++)
-                              SizedBox(
-                                width: widthFactor * 127,
-                                height: heightFactor * 51,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    if (index >= 0 && index < tabs.length) {
-                                      setState(() {
-                                        selectedIndex = index;
-                                        selectedQuestionIndex = 0; // Reset selected question index on tab change
-                                        // Update current questions based on selected tab
-                                        currentQuestions = allQuestions[tabs[selectedIndex]] ?? [];
-                                        currentOptions = allOptions[tabs[selectedIndex]] ?? [];
-                                        currentCorrectAnswers = allCorrectAnswers[tabs[selectedIndex]] ?? [];
-                                        currentExplanations = allExplanations[tabs[selectedIndex]] ?? [];
-                                      });
-
-                                      // Fetch data for the selected tab if not already fetched
-                                      if (allQuestions[tabs[selectedIndex]] == null) {
-                                        fetchData();
-                                      }
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: index == selectedIndex ? primaryColor : Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    tabs[index],
-                                    style: GoogleFonts.poppins(
-                                      fontSize: widthFactor * 18,
-                                      fontWeight: FontWeight.w500,
-                                      color: index == selectedIndex ? Colors.white : Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      // Question Area for the selected tab and question
-                      if (selectedIndex >= 0 && selectedIndex < tabs.length)
-                        if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length)
-                          QuestionArea(
-                            questionNumber: "Question-${selectedQuestionIndex + 1}",
-                            question: currentQuestions[selectedQuestionIndex],
-                            options: currentOptions[selectedQuestionIndex],
-                            correctAnswer: currentCorrectAnswers[selectedQuestionIndex],
-                            explanation: currentExplanations[selectedQuestionIndex],
-                            heightFactor: heightFactor,
-                            widthFactor: widthFactor,
-                          ),
+                      buildTabBar(heightFactor, widthFactor),
+                      buildQuestionArea(heightFactor, widthFactor),
                     ],
                   ),
                   height: heightFactor * 1200,
@@ -260,28 +338,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                   color: backgroundColor,
                 ),
               ),
-
               SizedBox(width: 20 * widthFactor),
-
-              // Right Sidebar
-              CustomRoundedContainer(
-                child: QuestionsSidebar(
-                  questions: currentQuestions,
-                  onQuestionSelected: updateQuestionIndex,
-                  onDeleteQuestion: deleteQuestion,
-                  onSaveQuestions: saveQuestions,
-                ),
-                height: heightFactor * 1200,
-                width: widthFactor * 450,
-                padding: EdgeInsets.fromLTRB(
-                  20 * widthFactor,
-                  30 * heightFactor,
-                  20 * widthFactor,
-                  40 * heightFactor,
-                ),
-                margin: EdgeInsets.only(top: 20 * heightFactor),
-                color: backgroundColor,
-              ),
+              buildRightSidebar(heightFactor, widthFactor),
             ],
           ),
         ),
@@ -289,41 +347,107 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 
-  Widget _buildQuestionEditingPage() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit Questions'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                isEditing = false;
-              });
-            },
-            icon: Icon(Icons.done),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
+  Widget buildTabBar(double heightFactor, double widthFactor) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10 * heightFactor),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Editing Mode'),
-            ElevatedButton(
-              onPressed: () {
-                addNewQuestion();
-              },
-              child: Text('Add New Question'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                navigateToDownloadPage();
-              },
-              child: Text('Download Questions'),
-            ),
+            for (int index = 0; index < tabs.length; index++)
+              SizedBox(
+                width: widthFactor * 127,
+                height: heightFactor * 51,
+                child: ElevatedButton(
+                  onPressed: () {
+                    handleTabChange(index);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: index == selectedIndex ? primaryColor : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  child: Text(
+                    tabs[index],
+                    style: GoogleFonts.poppins(
+                      fontSize: widthFactor * 17,
+                      fontWeight: FontWeight.w500,
+                      color: index == selectedIndex ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  void handleTabChange(int index) {
+    if (index >= 0 && index < tabs.length) {
+      if (tabs[index] == "ADD+") {
+        showAddTabDialog();
+      } else {
+        setState(() {
+          selectedIndex = index;
+          selectedQuestionIndex = 0;
+          isLoading = true;
+        });
+        fetchData(tab: tabs[index]);
+      }
+    }
+  }
+
+  Widget buildQuestionArea(double heightFactor, double widthFactor) {
+    if (selectedIndex >= 0 && selectedIndex < tabs.length && tabs[selectedIndex] != "ADD+") {
+      if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length) {
+        return QuestionArea(
+          questionNumber: "Question-${selectedQuestionIndex + 1}",
+          question: currentQuestions[selectedQuestionIndex],
+          options: currentOptions.length > selectedQuestionIndex ? currentOptions[selectedQuestionIndex] : [],
+          correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex ? currentCorrectAnswers[selectedQuestionIndex] : '',
+          explanation: currentExplanations.length > selectedQuestionIndex ? currentExplanations[selectedQuestionIndex] : '',
+          heightFactor: heightFactor,
+          widthFactor: widthFactor,
+          isEditing: editingQuestionIndex == selectedQuestionIndex,
+          toggleEditingMode: () => toggleEditingMode(selectedQuestionIndex),
+          updateQuestionDetails: updateQuestionDetails, // Pass the callback
+        );
+      } else {
+        // Handle case when selectedQuestionIndex is out of bounds
+        return Container(
+          alignment: Alignment.center,
+          child: Text('No question selected or index out of bounds.'),
+        );
+      }
+    } else {
+      // Handle case when selectedIndex is out of bounds or tab is "ADD+"
+      return Container();
+    }
+  }
+
+  Widget buildRightSidebar(double heightFactor, double widthFactor) {
+    return CustomRoundedContainer(
+      child: QuestionsSidebar(
+          questions: currentQuestions,
+          onQuestionSelected: updateQuestionIndex,
+          onDeleteQuestion: deleteQuestion,
+          onSaveQuestions: saveQuestions,
+          onAddNewQuestion: addNewQuestion,
+          subject: tabs[selectedIndex]
+      ),
+      height: heightFactor * 1200,
+      width: widthFactor * 450,
+      padding: EdgeInsets.fromLTRB(
+        20 * widthFactor,
+        30 * heightFactor,
+        20 * widthFactor,
+        40 * heightFactor,
+      ),
+      margin: EdgeInsets.only(top: 20 * heightFactor),
+      color: backgroundColor,
     );
   }
 }

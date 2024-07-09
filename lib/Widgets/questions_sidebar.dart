@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert'; // For using jsonEncode
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
@@ -9,7 +11,9 @@ class QuestionsSidebar extends StatefulWidget {
   final List<String> questions;
   final Function(int) onQuestionSelected;
   final Function(int) onDeleteQuestion;
-  final Function(List<String>) onSaveQuestions; // Callback to save questions
+  final Function(List<String>) onSaveQuestions;
+  final Function(String, List<String>, String, String, String) onAddNewQuestion;
+  final String subject; // Added subject from tabs
 
   const QuestionsSidebar({
     Key? key,
@@ -17,6 +21,8 @@ class QuestionsSidebar extends StatefulWidget {
     required this.onQuestionSelected,
     required this.onDeleteQuestion,
     required this.onSaveQuestions,
+    required this.onAddNewQuestion,
+    required this.subject,
   }) : super(key: key);
 
   @override
@@ -24,213 +30,359 @@ class QuestionsSidebar extends StatefulWidget {
 }
 
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
-  int selectedIndex = -1; // Track selected index, -1 means none selected
+  int selectedIndex = -1;
+  TextEditingController _questionController = TextEditingController();
+  TextEditingController _option1Controller = TextEditingController();
+  TextEditingController _option2Controller = TextEditingController();
+  TextEditingController _option3Controller = TextEditingController();
+  TextEditingController _option4Controller = TextEditingController();
+  TextEditingController _correctAnswerController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _questionIdController = TextEditingController();
 
-  void deleteQuestion(int index) {
-    widget.onDeleteQuestion(index);
-    setState(() {
-      selectedIndex = -1; // Reset selection
-    });
+  Future<void> saveQuestionId(String questionId) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    questionIds.add(questionId);
+    await prefs.setStringList('questionIds', questionIds);
   }
 
-  void addQuestion() async {
-    final newQuestion = {
-      "quesId": "51",
-      "question": "Full form of HTML",
-      "options": [
-        {"desc": "option 1", "id": "1"},
-        {"desc": "option 2", "id": "2"},
-        {"desc": "option 3", "id": "3"},
-        {"desc": "option 4", "id": "4"},
-      ],
-      "subject": "HTML",
-      "answer": "3"
-    };
-
-    final String authToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk3NTk3NzUsImV4cCI6MTcxOTc2Njk3NSwiYXVkIjoiNjY3NmExNzIyOGQzOTQwZWQwMTgxNDdhIiwiaXNzIjoiY2luZV9jc2kifQ.KM5CaRAGdjtmDnufZ4CAcEIdGlH68cf5-35Ls2AvNe4';
-
-    try {
-      final response = await http.post(
-        Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
-        headers: {
-          'Content-Type': 'application/json',
-          // No Authorization header needed here since token is in cookies
-        },
-        body: jsonEncode(newQuestion),
-      );
-
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        setState(() {
-          widget.questions.add(newQuestion['question'] as String); // Add the new question
-        });
-      } else {
-        // Handle error
-        print('Failed to add question: ${response.reasonPhrase}');
-        print('Error message: ${jsonDecode(response.body)['message']}'); // Print detailed error message if available
-      }
-    } catch (e) {
-      print('Error adding question: $e');
-    }
+  Future<List<String>> getQuestionIds() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('questionIds') ?? [];
   }
 
+  void showAddQuestionDialog() {
+    _questionController.clear();
+    _option1Controller.clear();
+    _option2Controller.clear();
+    _option3Controller.clear();
+    _option4Controller.clear();
+    _correctAnswerController.clear();
+    _descriptionController.clear();
+    _questionIdController.clear();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.all(20.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(12.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10.0,
+                    offset: const Offset(0.0, 10.0),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Add New Question',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  TextField(
+                    controller: _questionController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your question',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option1Controller, "Option 1", "1"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option2Controller, "Option 2", "2"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option3Controller, "Option 3", "3"),
+                  SizedBox(height: 12.0),
+                  _buildOptionTextField(_option4Controller, "Option 4", "4"),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _correctAnswerController,
+                    decoration: InputDecoration(
+                      hintText: 'Correct Answer',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      hintText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 12.0),
+                  TextField(
+                    controller: _questionIdController,
+                    decoration: InputDecoration(
+                      hintText: 'Question ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey,
+                        ),
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 12.0),
+                      ElevatedButton(
+                        onPressed: () async {
+                          if (_questionController.text.isNotEmpty &&
+                              _option1Controller.text.isNotEmpty &&
+                              _option2Controller.text.isNotEmpty &&
+                              _option3Controller.text.isNotEmpty &&
+                              _option4Controller.text.isNotEmpty &&
+                              _correctAnswerController.text.isNotEmpty &&
+                              _descriptionController.text.isNotEmpty &&
+                              _questionIdController.text.isNotEmpty) {
+                            String question = _questionController.text;
+                            List<Map<String, String>> options = [
+                              {"desc": _option1Controller.text, "id": "1"},
+                              {"desc": _option2Controller.text, "id": "2"},
+                              {"desc": _option3Controller.text, "id": "3"},
+                              {"desc": _option4Controller.text, "id": "4"},
+                            ];
+                            String correctAnswer = _correctAnswerController.text;
+                            String description = _descriptionController.text;
+                            String questionId = _questionIdController.text;
+
+                            var response = await http.post(
+                              Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+                              headers: {"Content-Type": "application/json"},
+                              body: jsonEncode({
+                                "question": question,
+                                "options": options.map((option) => {
+                                  "desc": option["desc"],
+                                  "id": option["id"]
+                                }).toList(),
+                                "subject": widget.subject,
+                                "quesId": questionId,
+                                "answer": correctAnswer,
+                                "description": description,
+                              }),
+                            );
+
+                            print('Response status: ${response.statusCode}');
+                            print('Response body: ${response.body}');
+
+                            if (response.statusCode == 201) {
+                              widget.onAddNewQuestion(
+                                question,
+                                options.map((option) => option['desc'] ?? "").toList(),
+                                correctAnswer,
+                                description,
+                                questionId,
+                              );
+
+                              // Save the new question ID to SharedPreferences
+                              await saveQuestionId(questionId);
+                              List<String> savedIds = await getQuestionIds();
+                              print('Question IDs saved: $savedIds');
+
+                              Navigator.of(context).pop();
+                            } else {
+                              if (response.statusCode == 500) {
+                                print('Internal server error occurred');
+                              } else {
+                                print('Failed to add question');
+                              }
+                            }
+                          }
+                        },
+                        child: Text('Add'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOptionTextField(TextEditingController controller, String hintText, String id) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(hintText: hintText),
+      onChanged: (_) => setState(() {}),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
     double widthFactor = MediaQuery.of(context).size.width / 1440;
 
-    return Column(
-      children: [
-        // Top "Question" label
-        Container(
-          width: double.infinity,
-          height: heightFactor * 80,
-          padding: EdgeInsets.all(10 * heightFactor),
-          decoration: BoxDecoration(
-            color: primaryColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            "Question",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontSize: 24 * widthFactor,
-              fontWeight: FontWeight.w500,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: heightFactor * 80,
+            padding: EdgeInsets.all(10 * heightFactor),
+            decoration: BoxDecoration(
+              color: primaryColor,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              "Question",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 24 * widthFactor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 20 * heightFactor),
-
-        // Grid of question numbers and Add Question button
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.all(10 * heightFactor),
-          child: GridView.builder(
-            shrinkWrap: true,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              mainAxisSpacing: 10 * heightFactor,
-              crossAxisSpacing: 10 * widthFactor,
-            ),
-            itemCount: widget.questions.length + 1, // +1 for Add Question button
-            itemBuilder: (context, index) {
-              if (index == widget.questions.length) {
-                // Add Question button
-                return GestureDetector(
-                  onTap: addQuestion,
-                  child: Container(
-                    width: 60 * widthFactor,
-                    height: 60 * heightFactor,
-                    margin: EdgeInsets.all(10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white, // White background for the button
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.add,
-                      color: primaryColor, // Blue color for the "+" icon
-                      size: 30 * widthFactor,
-                    ),
-                  ),
-                );
-              } else {
-                // Existing question tiles
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                      widget.onQuestionSelected(index);
-                    });
-                  },
-                  child: Container(
-                    width: 60 * widthFactor,
-                    height: 60 * heightFactor,
-                    margin: EdgeInsets.all(10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: selectedIndex == index ? primaryColor : Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
+          SizedBox(height: 20 * heightFactor),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(10 * heightFactor),
+            child: GridView.builder(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 10 * heightFactor,
+                crossAxisSpacing: 10 * widthFactor,
+              ),
+              itemCount: widget.questions.length + 1,
+              itemBuilder: (context, index) {
+                if (index == widget.questions.length) {
+                  return GestureDetector(
+                    onTap: showAddQuestionDialog,
+                    child: Container(
+                      width: 60 * widthFactor,
+                      height: 60 * heightFactor,
+                      margin: EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
                         color: Colors.white,
-                        width: 2,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: primaryColor,
+                        size: 30 * widthFactor,
                       ),
                     ),
-                    child: Text(
-                      (index + 1).toString(),
-                      style: TextStyle(
-                        color: selectedIndex == index ? Colors.white : primaryColor,
-                        fontSize: 18 * widthFactor,
-                        fontWeight: FontWeight.bold,
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                        widget.onQuestionSelected(index);
+                      });
+                    },
+                    child: Container(
+                      width: 60 * widthFactor,
+                      height: 60 * heightFactor,
+                      margin: EdgeInsets.all(10),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: selectedIndex == index ? primaryColor : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        (index + 1).toString(),
+                        style: TextStyle(
+                          color: selectedIndex == index ? Colors.white : primaryColor,
+                          fontSize: 18 * widthFactor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
-            },
-          ),
-        ),
-        SizedBox(height: 20 * heightFactor),
-
-        // Delete and Save buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: selectedIndex != -1 ? () => deleteQuestion(selectedIndex) : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20 * widthFactor,
-                  vertical: 10 * heightFactor,
-                ),
-              ),
-              child: Text(
-                "Delete",
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: widthFactor * 18,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Save questions and navigate to QuestionsDownload page
-                widget.onSaveQuestions(widget.questions);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => QuestionsDownload(savedQuestions: widget.questions)),
-                );
+                  );
+                }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: EdgeInsets.symmetric(
-                  horizontal: 20 * widthFactor,
-                  vertical: 10 * heightFactor,
-                ),
-              ),
-              child: Text(
-                "Save",
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: widthFactor * 18,
-                ),
-              ),
             ),
-          ],
-        ),
-      ],
+          ),
+          SizedBox(height: 20 * heightFactor),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: (){},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20 * widthFactor,
+                    vertical: 10 * heightFactor,
+                  ),
+                ),
+                child: Text(
+                  "Delete",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: widthFactor * 18,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  widget.onSaveQuestions(widget.questions);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QuestionsDownload(savedQuestions: widget.questions)),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 20 * widthFactor,
+                    vertical: 10 * heightFactor,
+                  ),
+                ),
+                child: Text(
+                  "Save",
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: widthFactor * 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,13 +1,12 @@
 import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
 import 'package:admin_portal/Screens/questions_page.dart';
-// import 'package:admin_portal/Screens/QuizScreen.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
-import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/constants.dart';
+import 'candidate_add.dart';
 
 class SideMenuBar extends StatefulWidget {
   final String userName;
@@ -24,8 +23,9 @@ class _SideMenuBarState extends State<SideMenuBar> {
   static List<Widget> _widgetOptions = <Widget>[
     Leaderboard(),
     candidateAdd(),
-    QuestionScreen(), // Ensure this is the correct reference for Feedback, or use another relevant widget
+    QuestionScreen(),
     feedback_page(),
+    candidateAdd(),
   ];
 
   void _onItemTapped(int index) {
@@ -39,6 +39,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
   }
 
   void _handleLogout() {
+  
     print("Logged out");
   }
 
@@ -52,14 +53,11 @@ class _SideMenuBarState extends State<SideMenuBar> {
       body: Row(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.fromLTRB(
-                0, 0, 16 * _widthFactor, 0), // Set the desired left padding
+            padding: EdgeInsets.fromLTRB(0, 0, 16 * _widthFactor, 0),
             child: Container(
-              width: 200 * _widthFactor, // Width of the side menu
+              width: 200 * _widthFactor,
               decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onPrimary, // Background color of the side menu
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
               padding: EdgeInsets.fromLTRB(10 * _widthFactor, 25 * _widthFactor,
                   10 * _widthFactor, 25 * _widthFactor),
@@ -99,9 +97,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
                             3,
                             _widthFactor,
                             _heightFactor),
-                        SizedBox(
-                            height:
-                                12 * _heightFactor), // Adjust vertical spacing
+                        SizedBox(height: 12 * _heightFactor),
                       ],
                     ),
                   ),
@@ -117,7 +113,13 @@ class _SideMenuBarState extends State<SideMenuBar> {
             ),
           ),
           Expanded(
-            child: _widgetOptions.elementAt(_selectedIndex),
+            child: Navigator(
+              onGenerateRoute: (settings) {
+                return MaterialPageRoute(
+                  builder: (_) => _widgetOptions.elementAt(_selectedIndex),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -152,7 +154,8 @@ class _SideMenuBarState extends State<SideMenuBar> {
                 child: Text(
                   text,
                   style: GoogleFonts.poppins(
-                    color: _selectedIndex == index ? Colors.white : primaryColor,
+                    color:
+                        _selectedIndex == index ? Colors.white : primaryColor,
                     fontSize: 14 * widthFactor,
                     fontWeight: FontWeight.w500,
                   ),

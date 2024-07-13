@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      // home:LeaderboardScreen()
-      home: SideMenuBar(userName: "vidhi")
+      home: SideMenuBar(userName:"hello" ),
+      // home: candidate()
 
     );
   }

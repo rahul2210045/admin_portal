@@ -46,6 +46,8 @@ dependencies:
   shared_preferences: ^2.2.3
   get: ^4.6.6
   toastification: ^2.0.0
+  web_socket_channel: ^3.0.0
+  socket_io_client: ^2.0.3+1
 
 
   # fl_chart: ^0.40.0
@@ -91,6 +93,11 @@ flutter:
     - assets/icons/pencil.png
     - assets/icons/Login Page.png
     - assets/icons/Logo.png
+    - assets/icons/Vector (10).png
+    - assets/icons/Vector (8).png
+    - assets/icons/CSI LOGO1.png
+    - assets/icons/CSI LOGO2.png
+    - assets/icons/CSI LOGO 2nd.png
 
 
     # - assets/icons

@@ -488,7 +488,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import '../Widgets/Custom_Container.dart';
 import '../Widgets/questions_sidebar.dart';
@@ -512,6 +511,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   List<List<String>> currentOptions = [];
   List<String> currentCorrectAnswers = [];
   List<String> currentExplanations = [];
+  List<String> currentQuestionIds = [];
 
   bool isLoading = true;
   bool isError = false;
@@ -570,29 +570,35 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   void deleteQuestion(int index) {
-    setState(() {
-      String category = tabs[selectedIndex];
-      if (index >= 0 && index < currentQuestions.length) {
-        currentQuestions.removeAt(index);
-        currentOptions.removeAt(index);
-        currentCorrectAnswers.removeAt(index);
-        currentExplanations.removeAt(index);
-        adjustSelectedQuestionIndex(index);
+    if (index >= 0 && index < currentQuestionIds.length) {
+      print('Question ID: ${currentQuestionIds[index]}');
+    }
+    ;
+    client = http.Client();
+    fetchData(tab: tabs[selectedIndex]);
+    // setState(() {
+    //   String category = tabs[selectedIndex];
+    //   if (index >= 0 && index < currentQuestions.length) {
+    //     currentQuestions.removeAt(index);
+    //     currentOptions.removeAt(index);
+    //     currentCorrectAnswers.removeAt(index);
+    //     currentExplanations.removeAt(index);
+    //     adjustSelectedQuestionIndex(index);
 
-        // Update the global maps
-        allQuestions[category] = List.from(currentQuestions);
-        allOptions[category] = List.from(currentOptions);
-        allCorrectAnswers[category] = List.from(currentCorrectAnswers);
-        allExplanations[category] = List.from(currentExplanations);
+    //     // Update the global maps
+    //     allQuestions[category] = List.from(currentQuestions);
+    //     allOptions[category] = List.from(currentOptions);
+    //     allCorrectAnswers[category] = List.from(currentCorrectAnswers);
+    //     allExplanations[category] = List.from(currentExplanations);
 
-        // Check if there are no questions left
-        if (currentQuestions.isEmpty) {
-          selectedQuestionIndex = 0;
-        } else if (selectedQuestionIndex >= currentQuestions.length) {
-          selectedQuestionIndex = currentQuestions.length - 1;
-        }
-      }
-    });
+    //     // Check if there are no questions left
+    //     if (currentQuestions.isEmpty) {
+    //       selectedQuestionIndex = 0;
+    //     } else if (selectedQuestionIndex >= currentQuestions.length) {
+    //       selectedQuestionIndex = currentQuestions.length - 1;
+    //     }
+    //   }
+    // });
   }
 
   void parseData(Map<String, dynamic> jsonData, String tab) {

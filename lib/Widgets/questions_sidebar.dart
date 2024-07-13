@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -40,7 +39,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   TextEditingController _correctAnswerController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _questionIdController = TextEditingController();
-
+ GlobalKey<ScaffoldMessengerState> _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
   Future<void> saveQuestionId(String questionId) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> questionIds = prefs.getStringList('questionIds') ?? [];
@@ -65,9 +64,38 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     try {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
-        refreshQuestions(); // Reload questions after deletion
-        print(await response.stream.bytesToString());
-      } else {
+  _scaffoldKey.currentState?.showSnackBar(
+    SnackBar(
+      content: Text(
+        'Question deleted successfully',
+        style: TextStyle(color: Colors.white),
+      ),
+      backgroundColor: Colors.green,
+      duration: Duration(seconds: 2), // Show snackbar for 2 seconds
+    ),
+  );
+
+  // Delay execution of refreshQuestions() by 2 seconds
+  Future.delayed(Duration(seconds: 2), () {
+    refreshQuestions(); // Reload questions after deletion
+  });
+
+  print(await response.stream.bytesToString());
+}
+      // if (response.statusCode == 200) {
+      //    _scaffoldKey.currentState?.showSnackBar(
+      //     SnackBar(
+      //       content: Text('Question deleted successfully', style: TextStyle(color: Colors.white)),
+      //       backgroundColor: Colors.green,
+      //     ),
+      //   );
+      //   refreshQuestions(); // Reload questions after deletion
+        
+        
+      //   print(await response.stream.bytesToString());
+      // } 
+      
+      else {
         print('Failed with status: ${response.statusCode}');
         print('Reason: ${response.reasonPhrase}');
       }

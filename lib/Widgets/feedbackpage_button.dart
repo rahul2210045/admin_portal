@@ -28,11 +28,11 @@ class _feedback_buttonState extends State<feedback_button> {
       child: ElevatedButton(
         onPressed: widget.onTap,
         child: Text(widget.text, style: GoogleFonts.poppins(fontSize:widget.fontSize),),
-        style: ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(primaryColor),
-            foregroundColor: WidgetStatePropertyAll(Colors.white),
-            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5)))),
+        // style: ButtonStyle(
+        //     backgroundColor: WidgetStatePropertyAll(primaryColor),
+        //     foregroundColor: WidgetStatePropertyAll(Colors.white),
+        //     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(5)))),
       ),
     );
   }

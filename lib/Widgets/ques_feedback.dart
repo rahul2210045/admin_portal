@@ -38,7 +38,7 @@ class _ques_feedbackState extends State<ques_feedback> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),),
         tileColor: Colors.white,
         enabled: true,
-        minTileHeight:20,
+        // minTileHeight:20,
            
         
         

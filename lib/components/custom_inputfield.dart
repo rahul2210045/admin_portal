@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 import 'package:toastification/toastification.dart';
 
 class customInputField extends StatefulWidget {
@@ -54,7 +53,7 @@ class _customInputFieldState extends State<customInputField> {
       'Content-Type': 'application/json',
       "Cookie": "accessToken=${PreferencesManager().token} "
       // "Cookie":
-          // "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk3ODMxNTUsImV4cCI6MTcxOTc5MDM1NSwiYXVkIjoiNjY3NmExNzIyOGQzOTQwZWQwMTgxNDdhIiwiaXNzIjoiY2luZV9jc2kifQ.jAxTxE8hkkXr3ddYmq2OcUVHaucEIIyZOgkoxTvYCU4",
+      // "accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3MTk3ODMxNTUsImV4cCI6MTcxOTc5MDM1NSwiYXVkIjoiNjY3NmExNzIyOGQzOTQwZWQwMTgxNDdhIiwiaXNzIjoiY2luZV9jc2kifQ.jAxTxE8hkkXr3ddYmq2OcUVHaucEIIyZOgkoxTvYCU4",
     };
 
     final body = jsonEncode({
@@ -78,56 +77,60 @@ class _customInputFieldState extends State<customInputField> {
         );
         print("Student added successfully");
       } else {
-        _showErrorDialog('Invalid studdent information or Student is already present.');
+        _showErrorDialog(
+            'Invalid studdent information or Student is already present.');
         print(response.reasonPhrase);
       }
     } catch (e) {
       print('Error: $e');
-       _showErrorDialog('unexpected error occured. Please try again later.');
+      _showErrorDialog('unexpected error occured. Please try again later.');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
+
   void _showErrorDialog(String message) {
     toastification.show(
-  context: context, 
-  type: ToastificationType.success,
-  style: ToastificationStyle.flatColored,
-  autoCloseDuration: const Duration(seconds: 5),
-  title: Text(message),
-  alignment: Alignment.topRight,
-  direction: TextDirection.ltr,
-  animationDuration: const Duration(milliseconds: 300),
-  icon: const Icon(Icons.check),
-  primaryColor: Colors.green,
-  backgroundColor: Colors.white,
-  foregroundColor: Colors.black,
-  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-  borderRadius: BorderRadius.circular(12),
-  boxShadow: const [
-    BoxShadow(
-      color: Color(0x07000000),
-      blurRadius: 16,
-      offset: Offset(0, 16),
-      spreadRadius: 0,
-    )
-  ],
-  showProgressBar: true,
-  closeButtonShowType: CloseButtonShowType.onHover,
-  closeOnClick: false,
-  pauseOnHover: true,
-  dragToClose: true,
-  applyBlurEffect: true,
-  callbacks: ToastificationCallbacks(
-    onTap: (toastItem) => print('Toast ${toastItem.id} tapped'),
-    onCloseButtonTap: (toastItem) => print('Toast ${toastItem.id} close button tapped'),
-    onAutoCompleteCompleted: (toastItem) => print('Toast ${toastItem.id} auto complete completed'),
-    onDismissed: (toastItem) => print('Toast ${toastItem.id} dismissed'),
-  ),
-);
+      context: context,
+      type: ToastificationType.success,
+      style: ToastificationStyle.flatColored,
+      autoCloseDuration: const Duration(seconds: 5),
+      title: Text(message),
+      alignment: Alignment.topRight,
+      direction: TextDirection.ltr,
+      animationDuration: const Duration(milliseconds: 300),
+      icon: const Icon(Icons.check),
+      primaryColor: Colors.green,
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x07000000),
+          blurRadius: 16,
+          offset: Offset(0, 16),
+          spreadRadius: 0,
+        )
+      ],
+      showProgressBar: true,
+      closeButtonShowType: CloseButtonShowType.onHover,
+      closeOnClick: false,
+      pauseOnHover: true,
+      dragToClose: true,
+      applyBlurEffect: true,
+      callbacks: ToastificationCallbacks(
+        onTap: (toastItem) => print('Toast ${toastItem.id} tapped'),
+        onCloseButtonTap: (toastItem) =>
+            print('Toast ${toastItem.id} close button tapped'),
+        onAutoCompleteCompleted: (toastItem) =>
+            print('Toast ${toastItem.id} auto complete completed'),
+        onDismissed: (toastItem) => print('Toast ${toastItem.id} dismissed'),
+      ),
+    );
   }
 
   @override
@@ -287,14 +290,15 @@ class _customInputFieldState extends State<customInputField> {
                                   widthFactor: widthFactor(context),
                                   heightFactor: heightFactor(context),
                                   text: "back",
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
                                   icon: Icons.arrow_back_ios_new_rounded),
                               CustomButton(
                                 widthFactor: widthFactor(context),
                                 heightFactor: heightFactor(context),
                                 text: "Register",
                                 onPressed: _validateForm,
-                                
                               )
                             ],
                           ),
@@ -372,8 +376,6 @@ Widget customInputFieldCard(
     ),
   );
 }
-
-
 
 Widget customDropdownFieldCard(
   String label,

@@ -25,6 +25,7 @@ final FeedbackRepository feedbackRepository =
 class _feedback_pageState extends State<feedback_page> {
   late Future<List<FeedbackDetails>> futureFeedbacks;
   FeedbackDetails? selectedFeedback;
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -37,7 +38,23 @@ class _feedback_pageState extends State<feedback_page> {
         selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
       });
     });
+   // Attach listener to search controller
+    _searchController.addListener(_onSearchTextChanged);
   }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchTextChanged() {
+    setState(() {
+      // Trigger a rebuild with the updated search text
+    });
+  }
+
 
   void _selectFeedback(int index) {
     futureFeedbacks.then((feedbacks) {
@@ -47,7 +64,6 @@ class _feedback_pageState extends State<feedback_page> {
       print('Selected Feedback: ${selectedFeedback?.student?.name}');
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -176,9 +192,11 @@ class _feedback_pageState extends State<feedback_page> {
                                           fontSize: screenWidth * 0.01,
                                           buttonWidth: screenWidth * 0.084,
                                           onTap: () async {
-                                            AddFeedback feedback = await repository
-                                                .addFeedbackQuestion(
-                                                    _addQuestioncontroller.text);
+                                            AddFeedback feedback =
+                                                await repository
+                                                    .addFeedbackQuestion(
+                                                        _addQuestioncontroller
+                                                            .text);
                                             _addQuestioncontroller.clear();
                                             Navigator.of(context).pop();
                                             setState(() {});
@@ -211,10 +229,10 @@ class _feedback_pageState extends State<feedback_page> {
     );
   }
 
- Widget _buildFeedbackPage() {
+  Widget _buildFeedbackPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    TextEditingController  _searchController=TextEditingController();
+   
 
     return Scaffold(
       backgroundColor: backgroundColor1,
@@ -350,15 +368,19 @@ class _feedback_pageState extends State<feedback_page> {
                       Container(
                         height: screenHeight * 0.06,
                         width: screenWidth * 0.25,
-                        child:  TextField(
-                                        controller: _searchController,
-                                        decoration: InputDecoration(
-                                          hintText: "Search Candidate",
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8)),
-                                        ),
-                                      ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {}); // Trigger rebuild on text change
+                          },
+                          
+                          decoration: InputDecoration(
+                            suffixIcon: Icon(Icons.search),
+                            hintText: "Search Candidate",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -377,8 +399,16 @@ class _feedback_pageState extends State<feedback_page> {
                         return Center(child: Text('No feedback found'));
                       }
 
-                      List<FeedbackDetails> feedbacks = snapshot.data!;
+                      List<FeedbackDetails> feedbacks =
+                          snapshot.data!.toList(); // Convert Iterable to List
 
+                      // Filter feedbacks based on search text
+                     if (_searchController.text.isNotEmpty) {
+                    feedbacks = feedbacks.where((feedback) =>
+                        feedback.student!.name!
+                            .toLowerCase()
+                            .contains(_searchController.text.toLowerCase())).toList();
+                  }
                       return SizedBox(
                         height: screenHeight * 0.615,
                         width: screenWidth * 0.25,

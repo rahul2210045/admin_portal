@@ -2,6 +2,7 @@ import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
+import 'package:admin_portal/Widgets/student_detail_card.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfield.dart';
 import 'package:admin_portal/components/registered_candidate_card.dart';
@@ -172,7 +173,7 @@ class _candidateAddState extends State<candidateAdd> {
                                         itemCount: snapshot.data!.length,
                                         itemBuilder: (context, index) {
                                           final student = snapshot.data![index];
-                                          return feedback_card(
+                                          return student_detail_card(
                                               studentname: "${student.name}",
                                               studenNo:
                                                   "${student.studentNumber}");
@@ -187,13 +188,13 @@ class _candidateAddState extends State<candidateAdd> {
                                     }
                                   },
                                 ),
-                                feedback_card(
-                                    studentname: "Rahul Yadav",
-                                    studenNo: "2210045"),
-                                SizedBox(height: 8),
-                                feedback_card(
-                                    studentname: "Ashirwad",
-                                    studenNo: "2210647"),
+                                // feedback_card(
+                                //     studentname: "Rahul Yadav",
+                                //     studenNo: "2210045"),
+                                // SizedBox(height: 8),
+                                // feedback_card(
+                                //     studentname: "Ashirwad",
+                                //     studenNo: "2210647"),
                               ]),
                             ),
                           ),

@@ -2,6 +2,7 @@ import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
+import 'package:admin_portal/Widgets/student_detail_card.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfield.dart';
 import 'package:admin_portal/components/registered_candidate_card.dart';
@@ -218,7 +219,7 @@ class _candidateState extends State<candidate> {
                                             itemBuilder: (context, index) {
                                               final student =
                                                   filteredStudents[index];
-                                              return feedback_card(
+                                              return student_detail_card(
                                                 studentname: "${student.name}",
                                                 studenNo:
                                                     "${student.studentNumber}",

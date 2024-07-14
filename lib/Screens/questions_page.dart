@@ -1,4 +1,3 @@
-// ignore_for_file: sort_child_properties_last, prefer_const_constructors
 
 import 'dart:convert';
 
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 import '../Widgets/Custom_Container.dart';
 import '../Widgets/questions_sidebar.dart';
@@ -30,6 +28,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   List<List<String>> currentOptions = [];
   List<String> currentCorrectAnswers = [];
   List<String> currentExplanations = [];
+  List<String> currentQuestionIds = [];
 
   bool isLoading = true;
   bool isError = false;
@@ -64,10 +63,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Future<List<String>> getQuestionIds() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> questionIds = prefs.getStringList('questionIds') ?? [];
-    print('Stored question IDs: $questionIds'); // Print the retrieved question IDs
+    print(
+        'Stored question IDs: $questionIds'); // Print the retrieved question IDs
     return questionIds;
   }
-
 
   Future<void> fetchData({required String tab}) async {
     final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
@@ -87,6 +86,38 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
+  void deleteQuestion(int index) {
+    if (index >= 0 && index < currentQuestionIds.length) {
+      print('Question ID: ${currentQuestionIds[index]}');
+    }
+    ;
+    client = http.Client();
+    fetchData(tab: tabs[selectedIndex]);
+    // setState(() {
+    //   String category = tabs[selectedIndex];
+    //   if (index >= 0 && index < currentQuestions.length) {
+    //     currentQuestions.removeAt(index);
+    //     currentOptions.removeAt(index);
+    //     currentCorrectAnswers.removeAt(index);
+    //     currentExplanations.removeAt(index);
+    //     adjustSelectedQuestionIndex(index);
+
+    //     // Update the global maps
+    //     allQuestions[category] = List.from(currentQuestions);
+    //     allOptions[category] = List.from(currentOptions);
+    //     allCorrectAnswers[category] = List.from(currentCorrectAnswers);
+    //     allExplanations[category] = List.from(currentExplanations);
+
+    //     // Check if there are no questions left
+    //     if (currentQuestions.isEmpty) {
+    //       selectedQuestionIndex = 0;
+    //     } else if (selectedQuestionIndex >= currentQuestions.length) {
+    //       selectedQuestionIndex = currentQuestions.length - 1;
+    //     }
+    //   }
+    // });
+  }
+
   void parseData(Map<String, dynamic> jsonData, String tab) {
     if (jsonData[tab] != null) {
       List<String> questions = [];
@@ -99,13 +130,15 @@ class _QuestionScreenState extends State<QuestionScreen> {
         print('Item: $item'); // Print each item to debug
 
         questions.add(item['question'].toString());
-        options.add(List<String>.from(item['options'].map((option) => option['desc'].toString())));
+        options.add(List<String>.from(
+            item['options'].map((option) => option['desc'].toString())));
         correctAnswers.add(item['answer'].toString());
         explanations.add('');
 
         // Use _id as the question ID
         if (item.containsKey('_id')) {
-          questionIds.add(item['_id'].toString()); // Add question ID to the list
+          questionIds
+              .add(item['_id'].toString()); // Add question ID to the list
         } else {
           questionIds.add('null'); // Add 'null' if '_id' is missing
           print('_id missing for item: $item');
@@ -134,9 +167,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-
-
-
   void updateCurrentState(String tab) {
     setState(() {
       currentQuestions = allQuestions[tab] ?? [];
@@ -161,20 +191,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-
-  void deleteQuestion(int index) {
-    setState(() {
-      String category = tabs[selectedIndex];
-      if (index >= 0 && index < currentQuestions.length) {
-        currentQuestions.removeAt(index);
-        currentOptions.removeAt(index);
-        currentCorrectAnswers.removeAt(index);
-        currentExplanations.removeAt(index);
-        adjustSelectedQuestionIndex(index);
-      }
-    });
-  }
-
   void adjustSelectedQuestionIndex(int index) {
     if (selectedQuestionIndex == index) {
       selectedQuestionIndex = 0;
@@ -189,7 +205,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  Future<void> addNewQuestion(String question, List<String> options, String correctAnswer, String description, String questionId) async {
+  Future<void> addNewQuestion(String question, List<String> options,
+      String correctAnswer, String description, String questionId) async {
     setState(() {
       currentQuestions.add(question);
       currentOptions.add(options);
@@ -282,17 +299,24 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  void updateQuestionDetails(String newQuestion, List<String> newOptions, String newCorrectAnswer, String newExplanation) {
-    setState(() {
-      // Update the details of the selected question
-      currentQuestions[selectedQuestionIndex] = newQuestion;
-      currentOptions[selectedQuestionIndex] = newOptions;
-      currentCorrectAnswers[selectedQuestionIndex] = newCorrectAnswer;
-      currentExplanations[selectedQuestionIndex] = newExplanation;
-      // Exit editing mode after updating
-      editingQuestionIndex = -1;
-    });
-  }
+
+  void updateQuestionDetails(String newQuestion, List<Map<String, String>> newOptions,
+    String newCorrectAnswer, String newExplanation) {
+  setState(() {
+    // Update the details of the selected question
+    currentQuestions[selectedQuestionIndex] = newQuestion;
+
+    // Assuming newOptions needs to be converted back to List<String>
+    List<String> updatedOptions = newOptions.map((option) => option['desc']!).toList();
+    currentOptions[selectedQuestionIndex] = updatedOptions;
+
+    currentCorrectAnswers[selectedQuestionIndex] = newCorrectAnswer;
+    currentExplanations[selectedQuestionIndex] = newExplanation;
+
+    // Exit editing mode after updating
+    editingQuestionIndex = -1;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +347,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildTabBar(heightFactor, widthFactor),
-                      buildQuestionArea(heightFactor, widthFactor),
+                      // buildQuestionArea(heightFactor, widthFactor),
+                      FutureBuilder<Widget>(
+                      future: buildQuestionArea(heightFactor, widthFactor),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text('Error: ${snapshot.error}'));
+                        } else {
+                          return snapshot.data ?? Container(); // Return the widget or a default container
+                        }
+                      },
+                    ),
+                //   ],
+                // ),
                     ],
                   ),
                   height: heightFactor * 1200,
@@ -364,7 +402,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     handleTabChange(index);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: index == selectedIndex ? primaryColor : Colors.white,
+                    backgroundColor:
+                        index == selectedIndex ? primaryColor : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -374,7 +413,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     style: GoogleFonts.poppins(
                       fontSize: widthFactor * 17,
                       fontWeight: FontWeight.w500,
-                      color: index == selectedIndex ? Colors.white : Colors.black,
+                      color:
+                          index == selectedIndex ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
@@ -399,34 +439,66 @@ class _QuestionScreenState extends State<QuestionScreen> {
       }
     }
   }
-
-  Widget buildQuestionArea(double heightFactor, double widthFactor) {
-    if (selectedIndex >= 0 && selectedIndex < tabs.length && tabs[selectedIndex] != "ADD+") {
-      if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length) {
-        return QuestionArea(
-          questionNumber: "Question-${selectedQuestionIndex + 1}",
-          question: currentQuestions[selectedQuestionIndex],
-          options: currentOptions.length > selectedQuestionIndex ? currentOptions[selectedQuestionIndex] : [],
-          correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex ? currentCorrectAnswers[selectedQuestionIndex] : '',
-          explanation: currentExplanations.length > selectedQuestionIndex ? currentExplanations[selectedQuestionIndex] : '',
-          heightFactor: heightFactor,
-          widthFactor: widthFactor,
-          isEditing: editingQuestionIndex == selectedQuestionIndex,
-          toggleEditingMode: () => toggleEditingMode(selectedQuestionIndex),
-          updateQuestionDetails: updateQuestionDetails, // Pass the callback
-        );
-      } else {
-        // Handle case when selectedQuestionIndex is out of bounds
-        return Container(
-          alignment: Alignment.center,
-          child: Text('No question selected or index out of bounds.'),
-        );
+  Future<Widget> buildQuestionArea(double heightFactor, double widthFactor) async {
+    String questionId = '';
+  if (selectedIndex >= 0 &&
+      selectedIndex < tabs.length &&
+      tabs[selectedIndex] != "ADD+") {
+    if (selectedQuestionIndex >= 0 &&
+        selectedQuestionIndex < currentQuestions.length) {
+      List<Map<String, String>> optionsForQuestion = [];
+      if (currentOptions.length > selectedQuestionIndex) {
+        // Assuming currentOptions[selectedQuestionIndex] is List<Map<String, String>>
+        optionsForQuestion = currentOptions[selectedQuestionIndex].map((option) => {
+          "desc": option,
+          "id": (currentOptions[selectedQuestionIndex].indexOf(option) + 1).toString(),
+        }).toList();
       }
+     
+                    // Get question ID based on selectedIndex
+                    List<String> savedIds = await getQuestionIds();
+                    if (selectedIndex < savedIds.length) {
+                      questionId = savedIds[selectedIndex];
+                      // deleteQuestion(questionId,
+                      //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
+                      // widget.onDeleteQuestion(selectedIndex);
+                    } else {
+                      print('No question ID found for index $selectedIndex');
+                    }
+                  
+
+      return QuestionArea(
+        
+        quesId: questionId,
+        subject: tabs[selectedIndex],
+        questionNumber: "Question-${selectedQuestionIndex + 1}",
+        question: currentQuestions[selectedQuestionIndex],
+        options: optionsForQuestion,
+        correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex
+            ? currentCorrectAnswers[selectedQuestionIndex]
+            : '',
+        explanation: currentExplanations.length > selectedQuestionIndex
+            ? currentExplanations[selectedQuestionIndex]
+            : '',
+        heightFactor: heightFactor,
+        widthFactor: widthFactor,
+        isEditing: editingQuestionIndex == selectedQuestionIndex,
+        toggleEditingMode: () => toggleEditingMode(selectedQuestionIndex),
+        updateQuestionDetails: updateQuestionDetails,
+      );
     } else {
-      // Handle case when selectedIndex is out of bounds or tab is "ADD+"
-      return Container();
+      // Handle case when selectedQuestionIndex is out of bounds
+      return Container(
+        alignment: Alignment.center,
+        child: Text('No question selected or index out of bounds.'),
+      );
     }
+  } else {
+    return Container();
   }
+}
+
+
 
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(
@@ -436,8 +508,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
           onDeleteQuestion: deleteQuestion,
           onSaveQuestions: saveQuestions,
           onAddNewQuestion: addNewQuestion,
-          subject: tabs[selectedIndex]
-      ),
+          subject: tabs[selectedIndex]),
       height: heightFactor * 1200,
       width: widthFactor * 450,
       padding: EdgeInsets.fromLTRB(

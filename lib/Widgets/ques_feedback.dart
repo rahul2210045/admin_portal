@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class ques_feedback extends StatefulWidget {
   final String sequence;
@@ -11,6 +16,35 @@ class ques_feedback extends StatefulWidget {
 }
 
 class _ques_feedbackState extends State<ques_feedback> {
+  Future<void> updateFeedbackQuestion(String quesId, String question) async {
+  final url = 'https://cine-admin-xar9.onrender.com/admin/feedback/updateFeedbackQuestion';
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({
+    'quesId': quesId,
+    'question': question,
+  });
+
+  try {
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: headers,
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful
+      print('Feedback question updated successfully');
+    } else {
+      // Request failed
+      print('Failed to update feedback question');
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -30,7 +64,18 @@ class _ques_feedbackState extends State<ques_feedback> {
             Row(
               children: [
                
-                Text("Tap here to edit",style: GoogleFonts.poppins(fontSize:14,color:Colors.blue[800]  )),
+               GestureDetector(
+            onTap: () {
+              updateFeedbackQuestion('668807ab988f8cf515a41bc0', 'how was the exam portal?');
+  
+              // You can call your updateFeedbackQuestion function here
+              // updateFeedbackQuestion('668807ab988f8cf515a41bc0', 'how was the exam portal?');
+            },
+            child: Text(
+              "Tap here to edit",
+              style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue[800]),
+            ),
+          ),
               ],
             ),
           ],

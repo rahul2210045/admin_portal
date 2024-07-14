@@ -13,7 +13,7 @@ class QuestionsSidebar extends StatefulWidget {
   final Function(int) onDeleteQuestion;
   final Function(List<String>) onSaveQuestions;
   final Function(String, List<String>, String, String, String) onAddNewQuestion;
-  final String subject; // Added subject from tabs
+  final String subject;
 
   const QuestionsSidebar({
     Key? key,
@@ -39,7 +39,16 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   TextEditingController _correctAnswerController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _questionIdController = TextEditingController();
-
+  TextEditingController _questionUpdateController = TextEditingController();
+  TextEditingController _option1UpdateController = TextEditingController();
+  TextEditingController _option2UpdateController = TextEditingController();
+  TextEditingController _option3UpdateController = TextEditingController();
+  TextEditingController _option4UpdateController = TextEditingController();
+  TextEditingController _correctAnswerUpdateController = TextEditingController();
+  TextEditingController _descriptionUpdateController = TextEditingController();
+  TextEditingController _questionIdUpdateController = TextEditingController();
+  GlobalKey<ScaffoldMessengerState> _scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
   Future<void> saveQuestionId(String questionId) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> questionIds = prefs.getStringList('questionIds') ?? [];
@@ -50,6 +59,42 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   Future<List<String>> getQuestionIds() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList('questionIds') ?? [];
+  }
+
+  Future<void> deleteQuestion(String quesId, Function refreshQuestions) async {
+    var apiUrl = 'https://cine-admin-xar9.onrender.com/admin/deleteQuestion';
+
+    var request = http.Request('DELETE', Uri.parse(apiUrl));
+    request.headers['Content-Type'] = 'application/json';
+    request.body = jsonEncode({
+      'quesId': quesId,
+    });
+
+    try {
+      http.StreamedResponse response = await request.send();
+      if (response.statusCode == 200) {
+        _scaffoldKey.currentState?.showSnackBar(
+          SnackBar(
+            content: Text(
+              'Question deleted successfully',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2), // Show snackbar for 2 seconds
+          ),
+        );
+        Future.delayed(Duration(seconds: 2), () {
+          refreshQuestions();
+        });
+
+        print(await response.stream.bytesToString());
+      } else {
+        print('Failed with status: ${response.statusCode}');
+        print('Reason: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Exception during DELETE request: $e');
+    }
   }
 
   void showAddQuestionDialog() {
@@ -89,14 +134,14 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
+                  const Text(
                     'Add New Question',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   TextField(
                     controller: _questionController,
                     decoration: InputDecoration(
@@ -167,19 +212,23 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                               {"desc": _option3Controller.text, "id": "3"},
                               {"desc": _option4Controller.text, "id": "4"},
                             ];
-                            String correctAnswer = _correctAnswerController.text;
+                            String correctAnswer =
+                                _correctAnswerController.text;
                             String description = _descriptionController.text;
                             String questionId = _questionIdController.text;
 
                             var response = await http.post(
-                              Uri.parse('https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+                              Uri.parse(
+                                  'https://cine-admin-xar9.onrender.com/admin/addQuestion'),
                               headers: {"Content-Type": "application/json"},
                               body: jsonEncode({
                                 "question": question,
-                                "options": options.map((option) => {
-                                  "desc": option["desc"],
-                                  "id": option["id"]
-                                }).toList(),
+                                "options": options
+                                    .map((option) => {
+                                          "desc": option["desc"],
+                                          "id": option["id"]
+                                        })
+                                    .toList(),
                                 "subject": widget.subject,
                                 "quesId": questionId,
                                 "answer": correctAnswer,
@@ -193,7 +242,9 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                             if (response.statusCode == 201) {
                               widget.onAddNewQuestion(
                                 question,
-                                options.map((option) => option['desc'] ?? "").toList(),
+                                options
+                                    .map((option) => option['desc'] ?? "")
+                                    .toList(),
                                 correctAnswer,
                                 description,
                                 questionId,
@@ -227,13 +278,24 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     );
   }
 
-  Widget _buildOptionTextField(TextEditingController controller, String hintText, String id) {
+  Widget _buildOptionTextField(
+      TextEditingController controller, String hintText, String id) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(hintText: hintText),
       onChanged: (_) => setState(() {}),
     );
   }
+
+  void _loadQuestions() {
+    // Implement your logic to fetch updated questions here
+    // For example:
+    // List<String> updatedQuestions = fetchQuestionsFromServer();
+    // setState(() {
+    //   widget.questions = updatedQuestions;
+    // });
+  }
+
   @override
   Widget build(BuildContext context) {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
@@ -294,11 +356,18 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                   );
                 } else {
                   return GestureDetector(
-                    onTap: () {
+                    onTap: () async {
                       setState(() {
                         selectedIndex = index;
                         widget.onQuestionSelected(index);
                       });
+                      List<String> savedIds = await getQuestionIds();
+                      if (index < savedIds.length) {
+                        String questionId = savedIds[index];
+                        print('Clicked question ID: $questionId');
+                      } else {
+                        print('No question ID found for index $index');
+                      }
                     },
                     child: Container(
                       width: 60 * widthFactor,
@@ -306,7 +375,9 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                       margin: EdgeInsets.all(10),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: selectedIndex == index ? primaryColor : Colors.white,
+                        color: selectedIndex == index
+                            ? primaryColor
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: Colors.white,
@@ -316,7 +387,9 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                       child: Text(
                         (index + 1).toString(),
                         style: TextStyle(
-                          color: selectedIndex == index ? Colors.white : primaryColor,
+                          color: selectedIndex == index
+                              ? Colors.white
+                              : primaryColor,
                           fontSize: 18 * widthFactor,
                           fontWeight: FontWeight.bold,
                         ),
@@ -332,7 +405,22 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: (){},
+                onPressed: () async {
+                  if (selectedIndex != -1) {
+                    // Get question ID based on selectedIndex
+                    List<String> savedIds = await getQuestionIds();
+                    if (selectedIndex < savedIds.length) {
+                      String questionId = savedIds[selectedIndex];
+                      deleteQuestion(questionId,
+                          _loadQuestions); // Call deleteQuestion with question ID and refresh function
+                      widget.onDeleteQuestion(selectedIndex);
+                    } else {
+                      print('No question ID found for index $selectedIndex');
+                    }
+                  } else {
+                    print('No question selected to delete');
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   shape: RoundedRectangleBorder(
@@ -353,13 +441,96 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
-                  widget.onSaveQuestions(widget.questions);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => QuestionsDownload(savedQuestions: widget.questions)),
-                  );
+                onPressed: () async {
+                  if (_questionUpdateController.text.isNotEmpty &&
+                      _option1UpdateController.text.isNotEmpty &&
+                      _option2UpdateController.text.isNotEmpty &&
+                      _option3UpdateController.text.isNotEmpty &&
+                      _option4UpdateController.text.isNotEmpty &&
+                      _correctAnswerUpdateController.text.isNotEmpty 
+                      // _descriptionController.text.isNotEmpty &&
+                      // _questionIdController.text.isNotEmpty
+                      ) {
+                    String question = _questionUpdateController.text;
+                    List<Map<String, String>> options = [
+                      {"desc": _option1UpdateController.text, "id": "1"},
+                      {"desc": _option2UpdateController.text, "id": "2"},
+                      {"desc": _option3UpdateController.text, "id": "3"},
+                      {"desc": _option4UpdateController.text, "id": "4"},
+                    ];
+                    String correctAnswer = _correctAnswerController.text;
+                    // String description = _descriptionController.text;
+                    String questionId='';
+                    
+                    if (selectedIndex != -1) {
+                      // Get question ID based on selectedIndex
+                      List<String> savedIds = await getQuestionIds();
+                      if (selectedIndex < savedIds.length) {
+                         questionId = savedIds[selectedIndex];
+                        // deleteQuestion(questionId,
+                        //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
+                        widget.onDeleteQuestion(selectedIndex);
+                      } else {
+                        print('No question ID found for index $selectedIndex');
+                      }
+                    } else {
+                      print('No question selected to delete');
+                    }
+
+                    var response = await http.patch(
+                      Uri.parse(
+                          'https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
+                      headers: {"Content-Type": "application/json"},
+                      body: jsonEncode({
+                        "question": question,
+                        "options": options
+                            .map((option) =>
+                                {"desc": option["desc"], "id": option["id"]})
+                            .toList(),
+                        "subject": widget.subject,
+
+                        "quesId": '${questionId}',
+                        "answer": correctAnswer,
+                        // "description": description,
+                      }),
+                    );
+
+                    print('Response status: ${response.statusCode}');
+                    print('Response body: ${response.body}');
+
+                    if (response.statusCode == 201) {
+                      // widget.onAddNewQuestion(
+                      //   question,
+                      //   options.map((option) => option['desc'] ?? "").toList(),
+                      //   correctAnswer,
+                      //   // description,
+                      //   questionId,
+                      // );
+
+                      // Save the new question ID to SharedPreferences
+                      await saveQuestionId(questionId);
+                      List<String> savedIds = await getQuestionIds();
+                      print('Question IDs saved: $savedIds');
+
+                      Navigator.of(context).pop();
+                    } else {
+                      if (response.statusCode == 500) {
+                        print('Internal server error occurred');
+                      } else {
+                        print('Failed to add question');
+                      }
+                    }
+                  }
                 },
+                //  () {
+                //   widget.onSaveQuestions(widget.questions);
+                //   Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => QuestionsDownload(
+                //             savedQuestions: widget.questions)),
+                //   );
+                // },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryColor,
                   shape: RoundedRectangleBorder(

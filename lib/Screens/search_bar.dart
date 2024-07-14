@@ -2,16 +2,6 @@ import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-// class EditApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: Scaffold(
-//         body: SearchbarWidget(),
-//       ),
-//     );
-//   }
-// }
 
 class SearchbarWidget extends StatefulWidget {
   @override

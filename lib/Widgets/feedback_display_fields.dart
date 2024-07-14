@@ -36,7 +36,7 @@ class _display_fieldsState extends State<display_fields> {
               child: SingleChildScrollView(
             child: Text(
               widget.content,
-              style: GoogleFonts.poppins(color: Color(0xffBFBFBF)),
+              style: GoogleFonts.poppins(color: Color(0xff808080),fontWeight: FontWeight.w400),
             ),
           )),
         ),

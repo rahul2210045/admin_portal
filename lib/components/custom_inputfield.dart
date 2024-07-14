@@ -6,6 +6,8 @@ import 'package:admin_portal/components/custom_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfieldcard.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/main.dart';
+import 'package:admin_portal/models/get_student_data_model.dart';
+import 'package:admin_portal/repository/get_student_repository.dart';
 import 'package:admin_portal/screens/Candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -26,6 +28,7 @@ class _customInputFieldState extends State<customInputField> {
   TextEditingController _branch = TextEditingController();
   TextEditingController _mobileNo = TextEditingController();
   TextEditingController _email = TextEditingController();
+  
 
   final _formKey = GlobalKey<FormState>();
   String _residency = 'Day Scholar';
@@ -76,6 +79,7 @@ class _customInputFieldState extends State<customInputField> {
           SnackBar(content: Text('Student added successfully')),
         );
         print("Student added successfully");
+        _resetInputFields();
       } else {
         _showErrorDialog(
             'Invalid studdent information or Student is already present.');
@@ -89,6 +93,18 @@ class _customInputFieldState extends State<customInputField> {
         _isLoading = false;
       });
     }
+  }
+
+   void _resetInputFields() {
+    _name.clear();
+    _studentNo.clear();
+    _branch.clear();
+    _mobileNo.clear();
+    _email.clear();
+    setState(() {
+      _residency = 'Day Scholar';
+      _section = 'Male';
+    });
   }
 
   void _showErrorDialog(String message) {
@@ -172,7 +188,7 @@ class _customInputFieldState extends State<customInputField> {
                               },
                             ),
                             customInputFieldCard(
-                              "Studnet No",
+                              "Student No",
                               "Enter Student No",
                               _studentNo,
                               context,
@@ -199,7 +215,7 @@ class _customInputFieldState extends State<customInputField> {
                             customDropdownFieldCard(
                               "Gender",
                               "Select your gender",
-                              ['Male', 'Female', 'LGBTQ+'],
+                              ['Male', 'Female', 'others'],
                               _section,
                               context,
                               // _formKey3,
@@ -217,12 +233,18 @@ class _customInputFieldState extends State<customInputField> {
                             ),
                             customDropdownFieldCard(
                               "Residency",
-                              "Select Residency",
-                              ['Day Scholar', 'Hostel'],
+                              "Choose your residency",
+                              [
+                                'Choose your residency',
+                                'Day Scholar',
+                                'Hostel'
+                              ], // Add placeholder item here
                               _residency,
                               context,
                               (value) {
-                                if (value == null || value.isEmpty) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value == 'Choose your residency') {
                                   return 'Please select a residency option';
                                 }
                                 return null;
@@ -233,6 +255,24 @@ class _customInputFieldState extends State<customInputField> {
                                 });
                               },
                             ),
+                            // customDropdownFieldCard(
+                            //   "Residency",
+                            //   "Select Residency",
+                            //   ['Day Scholar', 'Hostel'],
+                            //   _residency,
+                            //   context,
+                            //   (value) {
+                            //     if (value == null || value.isEmpty) {
+                            //       return 'Please select a residency option';
+                            //     }
+                            //     return null;
+                            //   },
+                            //   (value) {
+                            //     setState(() {
+                            //       _residency = value!;
+                            //     });
+                            //   },
+                            // ),
                           ],
                         ),
                         SizedBox(

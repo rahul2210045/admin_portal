@@ -2,6 +2,7 @@ import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
 import 'package:admin_portal/Screens/questions_page.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
+import 'package:admin_portal/screens/Candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -22,7 +23,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
 
   static List<Widget> _widgetOptions = <Widget>[
     Leaderboard(),
-    candidateAdd(),
+    candidate(),
     QuestionScreen(),
     feedback_page(),
     candidateAdd(),

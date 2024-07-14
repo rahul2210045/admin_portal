@@ -4,7 +4,7 @@ import 'package:hexcolor/hexcolor.dart';
 
 // Primary Colors
 Color primaryColor = HexColor("#3068E0");
-Color secondaryColor = HexColor("#E8F0FC");
+Color secondaryColor = HexColor("#546CFF");
 
 
 // additional Colors
@@ -19,8 +19,17 @@ Color textColor = HexColor("#8A90A2");
 Color dividerColor = HexColor("#F1F3F6");
 
 Color additionalDarkBlueLight = HexColor("#0A58CA");
-Color primaryText = HexColor("#292930");
-Color backgroundColor = HexColor("#F7F8FD");
+Color primaryText = HexColor("#7084FF");
+Color backgroundColor = HexColor("##F9F9F9");
+
+Color success = HexColor("#00C289");
+
+Color tintcolor4 = HexColor("#5E72D5");
+Color tintcolor2 = HexColor("#AEB8EB");
+Color tintcolor1 = HexColor("#D7DBF4");
+Color tintcolor3 = HexColor("#8795E0");
+Color tintcolor5 = HexColor("#3143B4");
+
 
 TextStyle headingH1 = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 28, fontWeight: FontWeight.bold);
@@ -32,5 +41,9 @@ TextStyle headingH4 = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold);
 TextStyle bodyBig = GoogleFonts.dmSans(
     color: Colors.black, fontSize: 18, fontWeight: FontWeight.normal);
+TextStyle containerHeading = GoogleFonts.poppins(
+  color: Colors.black, fontSize: 20 , fontWeight: FontWeight.w600,
+);
 
-Color backgroundColor1= Color.fromRGBO(235, 243, 255, 1);
+
+Color backgroundColor1= Color.fromRGBO(215, 219, 244, 1);

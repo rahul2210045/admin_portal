@@ -37,6 +37,20 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_fonts: ^6.2.1
   hexcolor: ^3.0.1
+  flutter_switch: ^0.3.2
+  provider: ^6.1.2
+  percent_indicator: ^4.2.3
+  fl_chart: ^0.68.0
+  http: ^1.2.1
+  cookie_jar: ^2.0.0
+  shared_preferences: ^2.2.3
+  get: ^4.6.6
+  toastification: ^2.0.0
+  web_socket_channel: ^3.0.0
+  socket_io_client: ^2.0.3+1
+
+
+  # fl_chart: ^0.40.0
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +76,32 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/icons
-    - assets/images
+    - assets/icons/icon _leaderboard star_.png
+    - assets/icons/icon _question mark circle_.png
+    - assets/icons/icon _Users_.png
+    - assets/icons/Vector (2).png
+    - assets/icons/Group 43 (2).png
+    - assets/icons/icon _leaderboard starPurple_.png
+    - assets/icons/icon _question mark circlePurple_.png
+    - assets/icons/icon _UsersPurple_.png
+    - assets/icons/Group 54.png
+    - assets/icons/icon _Person FeedbackPurple_.png
+    - assets/icons/LeaderboardWhite.png
+    - assets/icons/CandidatesWhite.png
+    - assets/icons/FeedbackWhite.png
+    - assets/icons/CSI LOGO.png
+    - assets/icons/pencil.png
+    - assets/icons/Login Page.png
+    - assets/icons/Logo.png
+    - assets/icons/Vector (10).png
+    - assets/icons/Vector (8).png
+    - assets/icons/CSI LOGO1.png
+    - assets/icons/CSI LOGO2.png
+    - assets/icons/CSI LOGO 2nd.png
+
+
+    # - assets/icons
+    # - assets/images
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -7,23 +7,24 @@ class FeedbackDetails {
 
   FeedbackDetails.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
-    student = json['student'] != null ? Student.fromJson(json['student']) : null;
+    student =
+        json['student'] != null ? new Student.fromJson(json['student']) : null;
     if (json['response'] != null) {
       response = <Response>[];
       json['response'].forEach((v) {
-        response!.add(Response.fromJson(v));
+        response!.add(new Response.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    if (student != null) {
-      data['student'] = student!.toJson();
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    if (this.student != null) {
+      data['student'] = this.student!.toJson();
     }
-    if (response != null) {
-      data['response'] = response!.map((v) => v.toJson()).toList();
+    if (this.response != null) {
+      data['response'] = this.response!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -61,15 +62,15 @@ class Student {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['name'] = name;
-    data['studentNumber'] = studentNumber;
-    data['branch'] = branch;
-    data['gender'] = gender;
-    data['residency'] = residency;
-    data['email'] = email;
-    data['phone'] = phone;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['_id'] = this.sId;
+    data['name'] = this.name;
+    data['studentNumber'] = this.studentNumber;
+    data['branch'] = this.branch;
+    data['gender'] = this.gender;
+    data['residency'] = this.residency;
+    data['email'] = this.email;
+    data['phone'] = this.phone;
     return data;
   }
 }
@@ -86,9 +87,9 @@ class Response {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['question'] = question;
-    data['ans'] = ans;
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['question'] = this.question;
+    data['ans'] = this.ans;
     return data;
   }
 }

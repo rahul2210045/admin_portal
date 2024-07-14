@@ -9,7 +9,6 @@ import 'package:admin_portal/repository/feedback_details_repository.dart';
 import 'package:admin_portal/repository/models/feedbackModel.dart';
 import 'package:admin_portal/repository/models/feedback_details_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class feedback_page extends StatefulWidget {
@@ -24,6 +23,32 @@ final FeedbackRepository feedbackRepository =
     FeedbackRepository(baseUrl: "https://cine-admin-xar9.onrender.com");
 
 class _feedback_pageState extends State<feedback_page> {
+  late Future<List<FeedbackDetails>> futureFeedbacks;
+  FeedbackDetails? selectedFeedback;
+
+  @override
+  void initState() {
+    super.initState();
+    final repository = FeedbackDetailsRepository(
+        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback');
+    futureFeedbacks = repository.getFeedbacks();
+    futureFeedbacks.then((feedbacks) {
+      setState(() {
+        selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
+      });
+    });
+  }
+
+  void _selectFeedback(int index) {
+    futureFeedbacks.then((feedbacks) {
+      setState(() {
+        selectedFeedback = feedbacks.isNotEmpty ? feedbacks[index] : null;
+      });
+      print('Selected Feedback: ${selectedFeedback?.student?.name}');
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     if (isEditing == true) {
@@ -34,7 +59,6 @@ class _feedback_pageState extends State<feedback_page> {
 
   Widget _buildFeedbackEditingPage() {
     TextEditingController _addQuestioncontroller = TextEditingController();
-    //TextEditingController _addQuestionIDcontroller = TextEditingController();
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final repository =
@@ -133,24 +157,6 @@ class _feedback_pageState extends State<feedback_page> {
                                         ),
                                       ),
                                     ),
-                                    // Padding(
-                                    //   padding:
-                                    //       EdgeInsets.symmetric(vertical: 8),
-                                    //   child: TextField(
-                                    //     keyboardType: TextInputType.number,
-                                    //     inputFormatters: <TextInputFormatter>[
-                                    //       FilteringTextInputFormatter
-                                    //           .digitsOnly // Accepts only digits
-                                    //     ],
-                                    //    // controller: _addQuestionIDcontroller,
-                                    //     decoration: InputDecoration(
-                                    //       hintText: " Question ID ",
-                                    //       border: OutlineInputBorder(
-                                    //           borderRadius:
-                                    //               BorderRadius.circular(8)),
-                                    //     ),
-                                    //   ),
-                                    // ),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
@@ -172,11 +178,8 @@ class _feedback_pageState extends State<feedback_page> {
                                           onTap: () async {
                                             AddFeedback feedback = await repository
                                                 .addFeedbackQuestion(
-                                                    _addQuestioncontroller.text
-                                                    //_addQuestionIDcontroller.text
-                                                    );
+                                                    _addQuestioncontroller.text);
                                             _addQuestioncontroller.clear();
-                                            // _addQuestionIDcontroller.clear();
                                             Navigator.of(context).pop();
                                             setState(() {});
                                           },
@@ -198,11 +201,6 @@ class _feedback_pageState extends State<feedback_page> {
                         );
                       },
                     ),
-                    feedback_button(
-                        text: "Save",
-                        fontSize: screenWidth * 0.01,
-                        buttonHeight: screenHeight * 0.06,
-                        buttonWidth: screenWidth * 0.1),
                   ],
                 ),
               ),
@@ -213,18 +211,11 @@ class _feedback_pageState extends State<feedback_page> {
     );
   }
 
-  Widget _buildFeedbackPage() {
+ Widget _buildFeedbackPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    final FeedbackDetailsRepository repository = FeedbackDetailsRepository(
-        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback');
-     FeedbackDetails? selectedFeedback;
+    TextEditingController  _searchController=TextEditingController();
 
-  void selectFeedback(FeedbackDetails feedback) {
-    setState(() {
-      selectedFeedback = feedback;
-    });
-  }    
     return Scaffold(
       backgroundColor: backgroundColor1,
       body: Row(
@@ -240,26 +231,22 @@ class _feedback_pageState extends State<feedback_page> {
               ),
               width: screenWidth * 0.54,
               height: screenHeight * 0.82,
-              child:selectedFeedback != null
-                  ? 
-               Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      // name display field
                       display_fields(
                           fieldLabel: "Name",
-                          content: selectedFeedback!.student?.name ?? '',
+                          content: selectedFeedback?.student?.name ?? "",
                           boxHeight: screenHeight * 0.06,
                           boxWidth: screenWidth * 0.17),
-
-                      // studentNo display field
                       display_fields(
                           fieldLabel: "Student No",
-                         content:selectedFeedback!.student?.studentNumber ??'',
+                          content:
+                              selectedFeedback?.student?.studentNumber ?? "",
                           boxHeight: screenHeight * 0.06,
                           boxWidth: screenWidth * 0.17),
                     ],
@@ -267,49 +254,42 @@ class _feedback_pageState extends State<feedback_page> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      //branch dispaly field
                       display_fields(
                           fieldLabel: "Branch",
-                          content: selectedFeedback!.student?.branch ?? '',
+                          content: selectedFeedback?.student?.branch ?? "",
                           boxHeight: screenHeight * 0.06,
                           boxWidth: screenWidth * 0.17),
-
-                      //mobileNo display field
                       display_fields(
                           fieldLabel: "Mobile No",
-                          content: selectedFeedback!.student?.phone ?? '',
+                          content: selectedFeedback?.student?.phone ?? "",
                           boxHeight: screenHeight * 0.06,
                           boxWidth: screenWidth * 0.17),
                     ],
                   ),
-
-                  //email display field
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       display_fields(
                           fieldLabel: "Email",
-                          content: selectedFeedback!.student?.email ?? '',
+                          content: selectedFeedback?.student?.email ?? "",
                           boxHeight: screenHeight * 0.06,
                           boxWidth: screenWidth * 0.17),
                       SizedBox(width: screenWidth * 0.17),
                     ],
                   ),
-                  //second box
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      //student feedback dispaly field
                       display_fields(
                           fieldLabel: "Feedback",
-                          content: selectedFeedback!.response?.map((e) =>
-                                        '${e.question}: ${e.ans}\n').join() ??'',
+                          content: selectedFeedback?.response
+                                  ?.map((r) => '${r.question}: ${r.ans}')
+                                  .join('\n') ??
+                              "",
                           boxHeight: screenHeight * 0.2,
                           boxWidth: screenWidth * 0.41),
                     ],
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -331,7 +311,7 @@ class _feedback_pageState extends State<feedback_page> {
                     ],
                   ),
                 ],
-              ): Center(child: Text('Select a feedback to view details')),
+              ),
             ),
           ),
           Padding(
@@ -362,55 +342,29 @@ class _feedback_pageState extends State<feedback_page> {
                     height: screenHeight * 0.08,
                     width: screenWidth * 0.28,
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  //search box inserted
+                  SizedBox(height: 10),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: Colors.grey.shade600,
-                          ),
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.shade100,
-                              blurRadius: 100.0,
-                              offset: Offset(1.0, 1.0),
-                            )
-                          ],
-                        ),
                         height: screenHeight * 0.06,
                         width: screenWidth * 0.25,
-                        child: TextField(
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            suffix: const Icon(
-                              Icons.search_rounded,
-                              color: Colors.black,
-                            ),
-                            labelText: "Search something here...",
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: dividerColor,
-                                ),
-                                borderRadius: BorderRadius.circular(5)),
-                          ),
-                        ),
+                        child:  TextField(
+                                        controller: _searchController,
+                                        decoration: InputDecoration(
+                                          hintText: "Search Candidate",
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                        ),
+                                      ),
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: screenHeight * 0.02,
-                  ), //search box done
-
+                  SizedBox(height: screenHeight * 0.02),
                   FutureBuilder<List<FeedbackDetails>>(
-                    future: repository.getFeedbacks(),
+                    future: futureFeedbacks,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Container(
@@ -428,23 +382,21 @@ class _feedback_pageState extends State<feedback_page> {
                       return SizedBox(
                         height: screenHeight * 0.615,
                         width: screenWidth * 0.25,
-                        child: SingleChildScrollView(
-                          child: Column(
-                           children: feedbacks.map((feedback) {
-                              return GestureDetector(
-                                onTap: () => selectFeedback(feedback),
-                                child: feedback_card(
-                                  
-                                  studentname: feedback.student?.name ?? 'Unknown',
-                                  studenNo: feedback.student?.studentNumber ?? 'Unknown',
-                                  isSelected: selectedFeedback == feedback,
-                                ),
-                              );
-                            }).toList(),
-
-
-                           
-                          ),
+                        child: ListView.builder(
+                          itemCount: feedbacks.length,
+                          itemBuilder: (context, index) {
+                            final feedback = feedbacks[index];
+                            return feedback_card(
+                              studentname: feedback.student?.name ?? 'Unknown',
+                              studenNo:
+                                  feedback.student?.studentNumber ?? 'Unknown',
+                              isSelected: feedback == selectedFeedback,
+                              onTap: () {
+                                print('Tapped on feedback card: $index');
+                                _selectFeedback(index);
+                              },
+                            );
+                          },
                         ),
                       );
                     },

@@ -15,6 +15,7 @@ class FeedbackDetailsRepository {
       try {
         List<dynamic> body = json.decode(response.body);
         List<FeedbackDetails> feedbacks = body.map((dynamic item) => FeedbackDetails.fromJson(item)).toList();
+       
         return feedbacks;
       } catch (e) {
         throw Exception('Failed to parse feedbacks: $e');

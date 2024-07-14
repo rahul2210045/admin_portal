@@ -1,46 +1,47 @@
-// import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class feedback_card extends StatefulWidget {
+class feedback_card extends StatelessWidget {
   final String studentname;
   final String studenNo;
   final bool isSelected;
-  const feedback_card({
-    super.key,
+  final VoidCallback onTap;
+
+  feedback_card({
     required this.studentname,
     required this.studenNo,
     required this.isSelected,
+    required this.onTap,
   });
 
   @override
-  State<feedback_card> createState() => _feedback_cardState();
-}
-
-class _feedback_cardState extends State<feedback_card> {
-  @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Material(
-        borderRadius: BorderRadius.circular(12),
-        elevation: 2,
-        shadowColor: Colors.blueGrey,
-        child: ListTile(
-          title: Text(
-            "Student Name:" + widget.studentname,
-            style: GoogleFonts.poppins(fontSize: 12),
-          ),
-          subtitle: Text("Student no" + widget.studenNo,
-              style: GoogleFonts.poppins(fontSize: 9)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          tileColor: widget.isSelected ? primaryColor : Colors.white,
-          enabled: true,
-          // minTileHeight:20,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: isSelected ? primaryColor : Colors.white,
+        ),
+        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsets.symmetric(vertical: 4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Student Name : " + studentname,
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: isSelected ? Colors.white : Colors.black),
+            ),
+            Text("Student no : " + studenNo,
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: isSelected ? Colors.white : Colors.black)),
+          ],
         ),
       ),
     );

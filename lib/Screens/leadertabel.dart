@@ -62,7 +62,7 @@ class LeaderTabel extends StatelessWidget {
                                 width: widthFactor(context) * 480,
                                 // height: screenHeight*0.01,
                                 child: TextField(
-                                  style: TextStyle(color: Colors.white),
+                                  style: TextStyle(color: Colors.black),
                                   decoration: InputDecoration(
                                     suffix: const Icon(
                                       Icons.search_rounded,

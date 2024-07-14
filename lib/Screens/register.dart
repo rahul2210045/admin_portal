@@ -1,10 +1,12 @@
+import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/components/custom_detail_card.dart';
+import 'package:admin_portal/components/custom_register_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 
-class RegisteredCandidates extends StatelessWidget {
-  const RegisteredCandidates({super.key});
+class registerTabel extends StatelessWidget {
+  const registerTabel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class RegisteredCandidates extends StatelessWidget {
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+              padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -25,14 +27,16 @@ class RegisteredCandidates extends StatelessWidget {
                           topRight: Radius.circular(10)),
                       color: primaryColor,
                     ),
-                    width: widthFactor(context) * 700,
+                    width: widthFactor(context) * 770,
+                    height: 45,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
-                          "Registered Candidates",
+                          "  Registered Candidate's",
                           style: TextStyle(color: Colors.white, fontSize: 20),
                         ),
+                      
                       ],
                     ),
                   ),
@@ -43,7 +47,7 @@ class RegisteredCandidates extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         vertical: 5.0, horizontal: 10),
                     child: Container(
-                      width: widthFactor(context) * 680,
+                      width: widthFactor(context) * 750,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
@@ -97,7 +101,7 @@ class RegisteredCandidates extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        customRankCard("2210045", "CSE", "Rahul",9, "cse","","",context)
+                        customRegisterCard("rahul", "2210045", "CSE", context)
                       ],
                     ),
                   )

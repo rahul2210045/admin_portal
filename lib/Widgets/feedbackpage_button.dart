@@ -27,7 +27,7 @@ class _feedback_buttonState extends State<feedback_button> {
       width: widget.buttonWidth,
       child: ElevatedButton(
         onPressed: widget.onTap,
-        child: Text(widget.text, style: GoogleFonts.poppins(fontSize:widget.fontSize),),
+        child: Text(widget.text),
         style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(primaryColor),
             foregroundColor: WidgetStatePropertyAll(Colors.white),

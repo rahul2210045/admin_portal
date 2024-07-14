@@ -29,6 +29,7 @@ class _feedback_buttonState extends State<feedback_button> {
         onPressed: widget.onTap,
         child: Text(widget.text),
         style: ButtonStyle(
+          //uncomment this code to change the button color
             backgroundColor: WidgetStatePropertyAll(primaryColor),
             foregroundColor: WidgetStatePropertyAll(Colors.white),
             shape: WidgetStatePropertyAll(RoundedRectangleBorder(

@@ -40,6 +40,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
   }
 
   void _handleLogout() {
+  
     print("Logged out");
   }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/widgets/custom_container.dart';
@@ -101,7 +102,7 @@ class _LeaderboardState extends State<Leaderboard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Statics",
+                              "Statistics",
                               style: GoogleFonts.poppins(
                                 color: Colors.black,
                                 fontSize: 35 * widthFactor,
@@ -190,7 +191,7 @@ class _LeaderboardState extends State<Leaderboard> {
                     child: CustomRoundedContainer(
                       child: LeaderTabel(),
                       height: heightFactor * 1360,
-                      width: widthFactor * 870,
+                      width: widthFactor * 1400,
                       padding: EdgeInsets.all(10 * heightFactor),
                       margin: EdgeInsets.all(20 * heightFactor),
                       color: Colors.white,

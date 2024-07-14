@@ -172,10 +172,10 @@ class _candidateAddState extends State<candidateAdd> {
                                         itemCount: snapshot.data!.length,
                                         itemBuilder: (context, index) {
                                           final student = snapshot.data![index];
-                                          return feedback_card(
-                                              studentname: "${student.name}",
-                                              studenNo:
-                                                  "${student.studentNumber}");
+                                          // return feedback_card(
+                                          //     studentname: "${student.name}",
+                                          //     studenNo:
+                                          //         "${student.studentNumber}");
                                           //  ListTile(
                                           //   title:
                                           //       Text(student.name ?? 'No name'),
@@ -187,13 +187,13 @@ class _candidateAddState extends State<candidateAdd> {
                                     }
                                   },
                                 ),
-                                feedback_card(
-                                    studentname: "Rahul Yadav",
-                                    studenNo: "2210045"),
-                                SizedBox(height: 8),
-                                feedback_card(
-                                    studentname: "Ashirwad",
-                                    studenNo: "2210647"),
+                                // feedback_card(
+                                //     studentname: "Rahul Yadav",
+                                //     studenNo: "2210045"),
+                                // SizedBox(height: 8),
+                                // feedback_card(
+                                //     studentname: "Ashirwad",
+                                //     studenNo: "2210647"),
                               ]),
                             ),
                           ),

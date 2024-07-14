@@ -218,11 +218,11 @@ class _candidateState extends State<candidate> {
                                             itemBuilder: (context, index) {
                                               final student =
                                                   filteredStudents[index];
-                                              return feedback_card(
-                                                studentname: "${student.name}",
-                                                studenNo:
-                                                    "${student.studentNumber}",
-                                              );
+                                              // return feedback_card(
+                                              //   studentname: "${student.name}",
+                                              //   studenNo:
+                                              //       "${student.studentNumber}",
+                                              // );
                                             },
                                           );
                                         }

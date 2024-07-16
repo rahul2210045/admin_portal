@@ -26,6 +26,7 @@ class _feedback_pageState extends State<feedback_page> {
   late Future<List<FeedbackDetails>> futureFeedbacks;
   FeedbackDetails? selectedFeedback;
   TextEditingController _searchController = TextEditingController();
+   List<FeedbackDetails> filteredFeedbacks = [];
 
   @override
   void initState() {
@@ -35,10 +36,11 @@ class _feedback_pageState extends State<feedback_page> {
     futureFeedbacks = repository.getFeedbacks();
     futureFeedbacks.then((feedbacks) {
       setState(() {
+         filteredFeedbacks = feedbacks;
         selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
       });
     });
-   // Attach listener to search controller
+    // Attach listener to search controller
     _searchController.addListener(_onSearchTextChanged);
   }
 
@@ -51,18 +53,39 @@ class _feedback_pageState extends State<feedback_page> {
 
   void _onSearchTextChanged() {
     setState(() {
+      _filterFeedbacks(_searchController.text);
       // Trigger a rebuild with the updated search text
     });
   }
 
 
-  void _selectFeedback(int index) {
+  void _filterFeedbacks(String query) {
     futureFeedbacks.then((feedbacks) {
       setState(() {
-        selectedFeedback = feedbacks.isNotEmpty ? feedbacks[index] : null;
+        if (query.isEmpty) {
+          filteredFeedbacks = feedbacks;
+        } else {
+          filteredFeedbacks = feedbacks
+              .where((feedback) => feedback.student!.name!
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
+              .toList();
+        }
+        if (!filteredFeedbacks.contains(selectedFeedback)) {
+          selectedFeedback = filteredFeedbacks.isNotEmpty
+              ? filteredFeedbacks[0]
+              : null;
+        }
       });
-      print('Selected Feedback: ${selectedFeedback?.student?.name}');
     });
+  }
+
+
+  void _selectFeedback(int index) {
+    setState(() {
+      selectedFeedback = filteredFeedbacks[index];
+    });
+    
   }
 
   @override
@@ -99,7 +122,7 @@ class _feedback_pageState extends State<feedback_page> {
                         height: screenHeight * 0.65,
                         child: Center(child: CircularProgressIndicator()));
                   } else if (snapshot.hasError) {
-                    print(snapshot.error);
+                    // print(snapshot.error);
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(
@@ -114,6 +137,11 @@ class _feedback_pageState extends State<feedback_page> {
                           return ques_feedback(
                             sequence: (index + 1).toString(),
                             question: question.question ?? 'No Question',
+                            
+                            onTap: () {
+                              
+                              print('Question id is'+question.quesId.toString());
+                            },
                           );
                         },
                       ),
@@ -229,10 +257,9 @@ class _feedback_pageState extends State<feedback_page> {
     );
   }
 
-  Widget _buildFeedbackPage() {
+ Widget _buildFeedbackPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-   
 
     return Scaffold(
       backgroundColor: backgroundColor1,
@@ -373,7 +400,6 @@ class _feedback_pageState extends State<feedback_page> {
                           onChanged: (value) {
                             setState(() {}); // Trigger rebuild on text change
                           },
-                          
                           decoration: InputDecoration(
                             suffixIcon: Icon(Icons.search),
                             hintText: "Search Candidate",
@@ -399,16 +425,9 @@ class _feedback_pageState extends State<feedback_page> {
                         return Center(child: Text('No feedback found'));
                       }
 
-                      List<FeedbackDetails> feedbacks =
-                          snapshot.data!.toList(); // Convert Iterable to List
-
                       // Filter feedbacks based on search text
-                     if (_searchController.text.isNotEmpty) {
-                    feedbacks = feedbacks.where((feedback) =>
-                        feedback.student!.name!
-                            .toLowerCase()
-                            .contains(_searchController.text.toLowerCase())).toList();
-                  }
+                      List<FeedbackDetails> feedbacks = filteredFeedbacks;
+
                       return SizedBox(
                         height: screenHeight * 0.615,
                         width: screenWidth * 0.25,

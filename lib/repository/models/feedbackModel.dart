@@ -6,13 +6,13 @@ class feedbackModel {
 
   feedbackModel.fromJson(Map<String, dynamic> json) {
     question = json['question'];
-    quesId = json['quesId'];
+    quesId = json['_id'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['question'] = this.question;
-    data['quesId'] = this.quesId;
+    data['_id'] = this.quesId;
     return data;
   }
 }

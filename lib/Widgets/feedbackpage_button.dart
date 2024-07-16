@@ -13,7 +13,8 @@ class feedback_button extends StatefulWidget {
       required this.text,
       required this.buttonHeight,
       required this.buttonWidth,
-      this.onTap, required this.fontSize});
+      this.onTap,
+      required this.fontSize});
 
   @override
   State<feedback_button> createState() => _feedback_buttonState();

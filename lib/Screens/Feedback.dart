@@ -240,7 +240,7 @@ class _feedback_pageState extends State<feedback_page> {
                               ),
                               title: Text(
                                 "Add Question",
-                                style: TextStyle(fontSize: 16),
+                                style: TextStyle(fontSize: 20,fontWeight: FontWeight.w500),
                               ),
                             );
                           },

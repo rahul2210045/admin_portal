@@ -13,7 +13,8 @@ class feedback_button extends StatefulWidget {
       required this.text,
       required this.buttonHeight,
       required this.buttonWidth,
-      this.onTap, required this.fontSize});
+      this.onTap,
+      required this.fontSize});
 
   @override
   State<feedback_button> createState() => _feedback_buttonState();
@@ -27,7 +28,7 @@ class _feedback_buttonState extends State<feedback_button> {
       width: widget.buttonWidth,
       child: ElevatedButton(
         onPressed: widget.onTap,
-        child: Text(widget.text, style: GoogleFonts.poppins(fontSize:widget.fontSize),),
+        child: Text(widget.text),
         style: ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(primaryColor),
             foregroundColor: WidgetStatePropertyAll(Colors.white),

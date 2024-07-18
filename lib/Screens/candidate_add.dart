@@ -2,10 +2,13 @@ import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Graph.dart';
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
+import 'package:admin_portal/Widgets/student_detail_card.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfield.dart';
 import 'package:admin_portal/components/registered_candidate_card.dart';
 import 'package:admin_portal/constants/constants.dart';
+import 'package:admin_portal/models/get_student_data_model.dart';
+import 'package:admin_portal/repository/get_student_repository.dart';
 import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,10 +21,20 @@ class candidateAdd extends StatefulWidget {
 }
 
 class _candidateAddState extends State<candidateAdd> {
+  // @override
+  late Future<List<GetStudentDataModel>> futureStudents;
+  final StudentRepository studentRepository = StudentRepository();
+
   @override
+  void initState() {
+    super.initState();
+    futureStudents = studentRepository.fetchStudents();
+  }
+
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: backgroundColor1,
       body: LayoutBuilder(
@@ -35,8 +48,6 @@ class _candidateAddState extends State<candidateAdd> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Expanded(
-                  // child:
                   CustomRoundedContainer(
                     child: customInputField(),
                     height: heightFactor * 950,
@@ -66,7 +77,7 @@ class _candidateAddState extends State<candidateAdd> {
                             ),
                             child: Center(
                                 child: Text(
-                              "Registerd Candidate's",
+                              "Registered Candidate's",
                               style: GoogleFonts.poppins(
                                   color: Colors.white, fontSize: 20),
                             )),
@@ -84,14 +95,12 @@ class _candidateAddState extends State<candidateAdd> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  // height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     color: Colors.white,
                                   ),
                                   height: 40,
                                   width: screenWidth * 0.25,
-                                  // height: screenHeight*0.01,
                                   child: TextField(
                                     style: TextStyle(color: Colors.black),
                                     decoration: InputDecoration(
@@ -105,29 +114,25 @@ class _candidateAddState extends State<candidateAdd> {
                                       labelText: "Search something here...",
                                       enabledBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       focusedBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       errorBorder: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       border: OutlineInputBorder(
                                         borderSide: BorderSide(
-                                          color:
-                                              secondaryColor, // Change to light blue
+                                          color: secondaryColor,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -140,20 +145,56 @@ class _candidateAddState extends State<candidateAdd> {
                           SizedBox(
                             height: 10,
                           ),
-                         
-
                           SizedBox(
+                            height: screenHeight * 0.4,
                             width: screenWidth * 0.25,
                             child: SingleChildScrollView(
                               child: Column(children: [
-                                
-                                feedback_card(
-                                    studentname: "Rahul Yadav",
-                                    studenNo: "2210045"),
-                                    SizedBox(height: 8,),
-                                feedback_card(
-                                    studentname: "Ashirwad", studenNo: "2210647"),
-                                
+                                FutureBuilder<List<GetStudentDataModel>>(
+                                  future: futureStudents,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                          child: CircularProgressIndicator());
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                          child:
+                                              Text('Error: ${snapshot.error}'));
+                                    } else if (!snapshot.hasData ||
+                                        snapshot.data!.isEmpty) {
+                                      return Center(
+                                          child: Text('No students found'));
+                                    } else {
+                                      return ListView.builder(
+                                        // axis: Axis.vertical,
+                                        shrinkWrap: true, // Add this line
+                                        primary: false,
+                                        itemCount: snapshot.data!.length,
+                                        itemBuilder: (context, index) {
+                                          final student = snapshot.data![index];
+                                          return student_detail_card(
+                                              studentname: "${student.name}",
+                                              studenNo:
+                                                  "${student.studentNumber}");
+                                          //  ListTile(
+                                          //   title:
+                                          //       Text(student.name ?? 'No name'),
+                                          //   subtitle: Text(
+                                          //       student.email ?? 'No email'),
+                                          // );
+                                        },
+                                      );
+                                    }
+                                  },
+                                ),
+                                // feedback_card(
+                                //     studentname: "Rahul Yadav",
+                                //     studenNo: "2210045"),
+                                // SizedBox(height: 8),
+                                // feedback_card(
+                                //     studentname: "Ashirwad",
+                                //     studenNo: "2210647"),
                               ]),
                             ),
                           ),
@@ -163,7 +204,6 @@ class _candidateAddState extends State<candidateAdd> {
                       height: screenHeight * 0.82,
                     ),
                   ),
-                 
                 ],
               ),
             ),

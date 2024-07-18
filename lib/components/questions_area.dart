@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class QuestionArea extends StatefulWidget {
+  final String quesId; // Added quesId field
+  final String subject; // Added subject field
   final String questionNumber;
   final String question;
   final List<Map<String, dynamic>> options;
@@ -16,6 +20,8 @@ class QuestionArea extends StatefulWidget {
 
   const QuestionArea({
     Key? key,
+    required this.quesId,
+    required this.subject,
     required this.questionNumber,
     required this.question,
     required this.options,
@@ -37,6 +43,7 @@ class _QuestionAreaState extends State<QuestionArea> {
   late List<TextEditingController> _optionControllers;
   late TextEditingController _correctAnswerController;
   late TextEditingController _explanationController;
+  int selectedOptionIndex = -1;
 
   @override
   void initState() {
@@ -82,17 +89,43 @@ class _QuestionAreaState extends State<QuestionArea> {
     super.dispose();
   }
 
-  void _handleTickIconPressed() {
-    widget.updateQuestionDetails(
-      _questionController.text,
-      _optionControllers.map((controller) => {
-        'desc': controller.text,
-        'id': widget.options[_optionControllers.indexOf(controller)]['id'],
-      }).toList(),
-      _correctAnswerController.text,
-      _explanationController.text,
+  Future<void> _handleTickIconPressed() async {
+    final updatedQuestion = _questionController.text;
+    final updatedOptions = _optionControllers.map((controller) => {
+      'desc': controller.text,
+      'id': widget.options[_optionControllers.indexOf(controller)]['id'],
+    }).toList();
+    final updatedCorrectAnswer = _correctAnswerController.text;
+    final updatedExplanation = _explanationController.text;
+
+    final response = await http.patch(
+      Uri.parse('https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "quesId": widget.quesId,
+        "question": updatedQuestion,
+        "options": updatedOptions,
+        "subject": widget.subject,
+        "answer": updatedCorrectAnswer,
+        // "description": updatedExplanation,
+      }),
     );
+
+    if (response.statusCode == 200) {
+      widget.updateQuestionDetails(
+        updatedQuestion,
+        updatedOptions,
+        updatedCorrectAnswer,
+        updatedExplanation,
+      );
+      widget.toggleEditingMode();
+    } else {
+      // Handle the error
+      print('Failed to update question: ${response.statusCode}');
+      print('Response: ${response.body}');
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +241,6 @@ class _QuestionAreaState extends State<QuestionArea> {
                             ),
                           ),
                           if (!widget.isEditing)
-                          // Debug statement to display the option ID and comparison result
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -300,4 +332,3 @@ class _QuestionAreaState extends State<QuestionArea> {
     );
   }
 }
-

@@ -36,7 +36,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   late http.Client client;
 
-  List<String> tabs = ["HTML", "CSS", "Java", "ADD+"];
+  List<String> tabs = ["HTML", "CSS", "ADD+"];
   Map<String, List<String>> allQuestions = {};
   Map<String, List<List<String>>> allOptions = {};
   Map<String, List<String>> allCorrectAnswers = {};
@@ -58,14 +58,28 @@ class _QuestionScreenState extends State<QuestionScreen> {
   Future<void> saveQuestionIds(List<String> questionIds) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('questionIds', questionIds);
-    print('Question IDs saved: $questionIds'); // Print the saved question IDs
+    // print('Question IDs saved: $questionIds'); // Print the saved question IDs
   }
 
   Future<List<String>> getQuestionIds() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> questionIds = prefs.getStringList('questionIds') ?? [];
-    print('Stored question IDs: $questionIds'); // Print the retrieved question IDs
+    // print('Stored question IDs: $questionIds'); // Print the retrieved question IDs
     return questionIds;
+  }
+
+  Future<void> addNewSubject(String newSubject) async {
+    setState(() {
+      tabs.insert(tabs.length - 1, newSubject);
+      allQuestions[newSubject] = [];
+      allOptions[newSubject] = [];
+      allCorrectAnswers[newSubject] = [];
+      allExplanations[newSubject] = [];
+      selectedIndex = tabs.indexOf(newSubject);
+      selectedQuestionIndex = 0;
+      isLoading = false;
+      isError = false;
+    });
   }
 
 
@@ -76,8 +90,20 @@ class _QuestionScreenState extends State<QuestionScreen> {
       final response = await client.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
-        // print('API response: $jsonData');
-        parseData(jsonData, tab);
+        if (jsonData[tab] != null) {
+          parseData(jsonData, tab);
+        } else if (tab != "ADD+") {
+          // Tab not found in API response and is not the ADD+ tab
+          setState(() {
+            allQuestions[tab] = [];
+            allOptions[tab] = [];
+            allCorrectAnswers[tab] = [];
+            allExplanations[tab] = [];
+            updateCurrentState(tab);
+          });
+        } else {
+          setErrorState();
+        }
       } else {
         setErrorState();
       }
@@ -87,41 +113,45 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
+
   void parseData(Map<String, dynamic> jsonData, String tab) {
     if (jsonData[tab] != null) {
       List<String> questions = [];
       List<List<String>> options = [];
       List<String> correctAnswers = [];
       List<String> explanations = [];
-      List<String> questionIds = []; // List to store question IDs
+      List<String> questionIds = [];
 
       for (var item in jsonData[tab]) {
-        print('Item: $item'); // Print each item to debug
-
         questions.add(item['question'].toString());
-        options.add(List<String>.from(item['options'].map((option) => option['desc'].toString())));
+        List<String> parsedOptions = [];
+
+        for (var option in item['options']) {
+          String desc = option['desc'].toString();
+          parsedOptions.add(desc); // Add only the 'desc' to the list
+          // print('Option: id=${option['id']}, desc=$desc'); // Print option details
+        }
+        options.add(parsedOptions);
         correctAnswers.add(item['answer'].toString());
         explanations.add('');
 
-        // Use _id as the question ID
         if (item.containsKey('_id')) {
-          questionIds.add(item['_id'].toString()); // Add question ID to the list
+          questionIds.add(item['_id'].toString());
         } else {
-          questionIds.add('null'); // Add 'null' if '_id' is missing
-          print('_id missing for item: $item');
+          questionIds.add('null');
+          // print('_id missing for item: $item');
         }
       }
 
-      // Save question IDs to SharedPreferences and print them
       saveQuestionIds(questionIds).then((_) {
         getQuestionIds().then((savedIds) {
-          print('Question IDs saved: $savedIds');
+          // print('Question IDs saved: $savedIds');
         });
       });
 
       setState(() {
         allQuestions[tab] = questions;
-        allOptions[tab] = options;
+        allOptions[tab] = options; // Store options as List<List<String>>
         allCorrectAnswers[tab] = correctAnswers;
         allExplanations[tab] = explanations;
 
@@ -137,6 +167,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
 
 
+
   void updateCurrentState(String tab) {
     setState(() {
       currentQuestions = allQuestions[tab] ?? [];
@@ -147,6 +178,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
       isError = false;
     });
   }
+
 
   void setErrorState() {
     setState(() {
@@ -230,6 +262,21 @@ class _QuestionScreenState extends State<QuestionScreen> {
     // Implement navigation logic
   }
 
+  void handleTabChange(int index) {
+    if (index >= 0 && index < tabs.length) {
+      if (tabs[index] == "ADD+") {
+        showAddTabDialog();
+      } else {
+        setState(() {
+          selectedIndex = index;
+          selectedQuestionIndex = 0;
+          isLoading = true;
+        });
+        fetchData(tab: tabs[index]);
+      }
+    }
+  }
+
   void showAddTabDialog() {
     TextEditingController tabNameController = TextEditingController();
 
@@ -251,8 +298,13 @@ class _QuestionScreenState extends State<QuestionScreen> {
             ),
             TextButton(
               onPressed: () {
-                addNewTab(tabNameController.text.trim());
-                Navigator.of(context).pop();
+                String newTabName = tabNameController.text.trim();
+                if (newTabName.isNotEmpty && !tabs.contains(newTabName)) {
+                  addNewTab(newTabName);
+                  Navigator.of(context).pop();
+                } else {
+                  // Optionally show an error message if the tab already exists
+                }
               },
               child: Text("Add"),
             ),
@@ -262,18 +314,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 
-  void addNewTab(String newTab) {
-    if (newTab.isNotEmpty && !tabs.contains(newTab)) {
-      setState(() {
-        tabs.insert(tabs.length - 1, newTab);
-        allQuestions[newTab] = [];
-        allOptions[newTab] = [];
-        allCorrectAnswers[newTab] = [];
-        allExplanations[newTab] = [];
-      });
-      fetchData(tab: newTab);
-    }
+  void addNewTab(String tabName) async {
+    await addNewSubject(tabName);
+    fetchData(tab: tabName); // Fetch data for the new tab
   }
+
 
   void toggleEditingMode(int index) {
     setState(() {
@@ -282,17 +327,35 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-  void updateQuestionDetails(String newQuestion, List<String> newOptions, String newCorrectAnswer, String newExplanation) {
+  void updateQuestionDetails(
+      String newQuestion,
+      List<dynamic> options, // Change the parameter type to List<dynamic>
+      String newCorrectAnswer,
+      String newExplanation,
+      ) {
     setState(() {
       // Update the details of the selected question
       currentQuestions[selectedQuestionIndex] = newQuestion;
-      currentOptions[selectedQuestionIndex] = newOptions;
+
+      // Convert options to List<String> explicitly
+      currentOptions[selectedQuestionIndex] = options.map((option) {
+        if (option is String) {
+          return option; // If option is already String, return as is
+        } else if (option is Map<String, dynamic> && option.containsKey('desc')) {
+          return option['desc'] as String; // Extract 'desc' if available
+        } else {
+          return option.toString(); // Fallback to string representation
+        }
+      }).toList();
+
       currentCorrectAnswers[selectedQuestionIndex] = newCorrectAnswer;
       currentExplanations[selectedQuestionIndex] = newExplanation;
+
       // Exit editing mode after updating
       editingQuestionIndex = -1;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -385,28 +448,40 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 
-  void handleTabChange(int index) {
-    if (index >= 0 && index < tabs.length) {
-      if (tabs[index] == "ADD+") {
-        showAddTabDialog();
-      } else {
-        setState(() {
-          selectedIndex = index;
-          selectedQuestionIndex = 0;
-          isLoading = true;
-        });
-        fetchData(tab: tabs[index]);
-      }
-    }
-  }
+  // void handleTabChange(int index) {
+  //   if (index >= 0 && index < tabs.length) {
+  //     if (tabs[index] == "ADD+") {
+  //       showAddTabDialog();
+  //     } else {
+  //       setState(() {
+  //         selectedIndex = index;
+  //         selectedQuestionIndex = 0;
+  //         isLoading = true;
+  //       });
+  //       fetchData(tab: tabs[index]);
+  //     }
+  //   }
+  // }
 
   Widget buildQuestionArea(double heightFactor, double widthFactor) {
     if (selectedIndex >= 0 && selectedIndex < tabs.length && tabs[selectedIndex] != "ADD+") {
       if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length) {
+        List<Map<String, dynamic>> optionsWithId = [];
+
+        // Prepare options with 'id' for QuestionArea widget
+        for (int i = 0; i < currentOptions[selectedQuestionIndex].length; i++) {
+          optionsWithId.add({
+            'id': (i + 1).toString(), // Assuming id starts from 1
+            'desc': currentOptions[selectedQuestionIndex][i],
+          });
+        }
+
+        // print('Options passed to QuestionArea: $optionsWithId');
+
         return QuestionArea(
           questionNumber: "Question-${selectedQuestionIndex + 1}",
           question: currentQuestions[selectedQuestionIndex],
-          options: currentOptions.length > selectedQuestionIndex ? currentOptions[selectedQuestionIndex] : [],
+          options: optionsWithId,
           correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex ? currentCorrectAnswers[selectedQuestionIndex] : '',
           explanation: currentExplanations.length > selectedQuestionIndex ? currentExplanations[selectedQuestionIndex] : '',
           heightFactor: heightFactor,
@@ -427,6 +502,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
       return Container();
     }
   }
+
 
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(

@@ -1,8 +1,12 @@
+// import 'dart:ffi';
+
 import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Graph.dart';
+import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
 import 'package:admin_portal/Widgets/student_detail_card.dart';
+import 'package:admin_portal/Widgets/student_details_card_new.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfield.dart';
 import 'package:admin_portal/components/registered_candidate_card.dart';
@@ -113,7 +117,7 @@ class _candidateState extends State<candidate> {
                                   ),
                                   child: const Padding(
                                     padding: EdgeInsets.symmetric(
-                                        horizontal: 10.0, vertical: 5),
+                                        horizontal: 22.0, vertical: 7),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -219,11 +223,17 @@ class _candidateState extends State<candidate> {
                                             itemBuilder: (context, index) {
                                               final student =
                                                   filteredStudents[index];
-                                              return student_detail_card(
-                                                studentname: "${student.name}",
-                                                studenNo:
+                                              return StudentDetailCardNew(
+                                                studentName: "${student.name}",
+                                                studentNo:
                                                     "${student.studentNumber}",
+                                                branch: "${student.branch}",
                                               );
+                                              // student_detail_card(
+                                              //   studentname: "${student.name}",
+                                              //   studenNo:
+                                              //       "${student.studentNumber}",
+                                              // );
                                             },
                                           );
                                         }
@@ -236,7 +246,7 @@ class _candidateState extends State<candidate> {
                           ),
                         ),
                       ),
-                      height: heightFactor * 1360,
+                      height: heightFactor * 950,
                       width: widthFactor * 870,
                       padding: EdgeInsets.all(10 * heightFactor),
                       margin: EdgeInsets.all(20 * heightFactor),
@@ -262,16 +272,26 @@ class _candidateState extends State<candidate> {
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 16.0),
-                                    child: TextField(
-                                      controller: searchController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Search Student Number',
-                                        prefixIcon: Icon(Icons.search),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10.0, vertical: 30.0),
+                                    child: SizedBox(
+                                      height: heightFactor * 80,
+                                      child: TextField(
+                                        controller: searchController,
+                                        decoration: InputDecoration(
+                                          hintText: 'Search Student Number',
+                                          hintStyle: TextStyle(
+                                              color: Colors.grey.shade400,
+                                              fontSize: 14),
+                                          suffixIcon: Icon(
+                                            Icons.search,
+                                            size: 30,
+                                            color: Colors.black,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -326,22 +346,26 @@ class _candidateState extends State<candidate> {
           selectedCategory = category;
         });
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8.0),
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-        decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF546CFF) : Colors.white,
-          borderRadius: BorderRadius.circular(8.0),
-          border: Border.all(
-            color: isSelected ? Colors.transparent : Colors.grey,
-            width: 1.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        child: Container(
+          // height: 45,
+          // margin: const EdgeInsets.only(bottom: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          decoration: BoxDecoration(
+            color: isSelected ? Color(0xFF546CFF) : Colors.white,
+            borderRadius: BorderRadius.circular(10.0),
+            border: Border.all(
+              color: isSelected ? Colors.transparent : Colors.grey.shade400,
+              width: 1.0,
+            ),
           ),
-        ),
-        child: Text(
-          category,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontSize: 16.0,
+          child: Text(
+            category,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontSize: 16.0,
+            ),
           ),
         ),
       ),

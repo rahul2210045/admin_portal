@@ -15,6 +15,32 @@ import 'dart:convert';
 
 import 'package:toastification/toastification.dart';
 
+class BranchMapper {
+  static const Map<String, String> branchCodes = {
+    '164': 'AIML',
+    '169': 'CS(Hindi)',
+    '154': 'CSE(DS)',
+    '153': 'CSE(AIML)',
+    '10': 'CSE',
+    '21': 'EN',
+    '40': 'Mechanical',
+    '00': 'CE',
+    '12': 'CS',
+    '11': 'CSIT',
+    '31': 'ECE',
+    '13': 'IT',
+  };
+
+  static String getBranchFromStudentNo(String studentNo) {
+    // Assuming the branch code is the first 2 or 3 digits after '23' in the student number
+    String branchCode = studentNo.substring(2, 5);
+    if (!branchCodes.containsKey(branchCode)) {
+      branchCode = studentNo.substring(2, 4);
+    }
+    return branchCodes[branchCode] ?? 'Unknown Branch';
+  }
+}
+
 class customInputField extends StatefulWidget {
   customInputField({super.key});
 
@@ -27,6 +53,7 @@ class _customInputFieldState extends State<customInputField> {
   TextEditingController _studentNo = TextEditingController();
   TextEditingController _branch = TextEditingController();
   TextEditingController _mobileNo = TextEditingController();
+  TextEditingController _studentNumberController = TextEditingController();
   TextEditingController _email = TextEditingController();
   String _residency = 'Choose your residency';
 
@@ -49,6 +76,7 @@ class _customInputFieldState extends State<customInputField> {
     setState(() {
       _isLoading = true;
     });
+    String branch = BranchMapper.getBranchFromStudentNo(_studentNo.text);
     var url =
         Uri.parse('https://cine-admin-xar9.onrender.com/admin/addStudent');
     var request = http.Request('POST', url);
@@ -62,7 +90,7 @@ class _customInputFieldState extends State<customInputField> {
     final body = jsonEncode({
       "name": _name.text,
       "studentNumber": _studentNo.text,
-      "branch": 'CSE',
+      "branch": branch,
       "gender": _section,
       "residency": _residency,
       "email": _email.text,
@@ -283,23 +311,44 @@ class _customInputFieldState extends State<customInputField> {
                                 return null;
                               },
                             ),
-                            customInputFieldCard(
-                              "Email",
-                              "Enter College Email",
-                              _email,
-                              context,
-                              // _formKey6,
-                              (value) {
+                            CustomInputFieldCard3(
+                              label: "Email",
+                              hint: "Enter College Email",
+                              controller: _email,
+                              studentNumberController: _studentNo,
+                              validator: (value) {
+                                final studentNumber =
+                                    _studentNumberController.text;
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter an email';
                                 } else if (!RegExp(
                                         r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$')
                                     .hasMatch(value)) {
                                   return 'Please enter a valid college email ending with @akgec.ac.in';
+                                } else if (!value
+                                    .endsWith('$studentNumber@akgec.ac.in')) {
+                                  return 'Email should end with $studentNumber@akgec.ac.in';
                                 }
                                 return null;
                               },
                             ),
+                            // customInputFieldCard(
+                            //   "Email",
+                            //   "Enter College Email",
+                            //   _email,
+                            //   context,
+                            //   // _formKey6,
+                            //   (value) {
+                            //     if (value == null || value.isEmpty) {
+                            //       return 'Please enter an email';
+                            //     } else if (!RegExp(
+                            //             r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$')
+                            //         .hasMatch(value)) {
+                            //       return 'Please enter a valid college email ending with @akgec.ac.in';
+                            //     }
+                            //     return null;
+                            //   },
+                            // ),
                           ],
                         ),
                         SizedBox(
@@ -567,7 +616,89 @@ class _CustomDropdownFieldCard2State extends State<CustomDropdownFieldCard2> {
   }
 }
 
+class CustomInputFieldCard3 extends StatefulWidget {
+  final String label;
+  final String hint;
+  final TextEditingController controller;
+  final TextEditingController studentNumberController;
+  final String? Function(String?) validator;
 
-// import 'package:flutter/material.dart';
+  const CustomInputFieldCard3({
+    Key? key,
+    required this.label,
+    required this.hint,
+    required this.controller,
+    required this.studentNumberController,
+    required this.validator,
+  }) : super(key: key);
 
+  @override
+  _CustomInputFieldCard3State createState() => _CustomInputFieldCard3State();
+}
 
+class _CustomInputFieldCard3State extends State<CustomInputFieldCard3> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width *
+          0.209, // Adjust the width as needed
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.label,
+              style: TextStyle(color: Colors.black, fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            TextFormField(
+              controller: widget.controller,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: widget.hint,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              validator: (value) {
+                final studentNumber = widget.studentNumberController.text;
+                final emailPattern =
+                    RegExp(r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$');
+                if (value == null || value.isEmpty) {
+                  return 'Please enter an email';
+                } else if (!emailPattern.hasMatch(value)) {
+                  return 'Please enter a valid college email ending with @akgec.ac.in';
+                } else if (!value.endsWith('$studentNumber@akgec.ac.in')) {
+                  return 'Email should end with $studentNumber@akgec.ac.in';
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

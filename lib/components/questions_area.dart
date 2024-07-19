@@ -135,7 +135,12 @@ import 'package:flutter/foundation.dart';
             updatedCorrectAnswer,
             updatedExplanation,
           );
-          Fluttertoast.showToast(msg: "Updated question successfully.");
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Updated question successfully.",),
+              backgroundColor: Colors.grey,
+            ),
+          );
           // Ensure this is called after successful update
           // setState(() {
           //   widget.toggleEditingMode();
@@ -143,9 +148,23 @@ import 'package:flutter/foundation.dart';
         } else {
           print('Failed to update question: ${response.statusCode}');
           print('Response: ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to update question."),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Please fill all required fields."),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
+
 
 
 

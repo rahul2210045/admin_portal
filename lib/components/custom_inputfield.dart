@@ -15,6 +15,32 @@ import 'dart:convert';
 
 import 'package:toastification/toastification.dart';
 
+class BranchMapper {
+  static const Map<String, String> branchCodes = {
+    '164': 'AIML',
+    '169': 'CS(Hindi)',
+    '154': 'CSE(DS)',
+    '153': 'CSE(AIML)',
+    '10': 'CSE',
+    '21': 'EN',
+    '40': 'Mechanical',
+    '00': 'CE',
+    '12': 'CS',
+    '11': 'CSIT',
+    '31': 'ECE',
+    '13': 'IT',
+  };
+
+  static String getBranchFromStudentNo(String studentNo) {
+    // Assuming the branch code is the first 2 or 3 digits after '23' in the student number
+    String branchCode = studentNo.substring(2, 5);
+    if (!branchCodes.containsKey(branchCode)) {
+      branchCode = studentNo.substring(2, 4);
+    }
+    return branchCodes[branchCode] ?? 'Unknown Branch';
+  }
+}
+
 class customInputField extends StatefulWidget {
   customInputField({super.key});
 
@@ -27,12 +53,13 @@ class _customInputFieldState extends State<customInputField> {
   TextEditingController _studentNo = TextEditingController();
   TextEditingController _branch = TextEditingController();
   TextEditingController _mobileNo = TextEditingController();
+  TextEditingController _studentNumberController = TextEditingController();
   TextEditingController _email = TextEditingController();
-  
+  String _residency = 'Choose your residency';
 
   final _formKey = GlobalKey<FormState>();
-  String _residency = 'Day Scholar';
-  String _section = 'Male';
+  // String _residency = 'Day Scholar';
+  String _section = 'Select your gender';
   bool _isLoading = false;
 
   void _validateForm() {
@@ -49,6 +76,7 @@ class _customInputFieldState extends State<customInputField> {
     setState(() {
       _isLoading = true;
     });
+    String branch = BranchMapper.getBranchFromStudentNo(_studentNo.text);
     var url =
         Uri.parse('https://cine-admin-xar9.onrender.com/admin/addStudent');
     var request = http.Request('POST', url);
@@ -62,7 +90,7 @@ class _customInputFieldState extends State<customInputField> {
     final body = jsonEncode({
       "name": _name.text,
       "studentNumber": _studentNo.text,
-      "branch": 'CSE',
+      "branch": branch,
       "gender": _section,
       "residency": _residency,
       "email": _email.text,
@@ -95,7 +123,7 @@ class _customInputFieldState extends State<customInputField> {
     }
   }
 
-   void _resetInputFields() {
+  void _resetInputFields() {
     _name.clear();
     _studentNo.clear();
     _branch.clear();
@@ -212,36 +240,40 @@ class _customInputFieldState extends State<customInputField> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            customDropdownFieldCard(
-                              "Gender",
-                              "Select your gender",
-                              ['Male', 'Female', 'others'],
-                              _section,
-                              context,
-                              // _formKey3,
-                              (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a section';
+                            CustomDropdownFieldCard2(
+                              label: "Gender",
+                              hint: "Select your gender",
+                              options: [
+                                'Male',
+                                'Female',
+                                'others',
+                                'Select your gender'
+                              ],
+                              initialValue: _section,
+                              validator: (value) {
+                                if (value == null ||
+                                    value.isEmpty ||
+                                    value == 'Select your gender') {
+                                  return 'Please select a gender option';
                                 }
                                 return null;
                               },
-                              (value) {
+                              onChanged: (value) {
                                 setState(() {
-                                  _section = value!;
+                                  _residency = value!;
                                 });
                               },
                             ),
-                            customDropdownFieldCard(
-                              "Residency",
-                              "Choose your residency",
-                              [
+                            CustomDropdownFieldCard2(
+                              label: "Residency",
+                              hint: "Choose your residency",
+                              options: [
                                 'Choose your residency',
                                 'Day Scholar',
                                 'Hostel'
-                              ], // Add placeholder item here
-                              _residency,
-                              context,
-                              (value) {
+                              ],
+                              initialValue: _residency,
+                              validator: (value) {
                                 if (value == null ||
                                     value.isEmpty ||
                                     value == 'Choose your residency') {
@@ -249,30 +281,12 @@ class _customInputFieldState extends State<customInputField> {
                                 }
                                 return null;
                               },
-                              (value) {
+                              onChanged: (value) {
                                 setState(() {
                                   _residency = value!;
                                 });
                               },
                             ),
-                            // customDropdownFieldCard(
-                            //   "Residency",
-                            //   "Select Residency",
-                            //   ['Day Scholar', 'Hostel'],
-                            //   _residency,
-                            //   context,
-                            //   (value) {
-                            //     if (value == null || value.isEmpty) {
-                            //       return 'Please select a residency option';
-                            //     }
-                            //     return null;
-                            //   },
-                            //   (value) {
-                            //     setState(() {
-                            //       _residency = value!;
-                            //     });
-                            //   },
-                            // ),
                           ],
                         ),
                         SizedBox(
@@ -297,23 +311,44 @@ class _customInputFieldState extends State<customInputField> {
                                 return null;
                               },
                             ),
-                            customInputFieldCard(
-                              "Email",
-                              "Enter College Email",
-                              _email,
-                              context,
-                              // _formKey6,
-                              (value) {
+                            CustomInputFieldCard3(
+                              label: "Email",
+                              hint: "Enter College Email",
+                              controller: _email,
+                              studentNumberController: _studentNo,
+                              validator: (value) {
+                                final studentNumber =
+                                    _studentNumberController.text;
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter an email';
                                 } else if (!RegExp(
                                         r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$')
                                     .hasMatch(value)) {
                                   return 'Please enter a valid college email ending with @akgec.ac.in';
+                                } else if (!value
+                                    .endsWith('$studentNumber@akgec.ac.in')) {
+                                  return 'Email should end with $studentNumber@akgec.ac.in';
                                 }
                                 return null;
                               },
                             ),
+                            // customInputFieldCard(
+                            //   "Email",
+                            //   "Enter College Email",
+                            //   _email,
+                            //   context,
+                            //   // _formKey6,
+                            //   (value) {
+                            //     if (value == null || value.isEmpty) {
+                            //       return 'Please enter an email';
+                            //     } else if (!RegExp(
+                            //             r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$')
+                            //         .hasMatch(value)) {
+                            //       return 'Please enter a valid college email ending with @akgec.ac.in';
+                            //     }
+                            //     return null;
+                            //   },
+                            // ),
                           ],
                         ),
                         SizedBox(
@@ -481,4 +516,189 @@ Widget customDropdownFieldCard(
       ),
     ),
   );
+}
+
+class CustomDropdownFieldCard2 extends StatefulWidget {
+  final String label;
+  final String hint;
+  final List<String> options;
+  final String initialValue;
+  final String? Function(String?) validator;
+  final void Function(String?) onChanged;
+
+  const CustomDropdownFieldCard2({
+    Key? key,
+    required this.label,
+    required this.hint,
+    required this.options,
+    required this.initialValue,
+    required this.validator,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  _CustomDropdownFieldCard2State createState() =>
+      _CustomDropdownFieldCard2State();
+}
+
+class _CustomDropdownFieldCard2State extends State<CustomDropdownFieldCard2> {
+  late String _selectedValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedValue = widget.initialValue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width *
+          0.209, // Adjust the width as needed
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.label,
+              style: TextStyle(color: Colors.black, fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _selectedValue,
+              onChanged: (value) {
+                setState(() {
+                  _selectedValue = value!;
+                });
+                widget.onChanged(value);
+              },
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: widget.hint,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              validator: widget.validator,
+              items: widget.options.map((String option) {
+                return DropdownMenuItem<String>(
+                  value: option,
+                  child: Text(option),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CustomInputFieldCard3 extends StatefulWidget {
+  final String label;
+  final String hint;
+  final TextEditingController controller;
+  final TextEditingController studentNumberController;
+  final String? Function(String?) validator;
+
+  const CustomInputFieldCard3({
+    Key? key,
+    required this.label,
+    required this.hint,
+    required this.controller,
+    required this.studentNumberController,
+    required this.validator,
+  }) : super(key: key);
+
+  @override
+  _CustomInputFieldCard3State createState() => _CustomInputFieldCard3State();
+}
+
+class _CustomInputFieldCard3State extends State<CustomInputFieldCard3> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width *
+          0.209, // Adjust the width as needed
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.label,
+              style: TextStyle(color: Colors.black, fontSize: 16),
+            ),
+            SizedBox(height: 10),
+            TextFormField(
+              controller: widget.controller,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                hintText: widget.hint,
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                  ),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              validator: (value) {
+                final studentNumber = widget.studentNumberController.text;
+                final emailPattern =
+                    RegExp(r'^[a-zA-Z0-9._%+-]+@akgec\.ac\.in$');
+                if (value == null || value.isEmpty) {
+                  return 'Please enter an email';
+                } else if (!emailPattern.hasMatch(value)) {
+                  return 'Please enter a valid college email ending with @akgec.ac.in';
+                } else if (!value.endsWith('$studentNumber@akgec.ac.in')) {
+                  return 'Email should end with $studentNumber@akgec.ac.in';
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

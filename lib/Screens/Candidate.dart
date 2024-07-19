@@ -1,25 +1,10 @@
-// import 'dart:ffi';
-
-import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
-import 'package:admin_portal/Widgets/Graph.dart';
-import 'package:admin_portal/Widgets/Screensize.dart';
-import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
-import 'package:admin_portal/Widgets/student_detail_card.dart';
 import 'package:admin_portal/Widgets/student_details_card_new.dart';
-import 'package:admin_portal/components/custom_candidate_detail_card.dart';
-import 'package:admin_portal/components/custom_inputfield.dart';
-import 'package:admin_portal/components/registered_candidate_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/models/get_student_data_model.dart';
 import 'package:admin_portal/repository/get_student_repository.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
-import 'package:admin_portal/screens/leadertabel.dart';
-import 'package:admin_portal/screens/register.dart';
-import 'package:admin_portal/screens/registered_candidates.dart';
-import 'package:admin_portal/screens/search_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class candidate extends StatefulWidget {
   const candidate({super.key});

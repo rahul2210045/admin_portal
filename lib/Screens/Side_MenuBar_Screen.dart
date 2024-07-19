@@ -1,5 +1,6 @@
 import 'package:admin_portal/Screens/Feedback.dart';
 import 'package:admin_portal/Screens/Leaderboard.dart';
+import 'package:admin_portal/Screens/Login.dart';
 import 'package:admin_portal/Screens/questions_page.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/screens/Candidate.dart';
@@ -40,6 +41,7 @@ class _SideMenuBarState extends State<SideMenuBar> {
   }
 
   void _handleLogout() {
+    Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> LoginPage()));
   
     print("Logged out");
   }

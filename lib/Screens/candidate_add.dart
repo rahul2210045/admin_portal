@@ -1,15 +1,9 @@
-import 'package:admin_portal/Screens/loader.dart';
 import 'package:admin_portal/Widgets/Custom_Container.dart';
-import 'package:admin_portal/Widgets/Graph.dart';
-import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
 import 'package:admin_portal/Widgets/student_detail_card.dart';
-import 'package:admin_portal/components/custom_candidate_detail_card.dart';
 import 'package:admin_portal/components/custom_inputfield.dart';
-import 'package:admin_portal/components/registered_candidate_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/models/get_student_data_model.dart';
 import 'package:admin_portal/repository/get_student_repository.dart';
-import 'package:admin_portal/screens/leadertabel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

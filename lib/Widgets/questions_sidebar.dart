@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Screens/questions_download.dart';
 import '../constants/constants.dart';
 
 class QuestionsSidebar extends StatefulWidget {
@@ -45,8 +44,8 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   TextEditingController _option3UpdateController = TextEditingController();
   TextEditingController _option4UpdateController = TextEditingController();
   TextEditingController _correctAnswerUpdateController = TextEditingController();
-  TextEditingController _descriptionUpdateController = TextEditingController();
-  TextEditingController _questionIdUpdateController = TextEditingController();
+  // TextEditingController _descriptionUpdateController = TextEditingController();
+  // TextEditingController _questionIdUpdateController = TextEditingController();
   GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   Future<void> saveQuestionId(String questionId) async {

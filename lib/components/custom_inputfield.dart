@@ -1,14 +1,6 @@
-import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/components/custom_button.dart';
-import 'package:admin_portal/components/custom_candidate_detail_card.dart';
-import 'package:admin_portal/components/custom_detail_card.dart';
-import 'package:admin_portal/components/custom_inputfieldcard.dart';
-import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/main.dart';
-import 'package:admin_portal/models/get_student_data_model.dart';
-import 'package:admin_portal/repository/get_student_repository.dart';
-import 'package:admin_portal/screens/Candidate.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

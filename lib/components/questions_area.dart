@@ -1,27 +1,22 @@
-
-
-import 'package:admin_portal/constants/constants.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-
 
 class QuestionArea extends StatefulWidget {
-  final String quesId;
-  final String subject;
+  final String quesId; // Added quesId field
+  final String subject; // Added subject field
   final String questionNumber;
   final String question;
-  final List<Map<String, String>> options; // Update to List<Map<String, String>>
+  final List<Map<String, dynamic>> options;
   final String correctAnswer;
   final String explanation;
   final double heightFactor;
   final double widthFactor;
   final bool isEditing;
   final VoidCallback toggleEditingMode;
-  final Function(String question, List<Map<String, String>> options, String correctAnswer, String explanation) updateQuestionDetails; // Update Function signature
+  final Function(String question, List<Map<String, dynamic>> options, String correctAnswer, String explanation) updateQuestionDetails;
 
   const QuestionArea({
     Key? key,
@@ -56,7 +51,7 @@ class _QuestionAreaState extends State<QuestionArea> {
     _questionController = TextEditingController(text: widget.question);
     _optionControllers = List.generate(
       widget.options.length,
-      (index) => TextEditingController(text: widget.options[index]["desc"] ?? ""),
+          (index) => TextEditingController(text: widget.options[index]['desc'] as String),
     );
     _correctAnswerController = TextEditingController(text: widget.correctAnswer);
     _explanationController = TextEditingController(text: widget.explanation);
@@ -71,9 +66,9 @@ class _QuestionAreaState extends State<QuestionArea> {
     if (!listEquals(oldWidget.options, widget.options)) {
       for (int i = 0; i < widget.options.length; i++) {
         if (i < _optionControllers.length) {
-          _optionControllers[i].text = widget.options[i]["desc"] ?? "";
+          _optionControllers[i].text = widget.options[i]['desc'] as String;
         } else {
-          _optionControllers.add(TextEditingController(text: widget.options[i]["desc"] ?? ""));
+          _optionControllers.add(TextEditingController(text: widget.options[i]['desc'] as String));
         }
       }
     }
@@ -96,14 +91,10 @@ class _QuestionAreaState extends State<QuestionArea> {
 
   Future<void> _handleTickIconPressed() async {
     final updatedQuestion = _questionController.text;
-    final updatedOptions = _optionControllers
-        .asMap()
-        .entries
-        .map((entry) => {
-          "desc": entry.value.text,
-          "id": (entry.key + 1).toString() // Assuming IDs are 1, 2, 3, ...
-        })
-        .toList();
+    final updatedOptions = _optionControllers.map((controller) => {
+      'desc': controller.text,
+      'id': widget.options[_optionControllers.indexOf(controller)]['id'],
+    }).toList();
     final updatedCorrectAnswer = _correctAnswerController.text;
     final updatedExplanation = _explanationController.text;
 
@@ -135,6 +126,7 @@ class _QuestionAreaState extends State<QuestionArea> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -158,29 +150,29 @@ class _QuestionAreaState extends State<QuestionArea> {
                 children: [
                   widget.isEditing
                       ? Expanded(
-                          child: TextField(
-                            controller: _questionController,
-                            style: GoogleFonts.poppins(
-                              color: primaryText,
-                              fontSize: 30 * widget.widthFactor,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                            maxLines: null,
-                          ),
-                        )
+                    child: TextField(
+                      controller: _questionController,
+                      style: GoogleFonts.poppins(
+                        color: Colors.black,
+                        fontSize: 30 * widget.widthFactor,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      maxLines: null,
+                    ),
+                  )
                       : Flexible(
-                          child: Text(
-                            widget.question,
-                            style: GoogleFonts.poppins(
-                              color: primaryText,
-                              fontSize: 30 * widget.widthFactor,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ),
+                    child: Text(
+                      widget.question,
+                      style: GoogleFonts.poppins(
+                        color: Colors.black,
+                        fontSize: 30 * widget.widthFactor,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
                   GestureDetector(
                     onTap: widget.isEditing ? _handleTickIconPressed : widget.toggleEditingMode,
                     child: Icon(widget.isEditing ? Icons.check : Icons.edit),
@@ -202,63 +194,61 @@ class _QuestionAreaState extends State<QuestionArea> {
                       padding: EdgeInsets.symmetric(vertical: 12 * widget.heightFactor),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedOptionIndex = index;
-                              });
-                            },
-                            child: Container(
-                              width: 28 * widget.widthFactor,
-                              height: 28 * widget.heightFactor,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: selectedOptionIndex == index ? Colors.blue : primaryColor,
-                                  width: 2,
+                          Container(
+                            width: 28 * widget.widthFactor,
+                            height: 28 * widget.heightFactor,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: widget.correctAnswer == widget.options[index]['id'] ? Colors.blue : Colors.black,
+                                width: 2,
+                              ),
+                            ),
+                            child: widget.correctAnswer == widget.options[index]['id']
+                                ? Center(
+                              child: Container(
+                                width: 14 * widget.widthFactor,
+                                height: 14 * widget.heightFactor,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.blue,
                                 ),
                               ),
-                              child: selectedOptionIndex == index
-                                  ? Center(
-                                      child: Container(
-                                        width: 14 * widget.widthFactor,
-                                        height: 14 * widget.heightFactor,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: primaryColor,
-                                        ),
-                                      ),
-                                    )
-                                  : null,
-                            ),
+                            )
+                                : null,
                           ),
                           SizedBox(width: 20 * widget.widthFactor),
                           Expanded(
                             child: widget.isEditing
                                 ? TextField(
-                                    controller: _optionControllers[index],
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 20 * widget.widthFactor,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.grey,
-                                    ),
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                    ),
-                                    maxLines: null,
-                                  )
-                                : GestureDetector(
-                                    onTap: widget.toggleEditingMode,
-                                    child: Text(
-                                      widget.options[index]["desc"] ?? "",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 20 * widget.widthFactor,
-                                        fontWeight: FontWeight.w400,
-                                        color: selectedOptionIndex == index ? primaryColor : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
+                              controller: _optionControllers[index],
+                              style: GoogleFonts.poppins(
+                                fontSize: 20 * widget.widthFactor,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                              ),
+                              maxLines: null,
+                            )
+                                : Text(
+                              widget.options[index]['desc'] as String,
+                              style: GoogleFonts.poppins(
+                                fontSize: 20 * widget.widthFactor,
+                                fontWeight: FontWeight.w400,
+                                color: widget.correctAnswer == widget.options[index]['id'] ? Colors.blue : Colors.black,
+                              ),
+                            ),
                           ),
+                          if (!widget.isEditing)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('ID: ${widget.options[index]['id']}'),
+                                Text('Correct: ${widget.correctAnswer}'),
+                                Text('Match: ${widget.correctAnswer == widget.options[index]['id']}'),
+                              ],
+                            ),
                         ],
                       ),
                     ),
@@ -280,24 +270,24 @@ class _QuestionAreaState extends State<QuestionArea> {
               ),
               widget.isEditing
                   ? TextField(
-                      controller: _correctAnswerController,
-                      style: GoogleFonts.poppins(
-                        fontSize: 24 * widget.widthFactor,
-                        fontWeight: FontWeight.w500,
-                        color: success,
-                      ),
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                    )
+                controller: _correctAnswerController,
+                style: GoogleFonts.poppins(
+                  fontSize: 24 * widget.widthFactor,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                ),
+              )
                   : Text(
-                      widget.correctAnswer,
-                      style: GoogleFonts.poppins(
-                        color: success,
-                        fontSize: 24 * widget.widthFactor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                widget.correctAnswer,
+                style: GoogleFonts.poppins(
+                  color: Colors.blue,
+                  fontSize: 24 * widget.widthFactor,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               SizedBox(height: 20 * widget.heightFactor),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,25 +304,24 @@ class _QuestionAreaState extends State<QuestionArea> {
                   Expanded(
                     child: widget.isEditing
                         ? TextField(
-                            controller: _explanationController,
-                            style: GoogleFonts.poppins(
-                              fontSize: 18 * widget.widthFactor,
-                              fontWeight: FontWeight.w500,
-                              color: primaryText,
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                            ),
-                            maxLines: null,
-                          )
+                      controller: _explanationController,
+                      style: GoogleFonts.poppins(
+                        fontSize: 18 * widget.widthFactor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      maxLines: null,
+                    )
                         : Text(
-                            widget.explanation,
-                            style: GoogleFonts.poppins(
-                              color: primaryText,
-                              fontSize: 18 * widget.widthFactor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                      widget.explanation,
+                      style: GoogleFonts.poppins(
+                        color: Colors.black,
+                        fontSize: 18 * widget.widthFactor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ],
               ),

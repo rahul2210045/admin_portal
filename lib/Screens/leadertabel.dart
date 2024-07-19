@@ -86,8 +86,9 @@ class _LeaderTabelState extends State<LeaderTabel> {
                   ),
                   width: widthFactor(context) * 700,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+                      // SizedBox(width: 5,),
                       Text(
                         "  LeaderBoard",
                         style: TextStyle(color: Colors.white, fontSize: 20),
@@ -154,9 +155,9 @@ class _LeaderTabelState extends State<LeaderTabel> {
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 5),
                         child: Container(
-                          // width: widthFactor(context) * 680,
+                          width: double.infinity,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(10),
@@ -167,7 +168,7 @@ class _LeaderTabelState extends State<LeaderTabel> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
-                            columnSpacing: 50, 
+                            columnSpacing: 100, 
 
                               columns: const [
                                 DataColumn(label: Text('Rank', style: TextStyle(fontWeight: FontWeight.bold))),
@@ -175,8 +176,8 @@ class _LeaderTabelState extends State<LeaderTabel> {
                                 DataColumn(label: Text('Score', style: TextStyle(fontWeight: FontWeight.bold))),
                                 DataColumn(label: Text('Branch', style: TextStyle(fontWeight: FontWeight.bold))),
                                 DataColumn(label: Text('Student No.', style: TextStyle(fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text('Residency', style: TextStyle(fontWeight: FontWeight.bold))),
+                                // DataColumn(label: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
+                                // DataColumn(label: Text('Residency', style: TextStyle(fontWeight: FontWeight.bold))),
                               ],
                               rows: filteredLeaderboard.asMap().entries.map((entry) {
                                 return DataRow(cells: [
@@ -185,8 +186,8 @@ class _LeaderTabelState extends State<LeaderTabel> {
                                   DataCell(Text(entry.value.score.toString())),
                                   DataCell(Text(entry.value.branch)),
                                   DataCell(Text(entry.value.studentNumber)),
-                                  DataCell(Text(entry.value.gender)),
-                                  DataCell(Text(entry.value.residency)),
+                                  // DataCell(Text(entry.value.gender)),
+                                  // DataCell(Text(entry.value.residency)),
                                 ]);
                               }).toList(),
                             ),

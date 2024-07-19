@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
 import 'package:admin_portal/Widgets/feedback_display_fields.dart';
 import 'package:admin_portal/Widgets/feedbackpage_button.dart';
@@ -31,8 +33,6 @@ class _feedback_pageState extends State<feedback_page> {
   TextEditingController _addQuestioncontroller = TextEditingController();
   final ValueNotifier<bool> isAddButtonEnabled = ValueNotifier(false);
 
- 
-
   @override
   void initState() {
     super.initState();
@@ -41,17 +41,15 @@ class _feedback_pageState extends State<feedback_page> {
     futureFeedbacks = repository.getFeedbacks();
     futureFeedbacks.then((feedbacks) {
       setState(() {
-         filteredFeedbacks = feedbacks;
+        filteredFeedbacks = feedbacks;
         selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
       });
     });
     // Attach listener to search controller
     _searchController.addListener(_onSearchTextChanged);
 
-      // Attach listener to add question controller
+    // Attach listener to add question controller
     _addQuestioncontroller.addListener(_onAddQuestionTextChanged);
-
-    
   }
 
   @override
@@ -69,7 +67,6 @@ class _feedback_pageState extends State<feedback_page> {
     });
   }
 
-
   void _filterFeedbacks(String query) {
     futureFeedbacks.then((feedbacks) {
       setState(() {
@@ -86,41 +83,79 @@ class _feedback_pageState extends State<feedback_page> {
           }).toList();
         }
         if (!filteredFeedbacks.contains(selectedFeedback)) {
-          selectedFeedback = filteredFeedbacks.isNotEmpty
-              ? filteredFeedbacks[0]
-              : null;
+          selectedFeedback =
+              filteredFeedbacks.isNotEmpty ? filteredFeedbacks[0] : null;
         }
       });
     });
   }
 
-
   void _selectFeedback(int index) {
     setState(() {
       selectedFeedback = filteredFeedbacks[index];
     });
-    
   }
 
-   void _onAddQuestionTextChanged() {
+  void _onAddQuestionTextChanged() {
     isAddButtonEnabled.value = _addQuestioncontroller.text.trim().isNotEmpty;
   }
-
 
   void _showToast(String message) {
     Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.TOP,
-      webBgColor:"linear-gradient(to right, #00b09b, #96c93d)" ,
+      webBgColor: "linear-gradient(to right, #00b09b, #96c93d)",
       backgroundColor: Colors.black,
       textColor: Colors.white,
       fontSize: 16.0,
     );
   }
 
+  Future<void> deleteStudent(String studentId) async {
+    var url = Uri.parse(
+        'https://cine-admin-xar9.onrender.com/admin/feedback/deleteFeedBackQuestion');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
 
-  
+    final body = jsonEncode({
+      "quesId": studentId,
+    });
+
+    try {
+      final response = await http.Request('DELETE', url)
+        ..headers.addAll(headers)
+        ..body = body;
+
+      final streamedResponse = await response.send();
+
+      if (streamedResponse.statusCode == 200) {
+        print(await streamedResponse.stream.bytesToString());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Student deleted successfully')),
+        );
+         setState(() {
+          futureFeedbacks = FeedbackDetailsRepository(
+                  baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback')
+              .getFeedbacks();
+          futureFeedbacks.then((feedbacks) {
+            setState(() {
+              filteredFeedbacks = feedbacks;
+              selectedFeedback =
+                  feedbacks.isNotEmpty ? feedbacks[0] : null;
+            });
+          });
+        });
+      } else {
+        print(streamedResponse.reasonPhrase);
+        print('Failed to delete student.');
+      }
+    } catch (e) {
+      print('Error: $e');
+      print('Unexpected error occurred. Please try again later.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -130,9 +165,7 @@ class _feedback_pageState extends State<feedback_page> {
     return _buildFeedbackPage();
   }
 
-
-
- Widget _buildFeedbackEditingPage() {
+  Widget _buildFeedbackEditingPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final repository =
@@ -173,8 +206,9 @@ class _feedback_pageState extends State<feedback_page> {
                             sequence: (index + 1).toString(),
                             question: question.question ?? 'No Question',
                             onTap: () {
-                              print('Question id is' +
-                                  question.quesId.toString());
+                              deleteStudent(question.quesId.toString());
+                              // print('Question id is' +
+                              //     question.quesId.toString());
                             },
                           );
                         },
@@ -254,10 +288,17 @@ class _feedback_pageState extends State<feedback_page> {
                                           fontSize: screenWidth * 0.01,
                                           buttonWidth: screenWidth * 0.084,
                                           onTap: () async {
-                                            if (_addQuestioncontroller.text.trim().isEmpty) {
-                                              _showToast("Please enter valid qusetion");
+                                            if (_addQuestioncontroller.text
+                                                .trim()
+                                                .isEmpty) {
+                                              _showToast(
+                                                  "Please enter valid qusetion");
                                             } else {
-                                              AddFeedback feedback = await repository.addFeedbackQuestion(_addQuestioncontroller.text);
+                                              AddFeedback feedback =
+                                                  await repository
+                                                      .addFeedbackQuestion(
+                                                          _addQuestioncontroller
+                                                              .text);
                                               _addQuestioncontroller.clear();
                                               Navigator.of(context).pop();
                                               setState(() {});
@@ -292,8 +333,7 @@ class _feedback_pageState extends State<feedback_page> {
     );
   }
 
-
- Widget _buildFeedbackPage() {
+  Widget _buildFeedbackPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 

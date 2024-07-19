@@ -11,7 +11,8 @@ class feedback_button extends StatefulWidget {
       required this.text,
       required this.buttonHeight,
       required this.buttonWidth,
-      this.onTap, required this.fontSize});
+      this.onTap,
+      required this.fontSize});
 
   @override
   State<feedback_button> createState() => _feedback_buttonState();
@@ -27,12 +28,10 @@ class _feedback_buttonState extends State<feedback_button> {
         onPressed: widget.onTap,
         child: Text(widget.text),
         style: ButtonStyle(
-          //uncomment this code to change the button color
-            // backgroundColor: WidgetStatePropertyAll(primaryColor),
-            // foregroundColor: WidgetStatePropertyAll(Colors.white),
-            // shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(5)))
-                ),
+            backgroundColor: WidgetStatePropertyAll(primaryColor),
+            foregroundColor: WidgetStatePropertyAll(Colors.white),
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5)))),
       ),
     );
   }

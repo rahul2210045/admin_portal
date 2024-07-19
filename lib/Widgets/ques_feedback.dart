@@ -6,8 +6,12 @@ import 'package:http/http.dart' as http;
 class ques_feedback extends StatefulWidget {
   final String sequence;
   final String question;
+  final VoidCallback onTap;
   const ques_feedback(
-      {super.key, required this.sequence, required this.question});
+      {super.key,
+      required this.sequence,
+      required this.question,
+      required this.onTap});
 
   @override
   State<ques_feedback> createState() => _ques_feedbackState();
@@ -18,6 +22,7 @@ class _ques_feedbackState extends State<ques_feedback> {
   final String question = 'How was the exam portal?';
   @override
   Widget build(BuildContext context) {
+    
     Future<void> updateFeedbackQuestion(String quesId, String question) async {
       final url = Uri.parse(
           'https://cine-admin-xar9.onrender.com/admin/feedback/updateFeedbackQuestion');
@@ -57,7 +62,7 @@ class _ques_feedbackState extends State<ques_feedback> {
         child: ListTile(
           contentPadding: EdgeInsets.all(12),
           trailing: IconButton(
-              onPressed: () {},
+              onPressed: widget.onTap,
               icon: Icon(
                 Icons.cancel,
                 color: Color(0xffFF122E),
@@ -71,23 +76,10 @@ class _ques_feedbackState extends State<ques_feedback> {
               Text(widget.question, style: GoogleFonts.poppins(fontSize: 14)),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () async {
-                      await updateFeedbackQuestion(quesId, question);
-                      // Handle the tap event here
-                      print('Text tapped');
-                      // You can also navigate to another screen or show a dialog here
-                    },
-                    child: Text(
-                      "Tap here to edit",
+                  
+                  Text("Tap here to edit",
                       style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.blue[800],
-                      ),
-                    ),
-                  )
-
-                  // Text("Tap here to edit",style: GoogleFonts.poppins(fontSize:14,color:Colors.blue[800]  )),
+                          fontSize: 14, color: Colors.blue[800])),
                 ],
               ),
             ],
@@ -97,10 +89,10 @@ class _ques_feedbackState extends State<ques_feedback> {
           ),
           tileColor: Colors.white,
           enabled: true,
-          // minTileHeight:20,
+           minTileHeight:20,
         ),
       ),
     );
-    ;
+    
   }
 }

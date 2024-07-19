@@ -140,7 +140,7 @@ class _candidateAddState extends State<candidateAdd> {
                             height: 10,
                           ),
                           SizedBox(
-                            height: screenHeight * 0.4,
+                            height: screenHeight * 0.6,
                             width: screenWidth * 0.25,
                             child: SingleChildScrollView(
                               child: Column(children: [

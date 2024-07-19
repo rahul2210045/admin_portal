@@ -73,11 +73,14 @@ class _feedback_pageState extends State<feedback_page> {
         if (query.isEmpty) {
           filteredFeedbacks = feedbacks;
         } else {
-          filteredFeedbacks = feedbacks
-              .where((feedback) => feedback.student!.name!
-                  .toLowerCase()
-                  .contains(query.toLowerCase()))
-              .toList();
+          filteredFeedbacks = feedbacks.where((feedback) {
+            final studentName = feedback.student?.name?.toLowerCase() ?? '';
+            final studentNumber =
+                feedback.student?.studentNumber?.toLowerCase() ?? '';
+            final searchQuery = query.toLowerCase();
+            return studentName.contains(searchQuery) ||
+                studentNumber.contains(searchQuery);
+          }).toList();
         }
         if (!filteredFeedbacks.contains(selectedFeedback)) {
           selectedFeedback =

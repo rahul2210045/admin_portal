@@ -31,6 +31,7 @@ class QuestionsSidebar extends StatefulWidget {
 
 class _QuestionsSidebarState extends State<QuestionsSidebar> {
   int selectedIndex = 0;
+  String? selectedPredefinedQuestion;
   TextEditingController _questionController = TextEditingController();
   TextEditingController _option1Controller = TextEditingController();
   TextEditingController _option2Controller = TextEditingController();
@@ -97,6 +98,140 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     }
   }
 
+  final List<Map<String, dynamic>> predefinedQuestions = [
+    // HTML Questions
+    {
+      'quesId': '1',
+      'question': 'What does HTML stand for?',
+      'options': [
+        {'desc': 'Hyper Text Markup Language', 'id': '1'},
+        {'desc': 'Hypertext Transfer Protocol', 'id': '2'},
+        {'desc': 'Hyperlinks and Text Markup Language', 'id': '3'},
+        {'desc': 'Hypertext Markup Level', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Basics of HTML.',
+    },
+    {
+      'quesId': '2',
+      'question': 'Which of the following tags is used to define a hyperlink in HTML?',
+      'options': [
+        {'desc': '<a>', 'id': '1'},
+        {'desc': '<link>', 'id': '2'},
+        {'desc': '<href>', 'id': '3'},
+        {'desc': '<hyperlink>', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Hyperlinks in HTML.',
+    },
+
+    // CSS Questions
+    {
+      'quesId': '3',
+      'question': 'Which property is used to change the background color in CSS?',
+      'options': [
+        {'desc': 'background-color', 'id': '1'},
+        {'desc': 'bgcolor', 'id': '2'},
+        {'desc': 'color', 'id': '3'},
+        {'desc': 'background', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'CSS properties for backgrounds.',
+    },
+    {
+      'quesId': '4',
+      'question': 'How do you select an element with the class name \'header\' in CSS?',
+      'options': [
+        {'desc': '.header', 'id': '1'},
+        {'desc': 'header', 'id': '2'},
+        {'desc': '#header', 'id': '3'},
+        {'desc': '*header', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'CSS selectors.',
+    },
+
+    // Java Questions
+    {
+      'quesId': '5',
+      'question': 'Which keyword is used to create a new instance of a class in Java?',
+      'options': [
+        {'desc': 'new', 'id': '1'},
+        {'desc': 'create', 'id': '2'},
+        {'desc': 'make', 'id': '3'},
+        {'desc': 'instance', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Java object creation.',
+    },
+    {
+      'quesId': '6',
+      'question': 'What is the default value of a boolean variable in Java?',
+      'options': [
+        {'desc': 'false', 'id': '1'},
+        {'desc': 'true', 'id': '2'},
+        {'desc': 'null', 'id': '3'},
+        {'desc': '0', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Default values in Java.',
+    },
+
+    // Python Questions
+    {
+      'quesId': '7',
+      'question': 'Which of the following is a correct syntax for defining a function in Python?',
+      'options': [
+        {'desc': 'def function_name():', 'id': '1'},
+        {'desc': 'function function_name():', 'id': '2'},
+        {'desc': 'define function_name():', 'id': '3'},
+        {'desc': 'func function_name():', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Function definition in Python.',
+    },
+    {
+      'quesId': '8',
+      'question': 'How do you comment a single line in Python?',
+      'options': [
+        {'desc': '# comment', 'id': '1'},
+        {'desc': '// comment', 'id': '2'},
+        {'desc': '/* comment */', 'id': '3'},
+        {'desc': '-- comment', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Commenting in Python.',
+    },
+
+    // Aptitude Questions
+    {
+      'quesId': '9',
+      'question': 'If a train travels 60 km in 1 hour, what is its speed?',
+      'options': [
+        {'desc': '60 km/h', 'id': '1'},
+        {'desc': '120 km/h', 'id': '2'},
+        {'desc': '30 km/h', 'id': '3'},
+        {'desc': '45 km/h', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Basic speed calculation.',
+    },
+    {
+      'quesId': '10',
+      'question': 'What is the value of 5 factorial (5!)?',
+      'options': [
+        {'desc': '120', 'id': '1'},
+        {'desc': '60', 'id': '2'},
+        {'desc': '24', 'id': '3'},
+        {'desc': '100', 'id': '4'},
+      ],
+      'correctAnswer': '1',
+      'description': 'Factorial calculation.',
+    },
+  ];
+
+
+
   void showAddQuestionDialog() {
     _questionController.clear();
     _option1Controller.clear();
@@ -142,6 +277,39 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
+
+                  // Dropdown to select predefined question
+                  DropdownButton<String>(
+                    value: selectedPredefinedQuestion,
+                    hint: Text('Select Predefined Question'),
+                    items: predefinedQuestions.map((question) {
+                      return DropdownMenuItem<String>(
+                        value: question['question'],
+                        child: Text(question['question']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPredefinedQuestion = value;
+                        // Find the selected question data
+                        final selectedData = predefinedQuestions.firstWhere(
+                              (q) => q['question'] == value,
+                        );
+
+                        // Populate text fields with predefined data
+                        _questionController.text = selectedData['question'];
+                        _option1Controller.text = selectedData['options'][0]['desc'];
+                        _option2Controller.text = selectedData['options'][1]['desc'];
+                        _option3Controller.text = selectedData['options'][2]['desc'];
+                        _option4Controller.text = selectedData['options'][3]['desc'];
+                        _correctAnswerController.text = selectedData['correctAnswer'];
+                        _descriptionController.text = selectedData['description'];
+                        _questionIdController.text = selectedData['quesId'];
+                      });
+                    },
+                  ),
+
+                  // Existing text fields...
                   TextField(
                     controller: _questionController,
                     decoration: InputDecoration(
@@ -225,9 +393,9 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                                 "question": question,
                                 "options": options
                                     .map((option) => {
-                                          "desc": option["desc"],
-                                          "id": option["id"]
-                                        })
+                                  "desc": option["desc"],
+                                  "id": option["id"]
+                                })
                                     .toList(),
                                 "subject": widget.subject,
                                 "quesId": questionId,
@@ -442,116 +610,116 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                     ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_questionUpdateController.text.isNotEmpty &&
-                        _option1UpdateController.text.isNotEmpty &&
-                        _option2UpdateController.text.isNotEmpty &&
-                        _option3UpdateController.text.isNotEmpty &&
-                        _option4UpdateController.text.isNotEmpty &&
-                        _correctAnswerUpdateController.text.isNotEmpty
-                        // _descriptionController.text.isNotEmpty &&
-                        // _questionIdController.text.isNotEmpty
-                        ) {
-                      String question = _questionUpdateController.text;
-                      List<Map<String, String>> options = [
-                        {"desc": _option1UpdateController.text, "id": "1"},
-                        {"desc": _option2UpdateController.text, "id": "2"},
-                        {"desc": _option3UpdateController.text, "id": "3"},
-                        {"desc": _option4UpdateController.text, "id": "4"},
-                      ];
-                      String correctAnswer = _correctAnswerController.text;
-                      // String description = _descriptionController.text;
-                      String questionId='';
-
-                      if (selectedIndex != -1) {
-                        // Get question ID based on selectedIndex
-                        List<String> savedIds = await getQuestionIds();
-                        if (selectedIndex < savedIds.length) {
-                           questionId = savedIds[selectedIndex];
-                          // deleteQuestion(questionId,
-                          //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
-                          widget.onDeleteQuestion(selectedIndex);
-                        } else {
-                          print('No question ID found for index $selectedIndex');
-                        }
-                      } else {
-                        print('No question selected to delete');
-                      }
-
-                      var response = await http.patch(
-                        Uri.parse(
-                            'https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
-                        headers: {"Content-Type": "application/json"},
-                        body: jsonEncode({
-                          "question": question,
-                          "options": options
-                              .map((option) =>
-                                  {"desc": option["desc"], "id": option["id"]})
-                              .toList(),
-                          "subject": widget.subject,
-
-                          "quesId": '${questionId}',
-                          "answer": correctAnswer,
-                          // "description": description,
-                        }),
-                      );
-
-                      print('Response status: ${response.statusCode}');
-                      print('Response body: ${response.body}');
-
-                      if (response.statusCode == 201) {
-                        // widget.onAddNewQuestion(
-                        //   question,
-                        //   options.map((option) => option['desc'] ?? "").toList(),
-                        //   correctAnswer,
-                        //   // description,
-                        //   questionId,
-                        // );
-
-                        // Save the new question ID to SharedPreferences
-                        await saveQuestionId(questionId);
-                        List<String> savedIds = await getQuestionIds();
-                        print('Question IDs saved: $savedIds');
-
-                        Navigator.of(context).pop();
-                      } else {
-                        if (response.statusCode == 500) {
-                          print('Internal server error occurred');
-                        } else {
-                          print('Failed to add question');
-                        }
-                      }
-                    }
-                  },
-                  //  () {
-                  //   widget.onSaveQuestions(widget.questions);
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => QuestionsDownload(
-                  //             savedQuestions: widget.questions)),
-                  //   );
-                  // },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20 * widthFactor,
-                      vertical: 10 * heightFactor,
-                    ),
-                  ),
-                  child: Text(
-                    "Save",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: widthFactor * 18,
-                    ),
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     if (_questionUpdateController.text.isNotEmpty &&
+                //         _option1UpdateController.text.isNotEmpty &&
+                //         _option2UpdateController.text.isNotEmpty &&
+                //         _option3UpdateController.text.isNotEmpty &&
+                //         _option4UpdateController.text.isNotEmpty &&
+                //         _correctAnswerUpdateController.text.isNotEmpty
+                //         // _descriptionController.text.isNotEmpty &&
+                //         // _questionIdController.text.isNotEmpty
+                //         ) {
+                //       String question = _questionUpdateController.text;
+                //       List<Map<String, String>> options = [
+                //         {"desc": _option1UpdateController.text, "id": "1"},
+                //         {"desc": _option2UpdateController.text, "id": "2"},
+                //         {"desc": _option3UpdateController.text, "id": "3"},
+                //         {"desc": _option4UpdateController.text, "id": "4"},
+                //       ];
+                //       String correctAnswer = _correctAnswerController.text;
+                //       // String description = _descriptionController.text;
+                //       String questionId='';
+                //
+                //       if (selectedIndex != -1) {
+                //         // Get question ID based on selectedIndex
+                //         List<String> savedIds = await getQuestionIds();
+                //         if (selectedIndex < savedIds.length) {
+                //            questionId = savedIds[selectedIndex];
+                //           // deleteQuestion(questionId,
+                //           //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
+                //           widget.onDeleteQuestion(selectedIndex);
+                //         } else {
+                //           print('No question ID found for index $selectedIndex');
+                //         }
+                //       } else {
+                //         print('No question selected to delete');
+                //       }
+                //
+                //       var response = await http.patch(
+                //         Uri.parse(
+                //             'https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
+                //         headers: {"Content-Type": "application/json"},
+                //         body: jsonEncode({
+                //           "question": question,
+                //           "options": options
+                //               .map((option) =>
+                //                   {"desc": option["desc"], "id": option["id"]})
+                //               .toList(),
+                //           "subject": widget.subject,
+                //
+                //           "quesId": '${questionId}',
+                //           "answer": correctAnswer,
+                //           // "description": description,
+                //         }),
+                //       );
+                //
+                //       print('Response status: ${response.statusCode}');
+                //       print('Response body: ${response.body}');
+                //
+                //       if (response.statusCode == 201) {
+                //         // widget.onAddNewQuestion(
+                //         //   question,
+                //         //   options.map((option) => option['desc'] ?? "").toList(),
+                //         //   correctAnswer,
+                //         //   // description,
+                //         //   questionId,
+                //         // );
+                //
+                //         // Save the new question ID to SharedPreferences
+                //         await saveQuestionId(questionId);
+                //         List<String> savedIds = await getQuestionIds();
+                //         print('Question IDs saved: $savedIds');
+                //
+                //         Navigator.of(context).pop();
+                //       } else {
+                //         if (response.statusCode == 500) {
+                //           print('Internal server error occurred');
+                //         } else {
+                //           print('Failed to add question');
+                //         }
+                //       }
+                //     }
+                //   },
+                //   //  () {
+                //   //   widget.onSaveQuestions(widget.questions);
+                //   //   Navigator.push(
+                //   //     context,
+                //   //     MaterialPageRoute(
+                //   //         builder: (context) => QuestionsDownload(
+                //   //             savedQuestions: widget.questions)),
+                //   //   );
+                //   // },
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: primaryColor,
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(8.0),
+                //     ),
+                //     padding: EdgeInsets.symmetric(
+                //       horizontal: 20 * widthFactor,
+                //       vertical: 10 * heightFactor,
+                //     ),
+                //   ),
+                //   child: Text(
+                //     "Save",
+                //     style: GoogleFonts.poppins(
+                //       color: Colors.white,
+                //       fontWeight: FontWeight.w500,
+                //       fontSize: widthFactor * 18,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],

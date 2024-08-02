@@ -1,8 +1,6 @@
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:admin_portal/constants/constants.dart';
 
 Widget customDetailCard(
   name,

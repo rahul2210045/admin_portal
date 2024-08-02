@@ -1,7 +1,5 @@
-import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/components/custom_candidate_detail_card.dart';
-import 'package:admin_portal/components/custom_detail_card.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
 

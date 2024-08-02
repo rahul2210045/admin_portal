@@ -32,6 +32,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   bool isLoading = true;
   bool isError = false;
+  bool isAddingTab = false;
 
   late http.Client client;
 
@@ -196,10 +197,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     }
   }
 
-
-
-
-
   void updateCurrentState(String tab) {
     setState(() {
       currentQuestions = allQuestions[tab] ?? [];
@@ -333,9 +330,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
     );
   }
 
-  void addNewTab(String tabName) async {
+  Future<void> addNewTab(String tabName) async {
+    setState(() {
+      isAddingTab = true; // Show the loader
+    });
+
     await addNewSubject(tabName);
-    fetchData(tab: tabName); // Fetch data for the new tab
+    await fetchData(tab: tabName); // Fetch data for the new tab
+
+    setState(() {
+      isAddingTab = false; // Hide the loader
+    });
   }
 
 
@@ -343,7 +348,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
   void toggleEditingMode(int index) {
     setState(() {
       // Toggle the editing mode for the selected question
-      editingQuestionIndex = editingQuestionIndex == index ? -1 : index;
+      editingQuestionIndex = editingQuestionIndex == index ? 0 : index;
     });
   }
 
@@ -392,55 +397,65 @@ class _QuestionScreenState extends State<QuestionScreen> {
     double heightFactor = MediaQuery.of(context).size.height / 1024;
     double widthFactor = MediaQuery.of(context).size.width / 1440;
 
-    return Scaffold(
-      backgroundColor: backgroundColor1,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(10 * widthFactor),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: CustomRoundedContainer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildTabBar(heightFactor, widthFactor),
-                      // buildQuestionArea(heightFactor, widthFactor),
-                      FutureBuilder<Widget>(
-                      future: buildQuestionArea(heightFactor, widthFactor),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Center(child: Text('Error: ${snapshot.error}'));
-                        } else {
-                          return snapshot.data ?? Container(); // Return the widget or a default container
-                        }
-                      },
+    return Stack(
+      children: [Scaffold(
+        backgroundColor: backgroundColor1,
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(10 * widthFactor),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: CustomRoundedContainer(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildTabBar(heightFactor, widthFactor),
+                        // buildQuestionArea(heightFactor, widthFactor),
+                        FutureBuilder<Widget>(
+                        future: buildQuestionArea(heightFactor, widthFactor),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          } else if (snapshot.hasError) {
+                            return Center(child: Text('Error: ${snapshot.error}'));
+                          } else {
+                            return snapshot.data ?? Container(); // Return the widget or a default container
+                          }
+                        },
+                      ),
+                  //   ],
+                  // ),
+                      ],
                     ),
-                //   ],
-                // ),
-                    ],
+                    height: heightFactor * 1200,
+                    width: widthFactor * 735,
+                    padding: EdgeInsets.fromLTRB(
+                      20 * widthFactor,
+                      30 * heightFactor,
+                      20 * widthFactor,
+                      40 * heightFactor,
+                    ),
+                    margin: EdgeInsets.only(top: 20 * heightFactor),
+                    color: backgroundColor,
                   ),
-                  height: heightFactor * 1200,
-                  width: widthFactor * 735,
-                  padding: EdgeInsets.fromLTRB(
-                    20 * widthFactor,
-                    30 * heightFactor,
-                    20 * widthFactor,
-                    40 * heightFactor,
-                  ),
-                  margin: EdgeInsets.only(top: 20 * heightFactor),
-                  color: backgroundColor,
                 ),
-              ),
-              SizedBox(width: 20 * widthFactor),
-              buildRightSidebar(heightFactor, widthFactor),
-            ],
+                SizedBox(width: 20 * widthFactor),
+                buildRightSidebar(heightFactor, widthFactor),
+              ],
+            ),
           ),
         ),
       ),
+        if (isAddingTab)
+          Container(
+            color: Colors.black26, // Semi-transparent background
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+    ],
     );
   }
 
@@ -543,7 +558,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
         // Handle case when selectedQuestionIndex is out of bounds
         return Container(
           alignment: Alignment.center,
-          child: Text('No question selected or index out of bounds.'),
+          child: Text('No question selected.'),
         );
       }
     } else {

@@ -80,8 +80,8 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
               'Question deleted successfully',
               style: TextStyle(color: Colors.white),
             ),
-            backgroundColor: Colors.transparent,
-            duration: Duration(seconds: 2), // Show snackbar for 2 seconds
+            backgroundColor: Colors.grey,
+            duration: Duration(seconds: 3), // Show snackbar for 2 seconds
           ),
         );
         Future.delayed(Duration(seconds: 2), () {

@@ -50,6 +50,7 @@ dependencies:
   socket_io_client: ^2.0.3+1
   fluttertoast: ^8.0.9
   flutter_spinkit: ^5.1.0
+  flutter_syntax_view: ^4.1.0
 
 
   # fl_chart: ^0.40.0

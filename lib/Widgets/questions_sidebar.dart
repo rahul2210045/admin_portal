@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_syntax_view/flutter_syntax_view.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -242,6 +243,16 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     _descriptionController.clear();
     _questionIdController.clear();
 
+    final _formKey = GlobalKey<FormState>();
+
+    // String _selectedLanguage = 'C++';
+    // final Map<String, Syntax> _languageMap = {
+    //   'C++': Syntax.CPP,
+    //   'Java': Syntax.JAVA,
+    //   'JavaScript': Syntax.JAVASCRIPT,
+    //   // Add other languages as needed
+    // };
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -266,178 +277,222 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    'Add New Question',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Add New Question',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16.0),
+                    const SizedBox(height: 16.0),
 
-                  // Dropdown to select predefined question
-                  DropdownButton<String>(
-                    value: selectedPredefinedQuestion,
-                    hint: Text('Select Predefined Question'),
-                    items: predefinedQuestions.map((question) {
-                      return DropdownMenuItem<String>(
-                        value: question['question'],
-                        child: Text(question['question']),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedPredefinedQuestion = value;
-                        // Find the selected question data
-                        final selectedData = predefinedQuestions.firstWhere(
-                              (q) => q['question'] == value,
+                    // Dropdown to select predefined question
+                    DropdownButton<String>(
+                      value: selectedPredefinedQuestion,
+                      hint: Text('Select Predefined Question'),
+                      items: predefinedQuestions.map((question) {
+                        return DropdownMenuItem<String>(
+                          value: question['question'],
+                          child: Text(question['question']),
                         );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedPredefinedQuestion = value;
+                          final selectedData = predefinedQuestions.firstWhere(
+                                (q) => q['question'] == value,
+                          );
+                          _questionController.text = selectedData['question'];
+                          _option1Controller.text = selectedData['options'][0]['desc'];
+                          _option2Controller.text = selectedData['options'][1]['desc'];
+                          _option3Controller.text = selectedData['options'][2]['desc'];
+                          _option4Controller.text = selectedData['options'][3]['desc'];
+                          _correctAnswerController.text = selectedData['correctAnswer'];
+                          _descriptionController.text = selectedData['description'];
+                          _questionIdController.text = selectedData['quesId'];
+                        });
+                      },
+                    ),
 
-                        // Populate text fields with predefined data
-                        _questionController.text = selectedData['question'];
-                        _option1Controller.text = selectedData['options'][0]['desc'];
-                        _option2Controller.text = selectedData['options'][1]['desc'];
-                        _option3Controller.text = selectedData['options'][2]['desc'];
-                        _option4Controller.text = selectedData['options'][3]['desc'];
-                        _correctAnswerController.text = selectedData['correctAnswer'];
-                        _descriptionController.text = selectedData['description'];
-                        _questionIdController.text = selectedData['quesId'];
-                      });
-                    },
-                  ),
+                    // TextFormFields with validations
+                    TextFormField(
+                      controller: _questionController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter your question',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a valid question.';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16.0),
 
-                  // Existing text fields...
-                  TextField(
-                    controller: _questionController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your question',
-                      border: OutlineInputBorder(),
+                    Container(
+                      padding: EdgeInsets.all(10.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black12,
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: SyntaxView(
+                        code: _questionController.text,
+                        syntax: Syntax.CPP,
+                        syntaxTheme: SyntaxTheme.dracula(), // You can choose different themes
+                        withLinesCount: true,
+                        fontSize: 14.0,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 12.0),
-                  _buildOptionTextField(_option1Controller, "Option 1", "1"),
-                  SizedBox(height: 12.0),
-                  _buildOptionTextField(_option2Controller, "Option 2", "2"),
-                  SizedBox(height: 12.0),
-                  _buildOptionTextField(_option3Controller, "Option 3", "3"),
-                  SizedBox(height: 12.0),
-                  _buildOptionTextField(_option4Controller, "Option 4", "4"),
-                  SizedBox(height: 12.0),
-                  TextField(
-                    controller: _correctAnswerController,
-                    decoration: InputDecoration(
-                      hintText: 'Correct Answer',
-                      border: OutlineInputBorder(),
+                    SizedBox(height: 12.0),
+                    _buildValidatedTextFormField(
+                      controller: _option1Controller,
+                      hintText: 'Option 1',
+                      validationMessage: 'Please enter a valid option.',
                     ),
-                  ),
-                  SizedBox(height: 12.0),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      hintText: 'Description',
-                      border: OutlineInputBorder(),
+                    SizedBox(height: 12.0),
+                    _buildValidatedTextFormField(
+                      controller: _option2Controller,
+                      hintText: 'Option 2',
+                      validationMessage: 'Please enter a valid option.',
                     ),
-                  ),
-                  SizedBox(height: 12.0),
-                  TextField(
-                    controller: _questionIdController,
-                    decoration: InputDecoration(
-                      hintText: 'Question ID',
-                      border: OutlineInputBorder(),
+                    SizedBox(height: 12.0),
+                    _buildValidatedTextFormField(
+                      controller: _option3Controller,
+                      hintText: 'Option 3',
+                      validationMessage: 'Please enter a valid option.',
                     ),
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey,
+                    SizedBox(height: 12.0),
+                    _buildValidatedTextFormField(
+                      controller: _option4Controller,
+                      hintText: 'Option 4',
+                      validationMessage: 'Please enter a valid option.',
+                    ),
+                    SizedBox(height: 12.0),
+                    TextFormField(
+                      controller: _correctAnswerController,
+                      decoration: InputDecoration(
+                        labelText: 'Correct Answer',
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the correct answer';
+                        } else if (!RegExp(r'^[1-4]$').hasMatch(value)) {
+                          return 'Please enter correct option id';
+                        }
+                        return null;
+                      },
+                    ),
+
+                    SizedBox(height: 12.0),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: InputDecoration(
+                        hintText: 'Description',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 12.0),
+                    TextFormField(
+                      controller: _questionIdController,
+                      decoration: InputDecoration(
+                        hintText: 'Question ID',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey,
+                          ),
+                          child: Text('Cancel'),
                         ),
-                        child: Text('Cancel'),
-                      ),
-                      SizedBox(width: 12.0),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_questionController.text.isNotEmpty &&
-                              _option1Controller.text.isNotEmpty &&
-                              _option2Controller.text.isNotEmpty &&
-                              _option3Controller.text.isNotEmpty &&
-                              _option4Controller.text.isNotEmpty &&
-                              _correctAnswerController.text.isNotEmpty &&
-                              _descriptionController.text.isNotEmpty &&
-                              _questionIdController.text.isNotEmpty) {
-                            String question = _questionController.text;
-                            List<Map<String, String>> options = [
-                              {"desc": _option1Controller.text, "id": "1"},
-                              {"desc": _option2Controller.text, "id": "2"},
-                              {"desc": _option3Controller.text, "id": "3"},
-                              {"desc": _option4Controller.text, "id": "4"},
-                            ];
-                            String correctAnswer =
-                                _correctAnswerController.text;
-                            String description = _descriptionController.text;
-                            String questionId = _questionIdController.text;
+                        SizedBox(width: 12.0),
+                        ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+    String question = _questionController.text;
+    List<Map<String, String>> options = [
+    {"desc": _option1Controller.text, "id": "1"},
+    {"desc": _option2Controller.text, "id": "2"},
+    {"desc": _option3Controller.text, "id": "3"},
+    {"desc": _option4Controller.text, "id": "4"},
+    ];
+    String correctAnswer =
+    _correctAnswerController.text;
+    String description = _descriptionController.text;
+    String questionId = _questionIdController.text;
 
-                            var response = await http.post(
-                              Uri.parse(
-                                  'https://cine-admin-xar9.onrender.com/admin/addQuestion'),
-                              headers: {"Content-Type": "application/json"},
-                              body: jsonEncode({
-                                "question": question,
-                                "options": options
-                                    .map((option) => {
-                                  "desc": option["desc"],
-                                  "id": option["id"]
-                                })
-                                    .toList(),
-                                "subject": widget.subject,
-                                "quesId": questionId,
-                                "answer": correctAnswer,
-                                "description": description,
-                              }),
-                            );
+    var response = await http.post(
+    Uri.parse(
+    'https://cine-admin-xar9.onrender.com/admin/addQuestion'),
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+    "question": question,
+    "options": options
+        .map((option) => {
+    "desc": option["desc"],
+    "id": option["id"]
+    })
+        .toList(),
+    "subject": widget.subject,
+    "quesId": questionId,
+    "answer": correctAnswer,
+    "description": description,
+    }),
+    );
 
-                            print('Response status: ${response.statusCode}');
-                            print('Response body: ${response.body}');
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
-                            if (response.statusCode == 201) {
-                              widget.onAddNewQuestion(
-                                question,
-                                options
-                                    .map((option) => option['desc'] ?? "")
-                                    .toList(),
-                                correctAnswer,
-                                description,
-                                questionId,
-                              );
+    if (response.statusCode == 201) {
+    widget.onAddNewQuestion(
+    question,
+    options
+        .map((option) => option['desc'] ?? "")
+        .toList(),
+    correctAnswer,
+    description,
+    questionId,
+    );
 
-                              // Save the new question ID to SharedPreferences
-                              await saveQuestionId(questionId);
-                              List<String> savedIds = await getQuestionIds();
-                              print('Question IDs saved: $savedIds');
+    // Save the new question ID to SharedPreferences
+    await saveQuestionId(questionId);
+    List<String> savedIds = await getQuestionIds();
+    print('Question IDs saved: $savedIds');
 
-                              Navigator.of(context).pop();
-                            } else {
-                              if (response.statusCode == 500) {
-                                print('Internal server error occurred');
-                              } else {
-                                print('Failed to add question');
-                              }
-                            }
-                          }
-                        },
-                        child: Text('Add'),
-                      ),
-                    ],
-                  ),
-                ],
+    Navigator.of(context).pop();
+    } else {
+    if (response.statusCode == 500) {
+    print('Internal server error occurred');
+    } else {
+    print('Failed to add question');
+    }
+    }
+    }
+    },
+
+
+                          child: Text('Add'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -445,6 +500,27 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
       },
     );
   }
+
+  Widget _buildValidatedTextFormField({
+    required TextEditingController controller,
+    required String hintText,
+    required String validationMessage,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return validationMessage;
+        }
+        return null;
+      },
+    );
+  }
+
 
   Widget _buildOptionTextField(
       TextEditingController controller, String hintText, String id) {

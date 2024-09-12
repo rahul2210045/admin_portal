@@ -5,11 +5,12 @@ import 'package:http/http.dart' as http;
 
 class FeedbackDetailsRepository {
   final String baseUrl;
+  final int page;
 
-  FeedbackDetailsRepository({required this.baseUrl});
+  FeedbackDetailsRepository({required this.baseUrl,required this.page});
 
   Future<List<FeedbackDetails>> getFeedbacks() async {
-    final response = await http.get(Uri.parse('$baseUrl/feedbacks'));
+    final response = await http.get(Uri.parse('$baseUrl/feedbacks?page=${page}'));
 
     if (response.statusCode == 200) {
       try {

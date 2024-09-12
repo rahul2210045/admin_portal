@@ -1,4 +1,5 @@
 import 'package:admin_portal/Screens/Login.dart';
+import 'package:admin_portal/Screens/Side_MenuBar_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,8 +28,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      home: LoginPage()
-      // home: candidate()
+      home: LoginPage(),
+      //home: SideMenuBar(userName: 'hello',)
+      
 
     );
   }

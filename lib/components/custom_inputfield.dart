@@ -23,6 +23,7 @@ class BranchMapper {
     '13': 'IT',
   };
 
+
   static String getBranchFromStudentNo(String studentNo) {
     // Assuming the branch code is the first 2 or 3 digits after '23' in the student number
     String branchCode = studentNo.substring(2, 5);
@@ -252,7 +253,7 @@ class _customInputFieldState extends State<customInputField> {
                               },
                               onChanged: (value) {
                                 setState(() {
-                                  _residency = value!;
+                                  _section = value!;
                                 });
                               },
                             ),

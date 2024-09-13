@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -36,7 +35,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   late http.Client client;
 
-  List<String> tabs = ["HTML", "CSS", "ADD+"];
+  List<String> tabs = ["Java", "ADD+"];
+  Map<String, List<dynamic>> subjectData = {};
   Map<String, List<String>> allQuestions = {};
   Map<String, List<List<String>>> allOptions = {};
   Map<String, List<String>> allCorrectAnswers = {};
@@ -93,6 +93,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
         final jsonData = json.decode(response.body);
         if (jsonData[tab] != null) {
           parseData(jsonData, tab);
+          tabs = jsonData.keys.where((key) => key != 'ADD+').toList();
+          tabs.add('ADD+'); // Add the "ADD+" option at the end
+          subjectData = Map.from(jsonData);
+          isLoading = false;
+          print('RESPONSE IS $tabs');
         } else if (tab != "ADD+") {
           // Tab not found in API response and is not the ADD+ tab
           setState(() {
@@ -414,19 +419,19 @@ class _QuestionScreenState extends State<QuestionScreen> {
                         buildTabBar(heightFactor, widthFactor),
                         // buildQuestionArea(heightFactor, widthFactor),
                         FutureBuilder<Widget>(
-                        future: buildQuestionArea(heightFactor, widthFactor),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else if (snapshot.hasError) {
-                            return Center(child: Text('Error: ${snapshot.error}'));
-                          } else {
-                            return snapshot.data ?? Container(); // Return the widget or a default container
-                          }
-                        },
-                      ),
-                  //   ],
-                  // ),
+                          future: buildQuestionArea(heightFactor, widthFactor),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
+                            } else {
+                              return snapshot.data ?? Container(); // Return the widget or a default container
+                            }
+                          },
+                        ),
+                        //   ],
+                        // ),
                       ],
                     ),
                     height: heightFactor * 1200,
@@ -455,7 +460,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
               child: CircularProgressIndicator(),
             ),
           ),
-    ],
+      ],
     );
   }
 
@@ -469,26 +474,29 @@ class _QuestionScreenState extends State<QuestionScreen> {
           children: [
             for (int index = 0; index < tabs.length; index++)
               SizedBox(
-                width: widthFactor * 127,
+                width: widthFactor * 130,
                 height: heightFactor * 51,
-                child: ElevatedButton(
-                  onPressed: () {
-                    handleTabChange(index);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        index == selectedIndex ? primaryColor : Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      handleTabChange(index);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                      index == selectedIndex ? primaryColor : Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    tabs[index],
-                    style: GoogleFonts.poppins(
-                      fontSize: widthFactor * 17,
-                      fontWeight: FontWeight.w500,
-                      color:
-                          index == selectedIndex ? Colors.white : Colors.black,
+                    child: Text(
+                      tabs[index],
+                      style: GoogleFonts.poppins(
+                        fontSize: widthFactor * 14,
+                        fontWeight: FontWeight.w500,
+                        color:
+                        index == selectedIndex ? Colors.white : Colors.black,
+                      ),
                     ),
                   ),
                 ),

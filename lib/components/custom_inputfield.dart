@@ -320,7 +320,7 @@ class _customInputFieldState extends State<customInputField> {
                                   return 'Please enter a valid college email ending with @akgec.ac.in';
                                 } else if (!value
                                     .endsWith('$studentNumber@akgec.ac.in')) {
-                                  return 'Email should end with $studentNumber@akgec.ac.in';
+                                  return 'Please enter a valid college email';
                                 }
                                 return null;
                               },

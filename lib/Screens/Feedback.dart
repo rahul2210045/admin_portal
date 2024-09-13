@@ -32,12 +32,14 @@ class _feedback_pageState extends State<feedback_page> {
   List<FeedbackDetails> filteredFeedbacks = [];
   TextEditingController _addQuestioncontroller = TextEditingController();
   final ValueNotifier<bool> isAddButtonEnabled = ValueNotifier(false);
+  int pageNumber = 1;
 
   @override
   void initState() {
     super.initState();
     final repository = FeedbackDetailsRepository(
-        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback');
+        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+        page: pageNumber);
     futureFeedbacks = repository.getFeedbacks();
     futureFeedbacks.then((feedbacks) {
       setState(() {
@@ -50,6 +52,46 @@ class _feedback_pageState extends State<feedback_page> {
 
     // Attach listener to add question controller
     _addQuestioncontroller.addListener(_onAddQuestionTextChanged);
+  }
+
+  void _checkAndFetchNextPage() async {
+    final repository = FeedbackDetailsRepository(
+      baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+      page: pageNumber + 1, // Check the next page
+    );
+
+    final nextPageFeedbacks = await repository.getFeedbacks();
+
+    if (nextPageFeedbacks.isNotEmpty) {
+      setState(() {
+        pageNumber++; // Increment page number
+        futureFeedbacks = Future.value(
+            nextPageFeedbacks); // Update feedbacks with next page data
+        filteredFeedbacks = nextPageFeedbacks;
+        selectedFeedback =
+            nextPageFeedbacks.isNotEmpty ? nextPageFeedbacks[0] : null;
+      });
+    } else {
+      // Optionally, show a message or indication that there are no more pages
+      _showToast('No more feedbacks available.');
+    }
+  }
+
+  void _fetchFeedbacks() {
+    final repository = FeedbackDetailsRepository(
+      baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+      page: pageNumber,
+    );
+
+    setState(() {
+      futureFeedbacks = repository.getFeedbacks();
+      futureFeedbacks.then((feedbacks) {
+        setState(() {
+          filteredFeedbacks = feedbacks;
+          selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
+        });
+      });
+    });
   }
 
   @override
@@ -135,15 +177,16 @@ class _feedback_pageState extends State<feedback_page> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Student deleted successfully')),
         );
-         setState(() {
+        setState(() {
           futureFeedbacks = FeedbackDetailsRepository(
-                  baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback')
+                  baseUrl:
+                      'https://cine-admin-xar9.onrender.com/admin/feedback',
+                  page: pageNumber)
               .getFeedbacks();
           futureFeedbacks.then((feedbacks) {
             setState(() {
               filteredFeedbacks = feedbacks;
-              selectedFeedback =
-                  feedbacks.isNotEmpty ? feedbacks[0] : null;
+              selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
             });
           });
         });
@@ -492,7 +535,7 @@ class _feedback_pageState extends State<feedback_page> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Container(
-                            height: screenHeight * 0.615,
+                            height: screenHeight * 0.570,
                             width: screenWidth * 0.25,
                             child: Center(child: CircularProgressIndicator()));
                       } else if (snapshot.hasError) {
@@ -505,7 +548,7 @@ class _feedback_pageState extends State<feedback_page> {
                       List<FeedbackDetails> feedbacks = filteredFeedbacks;
 
                       return SizedBox(
-                        height: screenHeight * 0.615,
+                        height: screenHeight * 0.570,
                         width: screenWidth * 0.25,
                         child: ListView.builder(
                           itemCount: feedbacks.length,
@@ -525,6 +568,35 @@ class _feedback_pageState extends State<feedback_page> {
                         ),
                       );
                     },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Previous Button
+                      IconButton(
+                        onPressed: pageNumber >= 2
+                            ? () {
+                                setState(() {
+                                  pageNumber--;
+                                  _fetchFeedbacks(); // Fetch feedbacks for the new page number
+                                });
+                              }
+                            : null, // Disable if on the first page
+                        icon: Icon(Icons.arrow_back_ios_rounded, size: 14),
+                        color: pageNumber >= 2 ? Colors.black : Colors.grey,
+                      ),
+
+                      Text(pageNumber.toString(),
+                          style: GoogleFonts.poppins(fontSize: 16)),
+
+                      // Next Button
+                      IconButton(
+                        onPressed: () {
+                          _checkAndFetchNextPage(); // Check and fetch next page if it has data
+                        },
+                        icon: Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                      ),
+                    ],
                   ),
                 ],
               ),

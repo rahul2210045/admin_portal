@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
 import 'package:admin_portal/Widgets/feedback_display_fields.dart';
 import 'package:admin_portal/Widgets/feedbackpage_button.dart';
@@ -11,8 +11,9 @@ import 'package:admin_portal/repository/feedback_details_repository.dart';
 import 'package:admin_portal/repository/models/feedbackModel.dart';
 import 'package:admin_portal/repository/models/feedback_details_model.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class feedback_page extends StatefulWidget {
   const feedback_page({super.key});
@@ -200,12 +201,16 @@ class _feedback_pageState extends State<feedback_page> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     if (isEditing == true) {
       return _buildFeedbackEditingPage();
     }
     return _buildFeedbackPage();
+  }
+   void _refreshList() {
+    _fetchFeedbacks();
   }
 
   Widget _buildFeedbackEditingPage() {
@@ -229,6 +234,7 @@ class _feedback_pageState extends State<feedback_page> {
                 future: feedbackRepository.fetchFeedbackQuestions(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
+                      print("145");
                     return Container(
                         height: screenHeight * 0.65,
                         child: Center(child: CircularProgressIndicator()));
@@ -246,13 +252,19 @@ class _feedback_pageState extends State<feedback_page> {
                         itemBuilder: (context, index) {
                           final question = questions[index];
                           return ques_feedback(
+                            
                             sequence: (index + 1).toString(),
                             question: question.question ?? 'No Question',
                             onTap: () {
+                              
                               deleteStudent(question.quesId.toString());
-                              // print('Question id is' +
-                              //     question.quesId.toString());
-                            },
+                              print('Question id is' +
+                                  question.quesId.toString());
+                                  
+                            }, 
+                            quesId: question.quesId.toString(), 
+                         onUpdate: _refreshList,
+                            
                           );
                         },
                       ),

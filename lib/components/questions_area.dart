@@ -125,6 +125,8 @@ class _QuestionAreaState extends State<QuestionArea> {
               updatedCorrectAnswer == '4');
     });
 
+    print('Updating question with ID: ${widget.quesId}');
+
     if (_isQuestionValid &&
         _areOptionsValid.every((valid) => valid) &&
         _isCorrectAnswerValid) {

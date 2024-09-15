@@ -99,38 +99,53 @@ class _feedback_pageState extends State<feedback_page> {
     // Clean up the controller when the widget is disposed
     _searchController.dispose();
     _addQuestioncontroller.dispose();
+    
     super.dispose();
   }
 
-  void _onSearchTextChanged() {
-    setState(() {
-      _filterFeedbacks(_searchController.text);
-      // Trigger a rebuild with the updated search text
-    });
+void _onSearchTextChanged() {
+  if (_searchController.text.isEmpty) {
+    // If search query is cleared, fetch paginated feedback
+    _fetchFeedbacks();
+  } else {
+    // Call the search API with the current text
+    _filterFeedbacks(_searchController.text);
+  }
+}
+
+void _filterFeedbacks(String query) async {
+  if (query.isEmpty) {
+    _fetchFeedbacks(); // Reset to paginated feedback when search is cleared
+    return;
   }
 
-  void _filterFeedbacks(String query) {
-    futureFeedbacks.then((feedbacks) {
+  // Determine if the query is likely a student number (all digits) or a name
+  final bool isStudentNumber = RegExp(r'^\d+$').hasMatch(query);
+
+  final searchUrl = isStudentNumber
+      ? 'https://cine-admin-xar9.onrender.com/admin/feedback/searchFeedback?studentNumber=$query'
+      : 'https://cine-admin-xar9.onrender.com/admin/feedback/searchFeedback?name=$query';
+
+  try {
+    final response = await http.get(Uri.parse(searchUrl));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      final List<FeedbackDetails> searchResults = jsonData
+          .map((json) => FeedbackDetails.fromJson(json))
+          .toList();
+
       setState(() {
-        if (query.isEmpty) {
-          filteredFeedbacks = feedbacks;
-        } else {
-          filteredFeedbacks = feedbacks.where((feedback) {
-            final studentName = feedback.student?.name?.toLowerCase() ?? '';
-            final studentNumber =
-                feedback.student?.studentNumber?.toLowerCase() ?? '';
-            final searchQuery = query.toLowerCase();
-            return studentName.contains(searchQuery) ||
-                studentNumber.contains(searchQuery);
-          }).toList();
-        }
-        if (!filteredFeedbacks.contains(selectedFeedback)) {
-          selectedFeedback =
-              filteredFeedbacks.isNotEmpty ? filteredFeedbacks[0] : null;
-        }
+        filteredFeedbacks = searchResults;
+        selectedFeedback = searchResults.isNotEmpty ? searchResults[0] : null;
       });
-    });
+    } else {
+      _showToast('Error: Failed to fetch search results');
+    }
+  } catch (e) {
+    _showToast('Error: $e');
   }
+}
 
   void _selectFeedback(int index) {
     setState(() {

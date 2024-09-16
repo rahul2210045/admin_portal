@@ -392,22 +392,22 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                       },
                     ),
 
-                    SizedBox(height: 12.0),
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                        hintText: 'Description',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 12.0),
-                    TextFormField(
-                      controller: _questionIdController,
-                      decoration: InputDecoration(
-                        hintText: 'Question ID',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
+                    // SizedBox(height: 12.0),
+                    // TextFormField(
+                    //   controller: _descriptionController,
+                    //   decoration: InputDecoration(
+                    //     hintText: 'Description',
+                    //     border: OutlineInputBorder(),
+                    //   ),
+                    // ),
+                    // SizedBox(height: 12.0),
+                    // TextFormField(
+                    //   controller: _questionIdController,
+                    //   decoration: InputDecoration(
+                    //     hintText: 'Question ID',
+                    //     border: OutlineInputBorder(),
+                    //   ),
+                    // ),
                     SizedBox(height: 16.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,

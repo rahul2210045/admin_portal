@@ -1,10 +1,15 @@
 import 'package:admin_portal/Widgets/Custom_Container.dart';
 import 'package:admin_portal/Widgets/student_details_card_new.dart';
+import 'package:admin_portal/components/custom_button.dart';
 import 'package:admin_portal/constants/constants.dart';
 import 'package:admin_portal/models/get_student_data_model.dart';
 import 'package:admin_portal/repository/get_student_repository.dart';
+import 'package:admin_portal/repository/search_repository.dart';
+import 'package:admin_portal/repository/search_student_num_repo.dart';
 import 'package:admin_portal/screens/candidate_add.dart';
 import 'package:flutter/material.dart';
+import 'package:admin_portal/Widgets/Screensize.dart';
+import 'dart:async';
 
 class candidate extends StatefulWidget {
   const candidate({super.key});
@@ -17,20 +22,91 @@ class _candidateState extends State<candidate> {
   String selectedCategory = 'Day Scholar Boys';
   late Future<List<GetStudentDataModel>> futureStudents;
   final StudentRepository studentRepository = StudentRepository();
+  final StudentSearchRepository studentSearchRepository = StudentSearchRepository();
+  final StudentNoSearchRepository studentNoSearchRepository = StudentNoSearchRepository();
   final TextEditingController searchController = TextEditingController();
-
+  int currentPage = 1;
+  bool hasMorePages = true;
+  Timer? _debounce;
   @override
   void initState() {
     super.initState();
-    futureStudents = studentRepository.fetchStudents();
+    futureStudents = studentRepository.fetchStudents(currentPage);
+    searchController.addListener(_onSearchChanged);
+  }
+   @override
+  void dispose() {
+    _debounce?.cancel(); // Cancel the timer if active
+    searchController.dispose();
+    super.dispose();
   }
 
-  void updateStudentList() {
+  void _onSearchChanged() {
+  if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+  _debounce = Timer(const Duration(seconds: 2), () {
+    final searchText = searchController.text;
+
+    if (searchText.isNotEmpty) {
+      if (RegExp(r'^[0-9]').hasMatch(searchText)) {
+        // If search starts with a number, call studentNoSearchRepository
+        setState(() {
+          futureStudents = studentNoSearchRepository.fetchStudents(searchText);
+        });
+      } else {
+        // If search starts with a character, call studentSearchRepository
+        setState(() {
+          futureStudents = studentSearchRepository.fetchStudents(searchText);
+        });
+      }
+    } else {
+      _fetchStudents(); // Fetch all students if search is cleared
+    }
+  });
+}
+
+  //  void _onSearchChanged() {
+  //   if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+  //   _debounce = Timer(const Duration(seconds: 2), () {
+  //     if (searchController.text.isNotEmpty) {
+  //       setState(() {
+  //         futureStudents = studentSearchRepository.fetchStudents(searchController.text);
+  //       });
+  //     } else {
+  //       _fetchStudents(); // Fetch all students if search is cleared
+  //     }
+  //   });
+  // }
+ void _fetchStudents() {
     setState(() {
-      futureStudents = studentRepository.fetchStudents();
+      futureStudents = studentRepository.fetchStudents(currentPage);
     });
   }
+  void updateStudentList() {
+    setState(() {
+      futureStudents = studentRepository.fetchStudents(currentPage);
+    });
+  }
+   void _prevPage() {
+    if (currentPage > 1) {
+      setState(() {
+        currentPage--;
+        _fetchStudents();
+      });
+    }
+  }
+   
+    void _nextPage() async {
+    // Check if the next page has data to decide whether to increment the page
+    List<GetStudentDataModel> nextStudents =
+        await studentRepository.fetchStudents(currentPage + 1);
 
+    if (nextStudents.isNotEmpty) {
+      currentPage++;
+      _fetchStudents();
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -157,6 +233,8 @@ class _candidateState extends State<candidate> {
                                           return Center(
                                               child: Text('No students found'));
                                         } else {
+                                          List<GetStudentDataModel> filteredStudents = snapshot.data!;
+                                          if (searchController.text.isEmpty) {
                                           String residency;
                                           String gender;
                                           switch (selectedCategory) {
@@ -180,26 +258,36 @@ class _candidateState extends State<candidate> {
                                               residency = '';
                                               gender = '';
                                           }
-
-                                          List<GetStudentDataModel>
-                                              filteredStudents =
-                                              snapshot.data!.where((student) {
-                                            if (searchController
-                                                .text.isNotEmpty) {
-                                              return student.studentNumber!
-                                                  .contains(
-                                                      searchController.text);
-                                            }
-                                            return student.residency ==
-                                                    residency &&
-                                                student.gender == gender;
-                                          }).toList();
+                                          // Apply filter based on selected category for student API
+                                            filteredStudents = snapshot.data!.where((student) {
+                                              return student.residency == residency &&
+                                                  student.gender == gender;
+                                            }).toList();
+                                          }
 
                                           if (filteredStudents.isEmpty) {
-                                            return Center(
-                                                child:
-                                                    Text('No students found'));
+                                            return Center(child: Text('No students found'));
                                           }
+                                //           List<GetStudentDataModel>
+                                //               filteredStudents =
+                                //               snapshot.data!.where((student) {
+                                //             if (searchController
+                                //                 .text.isNotEmpty) {
+                                //               return student.studentNumber!
+                                //                   .contains(
+                                //                       searchController.text);
+                                //             }
+                                //             return student.residency ==
+                                //                     residency &&
+                                //                 student.gender == gender;
+                                //           }).toList();
+                                //              print("Filtered Students: ${filteredStudents.length}");
+                                // print("Filtered Data: ${filteredStudents.map((e) => e.name).toList()}");
+                                //           if (filteredStudents.isEmpty) {
+                                //             return Center(
+                                //                 child:
+                                //                     Text('No students found'));
+                                //           }
 
                                           return ListView.builder(
                                             shrinkWrap: true,
@@ -226,7 +314,28 @@ class _candidateState extends State<candidate> {
                                     ),
                                   ],
                                 ),
+                              ),
+                              Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              CustomButton(
+                                  widthFactor: widthFactor,
+                                  heightFactor: heightFactor,
+                                  text: "Prev",
+                                  onPressed: _prevPage,
+                                  icon: Icons.arrow_back_ios_new_rounded),
+                              CustomButton(
+                                widthFactor: widthFactor,
+                                heightFactor: heightFactor,
+                                text: "Next",
+                                onPressed: _nextPage,
                               )
+                            ],
+                          ),
+                        ),
                             ],
                           ),
                         ),
@@ -297,10 +406,10 @@ class _candidateState extends State<candidate> {
                                     padding: const EdgeInsets.only(top: 16.0),
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceEvenly,
+                                          MainAxisAlignment.center,
                                       children: [
                                         _buildBottomButton2('Add+'),
-                                        _buildBottomButton('Search'),
+                                        // _buildBottomButton('Search'),
                                       ],
                                     ),
                                   ),
@@ -391,6 +500,7 @@ class _candidateState extends State<candidate> {
       onPressed: () {
         Navigator.push(
           context,
+          // '/candidateAdd',
           MaterialPageRoute(builder: (context) => candidateAdd()),
         );
       },

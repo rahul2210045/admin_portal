@@ -1,4 +1,3 @@
-import 'package:admin_portal/Widgets/Customized_Loader.dart';
 import 'package:admin_portal/Widgets/Screensize.dart';
 import 'package:admin_portal/components/socketmanager.dart';
 import 'package:admin_portal/constants/constants.dart';
@@ -128,7 +127,7 @@ class _LeaderTabelState extends State<LeaderTabel> {
                                   ),
                                   contentPadding:
                                       const EdgeInsets.symmetric(horizontal: 20),
-                                  labelText: "Search by name or student number...",
+                                  hintText: "Search by name or student number...",
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
                                       color: dividerColor,
@@ -151,7 +150,7 @@ class _LeaderTabelState extends State<LeaderTabel> {
                           margin: EdgeInsets.only(top: 150),
                           height: 50,
                           width: 50,
-                          child: CustomLoader(),
+                          child: CircularProgressIndicator(),
                         ),
                       )
                     : Padding(

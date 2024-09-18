@@ -35,7 +35,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   late http.Client client;
 
-  List<String> tabs = ["Java", "ADD+"];
+  List<String> tabs = ["C", "ADD+"];
   Map<String, List<dynamic>> subjectData = {};
   Map<String, List<String>> allQuestions = {};
   Map<String, List<List<String>>> allOptions = {};

@@ -125,7 +125,7 @@ class _QuestionAreaState extends State<QuestionArea> {
               updatedCorrectAnswer == '4');
     });
 
-    print('Updating question with ID: ${widget.quesId}');
+    // print('Updating question with ID: ${widget.quesId}');
 
     if (_isQuestionValid &&
         _areOptionsValid.every((valid) => valid) &&
@@ -134,6 +134,7 @@ class _QuestionAreaState extends State<QuestionArea> {
         Uri.parse('https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
+          
           "quesId": widget.quesId,
           "question": updatedQuestion,
           "options": updatedOptions,
@@ -370,46 +371,7 @@ class _QuestionAreaState extends State<QuestionArea> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-              // SizedBox(height: 50 * widget.heightFactor),
-              // Text(
-              //   "Explanation",
-              //   style: GoogleFonts.poppins(
-              //     color: Colors.black,
-              //     fontSize: 20 * widget.widthFactor,
-              //     fontWeight: FontWeight.w600,
-              //   ),
-              // ),
-              // Divider(
-              //   color: Colors.black,
-              //   thickness: 1,
-              //   height: 20 * widget.heightFactor,
-              // ),
-              // widget.isEditing
-              //     ? Column(
-              //         crossAxisAlignment: CrossAxisAlignment.start,
-              //         children: [
-              //           TextField(
-              //             controller: _explanationController,
-              //             style: GoogleFonts.poppins(
-              //               color: primaryText,
-              //               fontSize: 20 * widget.widthFactor,
-              //               fontWeight: FontWeight.w400,
-              //             ),
-              //             decoration: InputDecoration(
-              //               border: InputBorder.none,
-              //             ),
-              //             maxLines: null,
-              //           ),
-              //         ],
-              //       )
-              //     : Text(
-              //         widget.explanation,
-              //         style: GoogleFonts.poppins(
-              //           color: primaryText,
-              //           fontSize: 20 * widget.widthFactor,
-              //           fontWeight: FontWeight.w400,
-              //         ),
-              //       ),
+              
             ],
           ),
         ),

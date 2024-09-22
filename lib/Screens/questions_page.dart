@@ -55,6 +55,17 @@ class _QuestionScreenState extends State<QuestionScreen> {
     super.dispose();
   }
 
+  // Future<void> saveQuestionIds(String questionId) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+  //   questionIds.add(questionId);
+  //   await prefs.setStringList('questionIds', questionIds);
+  // }
+
+  // Future<List<String>> getQuestionIds() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getStringList('questionIds') ?? [];
+  // }
   Future<void> saveQuestionIds(List<String> questionIds) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('questionIds', questionIds);
@@ -63,10 +74,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   Future<List<String>> getQuestionIds() async {
     final prefs = await SharedPreferences.getInstance();
-    List<String> questionIds = prefs.getStringList('questionIds') ?? [];
-    // // print(
+    // List<String> questionIds = prefs.getStringList('questionIds') ?? [];
+    // print(
     //     'Stored question IDs: $questionIds'); // Print the retrieved question IDs
-    return questionIds;
+    // return questionIds;
+    return prefs.getStringList('questionIds') ?? [];
   }
 
   Future<void> addNewSubject(String newSubject) async {
@@ -83,7 +95,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-
   Future<void> fetchData({required String tab}) async {
     final apiUrl = 'https://cine-admin-xar9.onrender.com/admin/questions';
 
@@ -96,7 +107,10 @@ class _QuestionScreenState extends State<QuestionScreen> {
           tabs = jsonData.keys.where((key) => key != 'ADD+').toList();
           tabs.add('ADD+'); // Add the "ADD+" option at the end
           subjectData = Map.from(jsonData);
-          isLoading = false;
+          setState(() {
+            isLoading = false;
+          });
+          // isLoading = false;
           print('RESPONSE IS $tabs');
         } else if (tab != "ADD+") {
           // Tab not found in API response and is not the ADD+ tab
@@ -121,34 +135,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
 
   void deleteQuestion(int index) {
     if (index >= 0 && index < currentQuestionIds.length) {
-      print('Question ID: ${currentQuestionIds[index]}');
+      // print('Question ID: ${currentQuestionIds[index]}');
     }
     ;
     client = http.Client();
     fetchData(tab: tabs[selectedIndex]);
-    // setState(() {
-    //   String category = tabs[selectedIndex];
-    //   if (index >= 0 && index < currentQuestions.length) {
-    //     currentQuestions.removeAt(index);
-    //     currentOptions.removeAt(index);
-    //     currentCorrectAnswers.removeAt(index);
-    //     currentExplanations.removeAt(index);
-    //     adjustSelectedQuestionIndex(index);
-
-    //     // Update the global maps
-    //     allQuestions[category] = List.from(currentQuestions);
-    //     allOptions[category] = List.from(currentOptions);
-    //     allCorrectAnswers[category] = List.from(currentCorrectAnswers);
-    //     allExplanations[category] = List.from(currentExplanations);
-
-    //     // Check if there are no questions left
-    //     if (currentQuestions.isEmpty) {
-    //       selectedQuestionIndex = 0;
-    //     } else if (selectedQuestionIndex >= currentQuestions.length) {
-    //       selectedQuestionIndex = currentQuestions.length - 1;
-    //     }
-    //   }
-    // });
   }
 
   void parseData(Map<String, dynamic> jsonData, String tab) {
@@ -212,7 +203,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
       isError = false;
     });
   }
-
 
   void setErrorState() {
     setState(() {
@@ -348,8 +338,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
     });
   }
 
-
-
   void toggleEditingMode(int index) {
     setState(() {
       // Toggle the editing mode for the selected question
@@ -358,11 +346,11 @@ class _QuestionScreenState extends State<QuestionScreen> {
   }
 
   void updateQuestionDetails(
-      String newQuestion,
-      List<dynamic> options, // Change the parameter type to List<dynamic>
-      String newCorrectAnswer,
-      String newExplanation,
-      ) {
+    String newQuestion,
+    List<dynamic> options, // Change the parameter type to List<dynamic>
+    String newCorrectAnswer,
+    String newExplanation,
+  ) {
     setState(() {
       // Update the details of the selected question
       currentQuestions[selectedQuestionIndex] = newQuestion;
@@ -371,7 +359,8 @@ class _QuestionScreenState extends State<QuestionScreen> {
       currentOptions[selectedQuestionIndex] = options.map((option) {
         if (option is String) {
           return option; // If option is already String, return as is
-        } else if (option is Map<String, dynamic> && option.containsKey('desc')) {
+        } else if (option is Map<String, dynamic> &&
+            option.containsKey('desc')) {
           return option['desc'] as String; // Extract 'desc' if available
         } else {
           return option.toString(); // Fallback to string representation
@@ -385,7 +374,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
       editingQuestionIndex = -1;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -403,56 +391,62 @@ class _QuestionScreenState extends State<QuestionScreen> {
     double widthFactor = MediaQuery.of(context).size.width / 1440;
 
     return Stack(
-      children: [Scaffold(
-        backgroundColor: backgroundColor1,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(10 * widthFactor),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: CustomRoundedContainer(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildTabBar(heightFactor, widthFactor),
-                        // buildQuestionArea(heightFactor, widthFactor),
-                        FutureBuilder<Widget>(
-                          future: buildQuestionArea(heightFactor, widthFactor),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            } else {
-                              return snapshot.data ?? Container(); // Return the widget or a default container
-                            }
-                          },
-                        ),
-                        //   ],
-                        // ),
-                      ],
+      children: [
+        Scaffold(
+          backgroundColor: backgroundColor1,
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(10 * widthFactor),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: CustomRoundedContainer(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildTabBar(heightFactor, widthFactor),
+                          // buildQuestionArea(heightFactor, widthFactor),
+                          FutureBuilder<Widget>(
+                            future:
+                                buildQuestionArea(heightFactor, widthFactor),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else {
+                                return snapshot.data ??
+                                    Container(); // Return the widget or a default container
+                              }
+                            },
+                          ),
+                          //   ],
+                          // ),
+                        ],
+                      ),
+                      height: heightFactor * 1200,
+                      width: widthFactor * 735,
+                      padding: EdgeInsets.fromLTRB(
+                        20 * widthFactor,
+                        30 * heightFactor,
+                        20 * widthFactor,
+                        40 * heightFactor,
+                      ),
+                      margin: EdgeInsets.only(top: 20 * heightFactor),
+                      color: backgroundColor,
                     ),
-                    height: heightFactor * 1200,
-                    width: widthFactor * 735,
-                    padding: EdgeInsets.fromLTRB(
-                      20 * widthFactor,
-                      30 * heightFactor,
-                      20 * widthFactor,
-                      40 * heightFactor,
-                    ),
-                    margin: EdgeInsets.only(top: 20 * heightFactor),
-                    color: backgroundColor,
                   ),
-                ),
-                SizedBox(width: 20 * widthFactor),
-                buildRightSidebar(heightFactor, widthFactor),
-              ],
+                  SizedBox(width: 20 * widthFactor),
+                  buildRightSidebar(heightFactor, widthFactor),
+                ],
+              ),
             ),
           ),
         ),
-      ),
         if (isAddingTab)
           Container(
             color: Colors.black26, // Semi-transparent background
@@ -484,7 +478,7 @@ class _QuestionScreenState extends State<QuestionScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                      index == selectedIndex ? primaryColor : Colors.white,
+                          index == selectedIndex ? primaryColor : Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
@@ -494,8 +488,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
                       style: GoogleFonts.poppins(
                         fontSize: widthFactor * 14,
                         fontWeight: FontWeight.w500,
-                        color:
-                        index == selectedIndex ? Colors.white : Colors.black,
+                        color: index == selectedIndex
+                            ? Colors.white
+                            : Colors.black,
                       ),
                     ),
                   ),
@@ -522,10 +517,14 @@ class _QuestionScreenState extends State<QuestionScreen> {
   //   }
   // }
 
-  Future<Widget> buildQuestionArea(double heightFactor, double widthFactor) async {
+  Future<Widget> buildQuestionArea(
+      double heightFactor, double widthFactor) async {
     String questionId = '';
-    if (selectedIndex >= 0 && selectedIndex < tabs.length && tabs[selectedIndex] != "ADD+") {
-      if (selectedQuestionIndex >= 0 && selectedQuestionIndex < currentQuestions.length) {
+    if (selectedIndex >= 0 &&
+        selectedIndex < tabs.length &&
+        tabs[selectedIndex] != "ADD+") {
+      if (selectedQuestionIndex >= 0 &&
+          selectedQuestionIndex < currentQuestions.length) {
         List<Map<String, dynamic>> optionsWithId = [];
 
         // Prepare options with 'id' for QuestionArea widget
@@ -537,8 +536,9 @@ class _QuestionScreenState extends State<QuestionScreen> {
         }
 
         List<String> savedIds = await getQuestionIds();
-        if (selectedIndex < savedIds.length) {
-          questionId = savedIds[selectedIndex];
+        if (selectedQuestionIndex < savedIds.length) {
+          questionId = savedIds[selectedQuestionIndex];
+          // print("Question ID: $questionId");
           // deleteQuestion(questionId,
           //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
           // widget.onDeleteQuestion(selectedIndex);
@@ -554,8 +554,12 @@ class _QuestionScreenState extends State<QuestionScreen> {
           questionNumber: "Question-${selectedQuestionIndex + 1}",
           question: currentQuestions[selectedQuestionIndex],
           options: optionsWithId,
-          correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex ? currentCorrectAnswers[selectedQuestionIndex] : '',
-          explanation: currentExplanations.length > selectedQuestionIndex ? currentExplanations[selectedQuestionIndex] : '',
+          correctAnswer: currentCorrectAnswers.length > selectedQuestionIndex
+              ? currentCorrectAnswers[selectedQuestionIndex]
+              : '',
+          explanation: currentExplanations.length > selectedQuestionIndex
+              ? currentExplanations[selectedQuestionIndex]
+              : '',
           heightFactor: heightFactor,
           widthFactor: widthFactor,
           isEditing: editingQuestionIndex == selectedQuestionIndex,
@@ -574,7 +578,6 @@ class _QuestionScreenState extends State<QuestionScreen> {
       return Container();
     }
   }
-
 
   Widget buildRightSidebar(double heightFactor, double widthFactor) {
     return CustomRoundedContainer(

@@ -49,8 +49,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
   TextEditingController _correctAnswerUpdateController = TextEditingController();
   TextEditingController _descriptionUpdateController = TextEditingController();
   TextEditingController _questionIdUpdateController = TextEditingController();
-  // GlobalKey<ScaffoldMessengerState> _scaffoldKey =
-  //     GlobalKey<ScaffoldMessengerState>();
   Future<void> saveQuestionId(String questionId) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> questionIds = prefs.getStringList('questionIds') ?? [];
@@ -245,13 +243,6 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
 
     final _formKey = GlobalKey<FormState>();
 
-    // String _selectedLanguage = 'C++';
-    // final Map<String, Syntax> _languageMap = {
-    //   'C++': Syntax.CPP,
-    //   'Java': Syntax.JAVA,
-    //   'JavaScript': Syntax.JAVASCRIPT,
-    //   // Add other languages as needed
-    // };
 
     showDialog(
       context: context,
@@ -473,7 +464,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
     // Save the new question ID to SharedPreferences
     await saveQuestionId(questionId);
     List<String> savedIds = await getQuestionIds();
-    print('Question IDs saved: $savedIds');
+    // print('Question IDs saved: $savedIds');
 
     Navigator.of(context).pop();
     } else {
@@ -610,7 +601,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                         List<String> savedIds = await getQuestionIds();
                         if (index < savedIds.length) {
                           String questionId = savedIds[index];
-                          print('Clicked question ID: $questionId');
+                          // print('Clicked question ID: $questionId');
                         } else {
                           print('No question ID found for index $index');
                         }
@@ -686,116 +677,7 @@ class _QuestionsSidebarState extends State<QuestionsSidebar> {
                     ),
                   ),
                 ),
-                // ElevatedButton(
-                //   onPressed: () async {
-                //     if (_questionUpdateController.text.isNotEmpty &&
-                //         _option1UpdateController.text.isNotEmpty &&
-                //         _option2UpdateController.text.isNotEmpty &&
-                //         _option3UpdateController.text.isNotEmpty &&
-                //         _option4UpdateController.text.isNotEmpty &&
-                //         _correctAnswerUpdateController.text.isNotEmpty
-                //         // _descriptionController.text.isNotEmpty &&
-                //         // _questionIdController.text.isNotEmpty
-                //         ) {
-                //       String question = _questionUpdateController.text;
-                //       List<Map<String, String>> options = [
-                //         {"desc": _option1UpdateController.text, "id": "1"},
-                //         {"desc": _option2UpdateController.text, "id": "2"},
-                //         {"desc": _option3UpdateController.text, "id": "3"},
-                //         {"desc": _option4UpdateController.text, "id": "4"},
-                //       ];
-                //       String correctAnswer = _correctAnswerController.text;
-                //       // String description = _descriptionController.text;
-                //       String questionId='';
-                //
-                //       if (selectedIndex != -1) {
-                //         // Get question ID based on selectedIndex
-                //         List<String> savedIds = await getQuestionIds();
-                //         if (selectedIndex < savedIds.length) {
-                //            questionId = savedIds[selectedIndex];
-                //           // deleteQuestion(questionId,
-                //           //     _loadQuestions); // Call deleteQuestion with question ID and refresh function
-                //           widget.onDeleteQuestion(selectedIndex);
-                //         } else {
-                //           print('No question ID found for index $selectedIndex');
-                //         }
-                //       } else {
-                //         print('No question selected to delete');
-                //       }
-                //
-                //       var response = await http.patch(
-                //         Uri.parse(
-                //             'https://cine-admin-xar9.onrender.com/admin/updateQuestion'),
-                //         headers: {"Content-Type": "application/json"},
-                //         body: jsonEncode({
-                //           "question": question,
-                //           "options": options
-                //               .map((option) =>
-                //                   {"desc": option["desc"], "id": option["id"]})
-                //               .toList(),
-                //           "subject": widget.subject,
-                //
-                //           "quesId": '${questionId}',
-                //           "answer": correctAnswer,
-                //           // "description": description,
-                //         }),
-                //       );
-                //
-                //       print('Response status: ${response.statusCode}');
-                //       print('Response body: ${response.body}');
-                //
-                //       if (response.statusCode == 201) {
-                //         // widget.onAddNewQuestion(
-                //         //   question,
-                //         //   options.map((option) => option['desc'] ?? "").toList(),
-                //         //   correctAnswer,
-                //         //   // description,
-                //         //   questionId,
-                //         // );
-                //
-                //         // Save the new question ID to SharedPreferences
-                //         await saveQuestionId(questionId);
-                //         List<String> savedIds = await getQuestionIds();
-                //         print('Question IDs saved: $savedIds');
-                //
-                //         Navigator.of(context).pop();
-                //       } else {
-                //         if (response.statusCode == 500) {
-                //           print('Internal server error occurred');
-                //         } else {
-                //           print('Failed to add question');
-                //         }
-                //       }
-                //     }
-                //   },
-                //   //  () {
-                //   //   widget.onSaveQuestions(widget.questions);
-                //   //   Navigator.push(
-                //   //     context,
-                //   //     MaterialPageRoute(
-                //   //         builder: (context) => QuestionsDownload(
-                //   //             savedQuestions: widget.questions)),
-                //   //   );
-                //   // },
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: primaryColor,
-                //     shape: RoundedRectangleBorder(
-                //       borderRadius: BorderRadius.circular(8.0),
-                //     ),
-                //     padding: EdgeInsets.symmetric(
-                //       horizontal: 20 * widthFactor,
-                //       vertical: 10 * heightFactor,
-                //     ),
-                //   ),
-                //   child: Text(
-                //     "Save",
-                //     style: GoogleFonts.poppins(
-                //       color: Colors.white,
-                //       fontWeight: FontWeight.w500,
-                //       fontSize: widthFactor * 18,
-                //     ),
-                //   ),
-                // ),
+               
               ],
             ),
           ],

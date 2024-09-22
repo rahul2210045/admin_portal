@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:admin_portal/Widgets/custom_studentFeedback_listCard.dart';
 import 'package:admin_portal/Widgets/feedback_display_fields.dart';
 import 'package:admin_portal/Widgets/feedbackpage_button.dart';
@@ -9,7 +11,9 @@ import 'package:admin_portal/repository/feedback_details_repository.dart';
 import 'package:admin_portal/repository/models/feedbackModel.dart';
 import 'package:admin_portal/repository/models/feedback_details_model.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class feedback_page extends StatefulWidget {
   const feedback_page({super.key});
@@ -25,27 +29,191 @@ final FeedbackRepository feedbackRepository =
 class _feedback_pageState extends State<feedback_page> {
   late Future<List<FeedbackDetails>> futureFeedbacks;
   FeedbackDetails? selectedFeedback;
+  TextEditingController _searchController = TextEditingController();
+  List<FeedbackDetails> filteredFeedbacks = [];
+  TextEditingController _addQuestioncontroller = TextEditingController();
+  final ValueNotifier<bool> isAddButtonEnabled = ValueNotifier(false);
+  int pageNumber = 1;
 
   @override
   void initState() {
     super.initState();
     final repository = FeedbackDetailsRepository(
-        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback');
+        baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+        page: pageNumber);
     futureFeedbacks = repository.getFeedbacks();
     futureFeedbacks.then((feedbacks) {
       setState(() {
+        filteredFeedbacks = feedbacks;
         selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
+      });
+    });
+    // Attach listener to search controller
+    _searchController.addListener(_onSearchTextChanged);
+
+    // Attach listener to add question controller
+    _addQuestioncontroller.addListener(_onAddQuestionTextChanged);
+  }
+
+  void _checkAndFetchNextPage() async {
+    final repository = FeedbackDetailsRepository(
+      baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+      page: pageNumber + 1, // Check the next page
+    );
+
+    final nextPageFeedbacks = await repository.getFeedbacks();
+
+    if (nextPageFeedbacks.isNotEmpty) {
+      setState(() {
+        pageNumber++; // Increment page number
+        futureFeedbacks = Future.value(
+            nextPageFeedbacks); // Update feedbacks with next page data
+        filteredFeedbacks = nextPageFeedbacks;
+        selectedFeedback =
+            nextPageFeedbacks.isNotEmpty ? nextPageFeedbacks[0] : null;
+      });
+    } else {
+      // Optionally, show a message or indication that there are no more pages
+      _showToast('No more feedbacks available.');
+    }
+  }
+
+  void _fetchFeedbacks() {
+    final repository = FeedbackDetailsRepository(
+      baseUrl: 'https://cine-admin-xar9.onrender.com/admin/feedback',
+      page: pageNumber,
+    );
+
+    setState(() {
+      futureFeedbacks = repository.getFeedbacks();
+      futureFeedbacks.then((feedbacks) {
+        setState(() {
+          filteredFeedbacks = feedbacks;
+          selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
+        });
       });
     });
   }
 
-  void _selectFeedback(int index) {
-    futureFeedbacks.then((feedbacks) {
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed
+    _searchController.dispose();
+    _addQuestioncontroller.dispose();
+    
+    super.dispose();
+  }
+
+void _onSearchTextChanged() {
+  if (_searchController.text.isEmpty) {
+    // If search query is cleared, fetch paginated feedback
+    _fetchFeedbacks();
+  } else {
+    // Call the search API with the current text
+    _filterFeedbacks(_searchController.text);
+  }
+}
+
+void _filterFeedbacks(String query) async {
+  if (query.isEmpty) {
+    _fetchFeedbacks(); // Reset to paginated feedback when search is cleared
+    return;
+  }
+
+  // Determine if the query is likely a student number (all digits) or a name
+  final bool isStudentNumber = RegExp(r'^\d+$').hasMatch(query);
+
+  final searchUrl = isStudentNumber
+      ? 'https://cine-admin-xar9.onrender.com/admin/feedback/searchFeedback?studentNumber=$query'
+      : 'https://cine-admin-xar9.onrender.com/admin/feedback/searchFeedback?name=$query';
+
+  try {
+    final response = await http.get(Uri.parse(searchUrl));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      final List<FeedbackDetails> searchResults = jsonData
+          .map((json) => FeedbackDetails.fromJson(json))
+          .toList();
+
       setState(() {
-        selectedFeedback = feedbacks.isNotEmpty ? feedbacks[index] : null;
+        filteredFeedbacks = searchResults;
+        selectedFeedback = searchResults.isNotEmpty ? searchResults[0] : null;
       });
-      print('Selected Feedback: ${selectedFeedback?.student?.name}');
+    } else {
+      _showToast('Error: Failed to fetch search results');
+    }
+  } catch (e) {
+    _showToast('Error: $e');
+  }
+}
+
+  void _selectFeedback(int index) {
+    setState(() {
+      selectedFeedback = filteredFeedbacks[index];
     });
+  }
+
+  void _onAddQuestionTextChanged() {
+    isAddButtonEnabled.value = _addQuestioncontroller.text.trim().isNotEmpty;
+  }
+
+  void _showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.TOP,
+      webBgColor: "linear-gradient(to right, #00b09b, #96c93d)",
+      backgroundColor: Colors.black,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
+  Future<void> deleteStudent(String studentId) async {
+    var url = Uri.parse(
+        'https://cine-admin-xar9.onrender.com/admin/feedback/deleteFeedBackQuestion');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+
+    final body = jsonEncode({
+      "quesId": studentId,
+    });
+
+    try {
+      final response = await http.Request('DELETE', url)
+        ..headers.addAll(headers)
+        ..body = body;
+
+      final streamedResponse = await response.send();
+
+      if (streamedResponse.statusCode == 200) {
+        print(await streamedResponse.stream.bytesToString());
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Student deleted successfully')),
+        );
+        setState(() {
+          futureFeedbacks = FeedbackDetailsRepository(
+                  baseUrl:
+                      'https://cine-admin-xar9.onrender.com/admin/feedback',
+                  page: pageNumber)
+              .getFeedbacks();
+          futureFeedbacks.then((feedbacks) {
+            setState(() {
+              filteredFeedbacks = feedbacks;
+              selectedFeedback = feedbacks.isNotEmpty ? feedbacks[0] : null;
+            });
+          });
+        });
+      } else {
+        print(streamedResponse.reasonPhrase);
+        print('Failed to delete student.');
+      }
+    } catch (e) {
+      print('Error: $e');
+      print('Unexpected error occurred. Please try again later.');
+    }
   }
 
 
@@ -56,9 +224,11 @@ class _feedback_pageState extends State<feedback_page> {
     }
     return _buildFeedbackPage();
   }
+   void _refreshList() {
+    _fetchFeedbacks();
+  }
 
   Widget _buildFeedbackEditingPage() {
-    TextEditingController _addQuestioncontroller = TextEditingController();
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final repository =
@@ -79,11 +249,12 @@ class _feedback_pageState extends State<feedback_page> {
                 future: feedbackRepository.fetchFeedbackQuestions(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
+                      print("145");
                     return Container(
                         height: screenHeight * 0.65,
                         child: Center(child: CircularProgressIndicator()));
                   } else if (snapshot.hasError) {
-                    print(snapshot.error);
+                    // print(snapshot.error);
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(
@@ -96,8 +267,19 @@ class _feedback_pageState extends State<feedback_page> {
                         itemBuilder: (context, index) {
                           final question = questions[index];
                           return ques_feedback(
+                            
                             sequence: (index + 1).toString(),
                             question: question.question ?? 'No Question',
+                            onTap: () {
+                              
+                              deleteStudent(question.quesId.toString());
+                              print('Question id is' +
+                                  question.quesId.toString());
+                                  
+                            }, 
+                            quesId: question.quesId.toString(), 
+                         onUpdate: _refreshList,
+                            
                           );
                         },
                       ),
@@ -150,7 +332,7 @@ class _feedback_pageState extends State<feedback_page> {
                                       child: TextField(
                                         controller: _addQuestioncontroller,
                                         decoration: InputDecoration(
-                                          hintText: " Question",
+                                          hintText: "Question",
                                           border: OutlineInputBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8)),
@@ -176,12 +358,21 @@ class _feedback_pageState extends State<feedback_page> {
                                           fontSize: screenWidth * 0.01,
                                           buttonWidth: screenWidth * 0.084,
                                           onTap: () async {
-                                            AddFeedback feedback = await repository
-                                                .addFeedbackQuestion(
-                                                    _addQuestioncontroller.text);
-                                            _addQuestioncontroller.clear();
-                                            Navigator.of(context).pop();
-                                            setState(() {});
+                                            if (_addQuestioncontroller.text
+                                                .trim()
+                                                .isEmpty) {
+                                              _showToast(
+                                                  "Please enter valid qusetion");
+                                            } else {
+                                              AddFeedback feedback =
+                                                  await repository
+                                                      .addFeedbackQuestion(
+                                                          _addQuestioncontroller
+                                                              .text);
+                                              _addQuestioncontroller.clear();
+                                              Navigator.of(context).pop();
+                                              setState(() {});
+                                            }
                                           },
                                         ),
                                       ],
@@ -194,7 +385,8 @@ class _feedback_pageState extends State<feedback_page> {
                               ),
                               title: Text(
                                 "Add Question",
-                                style: TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w500),
                               ),
                             );
                           },
@@ -211,10 +403,9 @@ class _feedback_pageState extends State<feedback_page> {
     );
   }
 
- Widget _buildFeedbackPage() {
+  Widget _buildFeedbackPage() {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    TextEditingController  _searchController=TextEditingController();
 
     return Scaffold(
       backgroundColor: backgroundColor1,
@@ -350,15 +541,18 @@ class _feedback_pageState extends State<feedback_page> {
                       Container(
                         height: screenHeight * 0.06,
                         width: screenWidth * 0.25,
-                        child:  TextField(
-                                        controller: _searchController,
-                                        decoration: InputDecoration(
-                                          hintText: "Search Candidate",
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8)),
-                                        ),
-                                      ),
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (value) {
+                            setState(() {}); // Trigger rebuild on text change
+                          },
+                          decoration: InputDecoration(
+                            suffixIcon: Icon(Icons.search),
+                            hintText: "Search Candidate",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -368,7 +562,7 @@ class _feedback_pageState extends State<feedback_page> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Container(
-                            height: screenHeight * 0.615,
+                            height: screenHeight * 0.570,
                             width: screenWidth * 0.25,
                             child: Center(child: CircularProgressIndicator()));
                       } else if (snapshot.hasError) {
@@ -377,10 +571,11 @@ class _feedback_pageState extends State<feedback_page> {
                         return Center(child: Text('No feedback found'));
                       }
 
-                      List<FeedbackDetails> feedbacks = snapshot.data!;
+                      // Filter feedbacks based on search text
+                      List<FeedbackDetails> feedbacks = filteredFeedbacks;
 
                       return SizedBox(
-                        height: screenHeight * 0.615,
+                        height: screenHeight * 0.570,
                         width: screenWidth * 0.25,
                         child: ListView.builder(
                           itemCount: feedbacks.length,
@@ -400,6 +595,35 @@ class _feedback_pageState extends State<feedback_page> {
                         ),
                       );
                     },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Previous Button
+                      IconButton(
+                        onPressed: pageNumber >= 2
+                            ? () {
+                                setState(() {
+                                  pageNumber--;
+                                  _fetchFeedbacks(); // Fetch feedbacks for the new page number
+                                });
+                              }
+                            : null, // Disable if on the first page
+                        icon: Icon(Icons.arrow_back_ios_rounded, size: 14),
+                        color: pageNumber >= 2 ? Colors.black : Colors.grey,
+                      ),
+
+                      Text(pageNumber.toString(),
+                          style: GoogleFonts.poppins(fontSize: 16)),
+
+                      // Next Button
+                      IconButton(
+                        onPressed: () {
+                          _checkAndFetchNextPage(); // Check and fetch next page if it has data
+                        },
+                        icon: Icon(Icons.arrow_forward_ios_rounded, size: 14),
+                      ),
+                    ],
                   ),
                 ],
               ),

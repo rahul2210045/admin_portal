@@ -36,7 +36,7 @@ class Graph extends StatelessWidget {
     });
 
     double maxY = ((yData.reduce((curr, next) => curr > next ? curr : next) + 50) / 50).ceil() * 50;
-    double interval = 50;
+    // double interval = 50;
 
     return LayoutBuilder(
       builder: (context, constraints) {

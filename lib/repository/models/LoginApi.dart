@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class LoginApi {
-  final String baseUrl = "http://cine-admin-xar9.onrender.com/admin/login"; 
+  final String baseUrl = "https://cine-admin-xar9.onrender.com/admin/login"; 
 
   Future<bool> login(String username, String password) async {
     try {
@@ -14,7 +14,7 @@ class LoginApi {
           "Accept": "application/json",
         },
         body: jsonEncode(<String, String>{
-          'username': username,
+          'adminid': username,
           'password': password,
         }),
       );

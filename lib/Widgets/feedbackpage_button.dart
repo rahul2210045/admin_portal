@@ -1,6 +1,7 @@
 import 'package:admin_portal/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+
 
 class feedback_button extends StatefulWidget {
   final String text;
@@ -13,7 +14,8 @@ class feedback_button extends StatefulWidget {
       required this.text,
       required this.buttonHeight,
       required this.buttonWidth,
-      this.onTap, required this.fontSize});
+      this.onTap,
+      required this.fontSize});
 
   @override
   State<feedback_button> createState() => _feedback_buttonState();
@@ -28,13 +30,11 @@ class _feedback_buttonState extends State<feedback_button> {
       child: ElevatedButton(
         onPressed: widget.onTap,
         child: Text(widget.text),
-        style: ButtonStyle(
-          //uncomment this code to change the button color
-            // backgroundColor: WidgetStatePropertyAll(primaryColor),
-            // foregroundColor: WidgetStatePropertyAll(Colors.white),
-            // shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(5)))
-                ),
+        // style: ButtonStyle(
+        //     backgroundColor: WidgetStatePropertyAll(primaryColor),
+        //     foregroundColor: WidgetStatePropertyAll(Colors.white),
+        //     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(5)))),
       ),
     );
   }
